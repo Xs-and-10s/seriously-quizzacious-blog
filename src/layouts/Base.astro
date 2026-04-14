@@ -1,0 +1,44 @@
+---
+// src/layouts/Base.astro
+import { ClientRouter } from "astro:transitions";
+import "@styles/global.css";
+
+interface Props {
+    title: string;
+    description?: string;
+}
+
+const { title, description = "" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content={description} />
+        <title>{title}</title>
+
+        <!-- @the-design-system/layout — no build step -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@the-design-system/layout/dist/core.css"
+        />
+        <script
+            type="module"
+            src="https://cdn.jsdelivr.net/npm/@the-design-system/layout/dist/index.js"
+        ></script>
+
+        <!-- Datastar Pro (self-hosted, licensed to @Xs-and-10s) -->
+        <script type="module" src="/datastar-pro-aliased.js"></script>
+
+        <!-- Astro 6 client-side router (replaces <ViewTransitions />) -->
+        <ClientRouter />
+
+        <!-- Page-specific head content (fonts, styles, etc.) -->
+        <slot name="head" />
+    </head>
+    <body>
+        <slot />
+    </body>
+</html>

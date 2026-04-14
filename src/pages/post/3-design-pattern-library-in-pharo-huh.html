@@ -1,0 +1,2743 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PatternKit · Pharo Pattern Library</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            :root {
+                --bg: #09090f;
+                --s0: #0e0e18;
+                --s1: #121220;
+                --s2: #17172a;
+                --b0: #1e1e38;
+                --b1: #282848;
+                --b2: #363662;
+                --text: #bbbdd4;
+                --text2: #6b6d8a;
+                --text3: #35364a;
+                --white: #e8eaf8;
+                --acc: #e8b84b;
+                --acc2: rgba(232, 184, 75, 0.1);
+                --teal: #3dd9c8;
+                --teal2: rgba(61, 217, 200, 0.08);
+                --red: #f06080;
+                --red2: rgba(240, 96, 128, 0.1);
+                --green: #52d48a;
+                --green2: rgba(82, 212, 138, 0.1);
+                --purple: #c084fc;
+                --blue: #60a5fa;
+                --tier1: #52d48a;
+                --tier2: #e8b84b;
+                --tier3: #f06080;
+                --tier1b: rgba(82, 212, 138, 0.1);
+                --tier2b: rgba(232, 184, 75, 0.1);
+                --tier3b: rgba(240, 96, 128, 0.1);
+                --cm: #4a5568;
+                --cs: #68c87e;
+                --cn: #e8a060;
+                --ck: #c084fc;
+                --cc: #f0c060;
+                --cg: #7aa8f0;
+                --cy: #5ac8e0;
+                --car: #f08090;
+            }
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                font-family: "DM Sans", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                font-size: 14px;
+                line-height: 1.7;
+            }
+
+            /* ── LAYOUT ── */
+            .wrap {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 32px 80px;
+            }
+
+            /* ── HEADER ── */
+            header {
+                background: var(--s0);
+                border-bottom: 1px solid var(--b0);
+                padding: 48px 32px 36px;
+                margin-bottom: 0;
+            }
+            header .eyebrow {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                color: var(--acc);
+                margin-bottom: 14px;
+            }
+            header h1 {
+                font-family: "Fraunces", serif;
+                font-size: clamp(28px, 4vw, 50px);
+                font-weight: 900;
+                color: var(--white);
+                line-height: 1.08;
+                margin-bottom: 12px;
+            }
+            header h1 em {
+                color: var(--acc);
+                font-style: italic;
+            }
+            header .sub {
+                color: var(--text2);
+                max-width: 680px;
+                font-size: 14px;
+                line-height: 1.75;
+            }
+
+            /* ── TIER TABLE ── */
+            .tier-table {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0;
+                border: 1px solid var(--b0);
+                border-radius: 12px;
+                overflow: hidden;
+                margin: 32px 0;
+            }
+            .tier-col {
+                padding: 20px 22px;
+            }
+            .tier-col.t1 {
+                background: var(--tier1b);
+                border-right: 1px solid var(--b0);
+            }
+            .tier-col.t2 {
+                background: var(--tier2b);
+                border-right: 1px solid var(--b0);
+            }
+            .tier-col.t3 {
+                background: var(--tier3b);
+            }
+            .tier-col h3 {
+                font-family: "Fraunces", serif;
+                font-size: 14px;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+            .t1 h3 {
+                color: var(--tier1);
+            }
+            .t2 h3 {
+                color: var(--tier2);
+            }
+            .t3 h3 {
+                color: var(--tier3);
+            }
+            .tier-col .count {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 32px;
+                font-weight: 600;
+                line-height: 1;
+                margin-bottom: 10px;
+            }
+            .t1 .count {
+                color: var(--tier1);
+            }
+            .t2 .count {
+                color: var(--tier2);
+            }
+            .t3 .count {
+                color: var(--tier3);
+            }
+            .tier-col p {
+                font-size: 12.5px;
+                color: var(--text2);
+                line-height: 1.65;
+            }
+            .tier-patterns {
+                margin-top: 10px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+            .tp {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                padding: 2px 7px;
+                border-radius: 3px;
+            }
+            .t1 .tp {
+                background: rgba(82, 212, 138, 0.15);
+                color: var(--tier1);
+            }
+            .t2 .tp {
+                background: rgba(232, 184, 75, 0.15);
+                color: var(--tier2);
+            }
+            .t3 .tp {
+                background: rgba(240, 96, 128, 0.15);
+                color: var(--tier3);
+            }
+
+            /* ── SECTION HEADERS ── */
+            .section-head {
+                padding: 36px 0 20px;
+                border-bottom: 1px solid var(--b0);
+                margin-bottom: 28px;
+            }
+            .section-head .section-eyebrow {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+            }
+            .section-head h2 {
+                font-family: "Fraunces", serif;
+                font-size: clamp(20px, 2.5vw, 30px);
+                font-weight: 700;
+                color: var(--white);
+                margin-bottom: 6px;
+            }
+            .section-head p {
+                color: var(--text2);
+                font-size: 13px;
+                max-width: 700px;
+            }
+
+            /* ── PATTERN ENTRY ── */
+            .pattern-entry {
+                border: 1px solid var(--b0);
+                border-radius: 10px;
+                overflow: hidden;
+                margin-bottom: 16px;
+            }
+            .pe-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 18px;
+                background: var(--s1);
+                border-bottom: 1px solid var(--b0);
+                cursor: pointer;
+                user-select: none;
+            }
+            .pe-header:hover {
+                background: var(--s2);
+            }
+            .pe-num {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                color: var(--text3);
+                min-width: 22px;
+            }
+            .pe-name {
+                font-family: "Fraunces", serif;
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--white);
+                flex: 1;
+            }
+            .pe-cat {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                padding: 2px 8px;
+                border-radius: 3px;
+            }
+            .cat-C {
+                background: rgba(192, 132, 252, 0.12);
+                color: #c084fc;
+            }
+            .cat-S {
+                background: rgba(56, 189, 248, 0.12);
+                color: #60a5fa;
+            }
+            .cat-B {
+                background: rgba(52, 211, 153, 0.12);
+                color: #4ade80;
+            }
+            .pe-badge {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                padding: 2px 8px;
+                border-radius: 3px;
+                white-space: nowrap;
+            }
+            .badge-full {
+                background: var(--tier1b);
+                color: var(--tier1);
+                border: 1px solid rgba(82, 212, 138, 0.2);
+            }
+            .badge-partial {
+                background: var(--tier2b);
+                color: var(--tier2);
+                border: 1px solid rgba(232, 184, 75, 0.2);
+            }
+            .badge-native {
+                background: var(--teal2);
+                color: var(--teal);
+                border: 1px solid rgba(61, 217, 200, 0.2);
+            }
+            .pe-chevron {
+                color: var(--text3);
+                font-size: 12px;
+                transition: transform 0.2s;
+            }
+            .pe-header.open .pe-chevron {
+                transform: rotate(180deg);
+            }
+            .pe-body {
+                display: none;
+                padding: 18px 18px 20px;
+            }
+            .pe-body.open {
+                display: block;
+            }
+            .pe-note {
+                font-size: 13px;
+                color: var(--text2);
+                line-height: 1.7;
+                border-left: 2px solid var(--b1);
+                padding: 6px 12px;
+                margin-bottom: 16px;
+            }
+            .pe-note strong {
+                color: var(--text);
+            }
+
+            /* ── SPLIT LAYOUT ── */
+            .split {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+            }
+            @media (max-width: 800px) {
+                .split {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .split-label {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.15em;
+                text-transform: uppercase;
+                color: var(--text3);
+                margin-bottom: 6px;
+            }
+
+            /* ── CODE BLOCKS ── */
+            .code-wrap {
+                background: #060610;
+                border: 1px solid var(--b0);
+                border-radius: 7px;
+                overflow: hidden;
+            }
+            .code-title {
+                background: var(--s1);
+                border-bottom: 1px solid var(--b0);
+                padding: 6px 12px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                color: var(--text2);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .code-title .dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--b2);
+                margin-right: 6px;
+                display: inline-block;
+            }
+            pre.code {
+                padding: 14px 16px;
+                overflow-x: auto;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 12px;
+                line-height: 1.7;
+                color: #9ca3c0;
+                tab-size: 4;
+            }
+            /* Syntax */
+            .cm {
+                color: var(--cm);
+                font-style: italic;
+            }
+            .cs {
+                color: var(--cs);
+            }
+            .cn {
+                color: var(--cn);
+            }
+            .ck {
+                color: var(--ck);
+            }
+            .cc {
+                color: var(--cc);
+            }
+            .cg {
+                color: var(--cg);
+            }
+            .cy {
+                color: var(--cy);
+            }
+            .car {
+                color: var(--car);
+            }
+            .ch {
+                color: #aaa;
+                opacity: 0.5;
+            }
+
+            /* ── CANNOT SECTION ── */
+            .cannot-card {
+                background: var(--tier3b);
+                border: 1px solid rgba(240, 96, 128, 0.2);
+                border-radius: 10px;
+                padding: 24px 26px;
+                margin-bottom: 16px;
+            }
+            .cannot-card h3 {
+                font-family: "Fraunces", serif;
+                font-size: 18px;
+                font-weight: 700;
+                color: var(--red);
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .cannot-card p {
+                font-size: 13px;
+                color: var(--text2);
+                line-height: 1.75;
+                margin-bottom: 12px;
+            }
+            .cannot-card p:last-child {
+                margin-bottom: 0;
+            }
+            .cannot-card strong {
+                color: var(--text);
+            }
+            .cannot-card .code-wrap {
+                margin-top: 14px;
+            }
+            .insight-box {
+                background: var(--s1);
+                border: 1px solid var(--b1);
+                border-left: 3px solid var(--acc);
+                border-radius: 0 7px 7px 0;
+                padding: 12px 16px;
+                font-size: 13px;
+                color: var(--text2);
+                line-height: 1.7;
+                margin-top: 14px;
+            }
+            .insight-box strong {
+                color: var(--acc);
+            }
+
+            /* ── NAV ── */
+            .sticky-nav {
+                background: var(--s0);
+                border-bottom: 1px solid var(--b0);
+                padding: 10px 32px;
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+            .sticky-nav::-webkit-scrollbar {
+                display: none;
+            }
+            .nav-link {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--text3);
+                text-decoration: none;
+                white-space: nowrap;
+                padding: 4px 10px;
+                border-radius: 4px;
+                border: 1px solid transparent;
+                transition: all 0.12s;
+            }
+            .nav-link:hover,
+            .nav-link.t1 {
+                border-color: rgba(82, 212, 138, 0.3);
+                color: var(--tier1);
+            }
+            .nav-link.t2 {
+                border-color: rgba(232, 184, 75, 0.3);
+                color: var(--tier2);
+            }
+            .nav-link.t3 {
+                border-color: rgba(240, 96, 128, 0.3);
+                color: var(--tier3);
+            }
+            .nav-sep {
+                color: var(--text3);
+                font-size: 12px;
+            }
+
+            /* ── VERDICT SUMMARY ── */
+            .verdict {
+                background: var(--s1);
+                border: 1px solid var(--b1);
+                border-radius: 10px;
+                padding: 20px 24px;
+                margin: 32px 0 40px;
+            }
+            .verdict h3 {
+                font-family: "Fraunces", serif;
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--white);
+                margin-bottom: 10px;
+            }
+            .verdict p {
+                font-size: 13px;
+                color: var(--text2);
+                line-height: 1.75;
+                margin-bottom: 8px;
+            }
+            .verdict p:last-child {
+                margin-bottom: 0;
+            }
+            .verdict strong {
+                color: var(--acc);
+            }
+
+            ::-webkit-scrollbar {
+                width: 5px;
+                height: 5px;
+            }
+            ::-webkit-scrollbar-track {
+                background: var(--bg);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: var(--b1);
+                border-radius: 3px;
+            }
+            @media (max-width: 700px) {
+                .wrap {
+                    padding: 0 16px 60px;
+                }
+                header {
+                    padding: 28px 16px 24px;
+                }
+                .sticky-nav {
+                    padding: 8px 16px;
+                }
+                .tier-table {
+                    grid-template-columns: 1fr;
+                }
+                .tier-col {
+                    border-right: none !important;
+                    border-bottom: 1px solid var(--b0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- HEADER -->
+        <header>
+            <div class="eyebrow">
+                PatternKit · Pharo 12 · All 23 GoF Patterns
+            </div>
+            <h1>Can a pattern library<br />be written for <em>Pharo</em>?</h1>
+            <p class="sub">
+                The answer is nuanced. 21 of the 23 GoF patterns can be
+                encapsulated to some degree — reducing pattern boilerplate from
+                scratch-every-time to subclass-and-fill-in-the-blanks. Two
+                patterns fundamentally <em>cannot</em> be encapsulated, and
+                understanding <em>why</em> teaches you something deep about OO
+                design.
+            </p>
+        </header>
+
+        <!-- STICKY NAV -->
+        <div class="sticky-nav">
+            <a href="#tier1" class="nav-link t1">Tier 1 · Fully Encapsulated</a>
+            <span class="nav-sep">·</span>
+            <a href="#tier2" class="nav-link t2"
+                >Tier 2 · Partially Encapsulated</a
+            >
+            <span class="nav-sep">·</span>
+            <a href="#tier3" class="nav-link t3">Tier 3 · Cannot Encapsulate</a>
+        </div>
+
+        <div class="wrap">
+            <!-- TIER OVERVIEW TABLE -->
+            <div class="tier-table">
+                <div class="tier-col t1">
+                    <div class="count">9</div>
+                    <h3>Fully Encapsulated</h3>
+                    <p>
+                        The library does all the structural wiring. You
+                        subclass, pass a block, or just use the class directly.
+                        Zero boilerplate to rewrite.
+                    </p>
+                    <div class="tier-patterns">
+                        <span class="tp">Singleton</span
+                        ><span class="tp">Command+Undo</span
+                        ><span class="tp">Chain</span>
+                        <span class="tp">Flyweight</span
+                        ><span class="tp">Observer</span
+                        ><span class="tp">State Machine</span>
+                        <span class="tp">Memento</span
+                        ><span class="tp">Decorator</span
+                        ><span class="tp">Proxy</span>
+                    </div>
+                </div>
+                <div class="tier-col t2">
+                    <div class="count">12</div>
+                    <h3>Partially Encapsulated</h3>
+                    <p>
+                        The library eliminates structural boilerplate.
+                        Domain-specific logic still requires subclassing, but
+                        the scaffolding is pre-built.
+                    </p>
+                    <div class="tier-patterns">
+                        <span class="tp">Prototype</span
+                        ><span class="tp">Factory</span
+                        ><span class="tp">Abstract Factory</span>
+                        <span class="tp">Builder</span
+                        ><span class="tp">Composite</span
+                        ><span class="tp">Adapter</span>
+                        <span class="tp">Flyweight ctx</span
+                        ><span class="tp">Iterator</span
+                        ><span class="tp">Mediator</span>
+                        <span class="tp">Visitor</span
+                        ><span class="tp">Interpreter</span
+                        ><span class="tp">Bridge</span>
+                    </div>
+                </div>
+                <div class="tier-col t3">
+                    <div class="count">2</div>
+                    <h3>Cannot Encapsulate</h3>
+                    <p>
+                        Not a limitation of Pharo — a fundamental truth about
+                        these patterns. A library class would add nothing beyond
+                        <code>Object</code>.
+                    </p>
+                    <div class="tier-patterns">
+                        <span class="tp">Facade</span
+                        ><span class="tp">Template Method</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="verdict">
+                <h3>Install the library — use it like this</h3>
+                <p>
+                    Load <strong>PatternKit</strong> from a Metacello baseline.
+                    Every class is prefixed <code>PK</code>. For
+                    fully-encapsulated patterns, you may never need to write a
+                    single pattern class from scratch again. For
+                    partially-encapsulated ones, you subclass one of the
+                    <code>PK*</code> base classes and override only what's
+                    domain-specific.
+                </p>
+                <p>
+                    The library ships with every pattern as a
+                    <strong>working example</strong> in its test suite — the
+                    tests are the best usage documentation.
+                </p>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     TIER 1
+══════════════════════════════════════ -->
+            <div id="tier1" class="section-head">
+                <div class="section-eyebrow" style="color: var(--tier1)">
+                    Tier 1
+                </div>
+                <h2 style="color: var(--tier1)">Fully Encapsulated</h2>
+                <p>
+                    These patterns can be reduced to zero structural
+                    boilerplate. Pass blocks for variable behavior, or simply
+                    subclass with no overrides required for the common case.
+                </p>
+            </div>
+
+            <!-- T1-01 SINGLETON -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">01</span>
+                    <span class="pe-name">Singleton</span>
+                    <span class="pe-cat cat-C">Creational</span>
+                    <span class="pe-badge badge-full">Fully Encapsulated</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        Key trick:
+                        <strong>class-instance variables</strong> (not class
+                        variables). Each subclass of
+                        <code>PKSingleton</code> gets its own independent
+                        <code>uniqueInstance</code> slot on its metaclass — not
+                        shared with siblings.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">Library · PKSingleton</div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Creational</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKSingleton</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames:    <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Creational'</span>
+
+<span class="cm">"Class-instance var — one per subclass's metaclass,
+ NOT shared across the hierarchy like classVariableNames"</span>
+<span class="cc">PKSingleton</span> class
+    instanceVariableNames: <span class="cs">'uniqueInstance'</span>
+
+<span class="cc">PKSingleton</span> class >> <span class="cg">uniqueInstance</span>
+    uniqueInstance isNil ifTrue: [
+        uniqueInstance := super new initialize ].
+    <span class="car">^</span> uniqueInstance
+
+<span class="cm">"Block direct new calls at the subclass level"</span>
+<span class="cc">PKSingleton</span> class >> <span class="cg">new</span>
+    <span class="car">^</span> self error: <span class="cs">'Use '</span> , self name , <span class="cs">' uniqueInstance'</span>
+
+<span class="cm">"Essential for test isolation"</span>
+<span class="cc">PKSingleton</span> class >> <span class="cg">resetForTesting</span>
+    uniqueInstance := nil</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — zero boilerplate
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Subclass — that's it. No class var, no guard logic."</span>
+<span class="cc">PKSingleton</span> subclass: <span class="cy">#AppConfig</span>
+    instanceVariableNames: <span class="cs">'settings'</span>
+    classVariableNames:    <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+
+<span class="cc">AppConfig</span> >> <span class="cg">initialize</span>
+    settings := <span class="cc">Dictionary</span> new.
+    settings <span class="cg">at:</span> <span class="cy">#host</span> <span class="cg">put:</span> <span class="cs">'localhost'</span>.
+    settings <span class="cg">at:</span> <span class="cy">#port</span> <span class="cg">put:</span> <span class="cn">8080</span>
+
+<span class="cc">AppConfig</span> >> <span class="cg">at:</span> k        <span class="car">^</span> settings <span class="cg">at:</span> k
+<span class="cc">AppConfig</span> >> <span class="cg">at:</span> k <span class="cg">put:</span> v  settings <span class="cg">at:</span> k <span class="cg">put:</span> v
+
+<span class="cm">"Usage"</span>
+<span class="cc">AppConfig</span> uniqueInstance <span class="cg">at:</span> <span class="cy">#host</span>.
+<span class="cm">"=> 'localhost'"</span>
+<span class="cc">AppConfig</span> uniqueInstance == <span class="cc">AppConfig</span> uniqueInstance.
+<span class="cm">"=> true"</span>
+<span class="cc">AppConfig</span> new.
+<span class="cm">"=> Error: Use AppConfig uniqueInstance"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- T1-02 COMMAND -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">02</span>
+                    <span class="pe-name">Command + Undo History</span>
+                    <span class="pe-cat cat-B">Behavioral</span>
+                    <span class="pe-badge badge-full">Fully Encapsulated</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        Two classes: <code>PKCommand</code> parameterized with
+                        execute/undo blocks, and
+                        <code>PKCommandHistory</code> managing a bounded
+                        undo/redo stack.
+                        <strong>No subclassing ever needed.</strong>
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKCommand + PKCommandHistory
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Behavioral</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKCommand</span>
+    instanceVariableNames: <span class="cs">'execBlock undoBlock label'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKCommand</span> class >> <span class="cg">execute:</span> eBlk <span class="cg">undo:</span> uBlk
+    <span class="car">^</span> self new
+        pvtExec: eBlk undo: uBlk;
+        yourself
+
+<span class="cc">PKCommand</span> class >> <span class="cg">execute:</span> eBlk <span class="cg">undo:</span> uBlk <span class="cg">label:</span> s
+    <span class="car">^</span> (self <span class="cg">execute:</span> eBlk <span class="cg">undo:</span> uBlk) <span class="cg">label:</span> s; yourself
+
+<span class="cc">PKCommand</span> >> <span class="cg">pvtExec:</span> e <span class="cg">undo:</span> u  execBlock := e. undoBlock := u
+<span class="cc">PKCommand</span> >> <span class="cg">label:</span> s            label := s
+<span class="cc">PKCommand</span> >> label               <span class="car">^</span> label ifNil: [<span class="cs">'Command'</span>]
+<span class="cc">PKCommand</span> >> <span class="cg">execute</span>             execBlock value
+<span class="cc">PKCommand</span> >> <span class="cg">undo</span>
+    undoBlock isNil ifTrue: [
+        <span class="car">^</span> self error: self label , <span class="cs">' has no undo'</span> ].
+    undoBlock value
+<span class="cc">PKCommand</span> >> isUndoable  <span class="car">^</span> undoBlock notNil
+
+<span class="cm">"────────────────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKCommandHistory</span>
+    instanceVariableNames: <span class="cs">'undoStack redoStack limit'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKCommandHistory</span> >> <span class="cg">initialize</span>
+    undoStack := <span class="cc">OrderedCollection</span> new.
+    redoStack := <span class="cc">OrderedCollection</span> new.
+    limit := <span class="cn">100</span>
+
+<span class="cc">PKCommandHistory</span> >> <span class="cg">limit:</span> n   limit := n
+
+<span class="cc">PKCommandHistory</span> >> <span class="cg">execute:</span> cmd
+    cmd execute.
+    undoStack <span class="cg">addLast:</span> cmd.
+    undoStack size > limit <span class="cg">ifTrue:</span> [undoStack <span class="cg">removeFirst</span>].
+    redoStack <span class="cg">removeAll</span>
+
+<span class="cc">PKCommandHistory</span> >> <span class="cg">undo</span>
+    undoStack isEmpty <span class="cg">ifTrue:</span> [<span class="car">^</span> self].
+    | cmd | cmd := undoStack <span class="cg">removeLast</span>.
+    cmd undo.
+    redoStack <span class="cg">addLast:</span> cmd. <span class="car">^</span> cmd
+
+<span class="cc">PKCommandHistory</span> >> <span class="cg">redo</span>
+    redoStack isEmpty <span class="cg">ifTrue:</span> [<span class="car">^</span> self].
+    | cmd | cmd := redoStack <span class="cg">removeLast</span>.
+    cmd execute.
+    undoStack <span class="cg">addLast:</span> cmd. <span class="car">^</span> cmd
+
+<span class="cc">PKCommandHistory</span> >> canUndo    <span class="car">^</span> undoStack notEmpty
+<span class="cc">PKCommandHistory</span> >> canRedo    <span class="car">^</span> redoStack notEmpty
+<span class="cc">PKCommandHistory</span> >> undoLabels <span class="car">^</span> undoStack <span class="cg">collect:</span> [:<span class="ck">c</span>|c label]
+<span class="cc">PKCommandHistory</span> >> <span class="cg">clear</span>
+    undoStack <span class="cg">removeAll</span>. redoStack <span class="cg">removeAll</span></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — no subclassing whatsoever
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Wire up a full undo/redo system with two objects
+ and zero pattern classes of your own"</span>
+| buf history |
+buf     := <span class="cs">''</span>.
+history := <span class="cc">PKCommandHistory</span> new.
+
+history <span class="cg">execute:</span> (<span class="cc">PKCommand</span>
+    <span class="cg">execute:</span> [buf := buf , <span class="cs">'Hello'</span>]
+    <span class="cg">undo:</span>    [buf := buf <span class="cg">copyFrom:</span> <span class="cn">1</span> <span class="cg">to:</span> buf size - <span class="cn">5</span>]
+    <span class="cg">label:</span>   <span class="cs">'Insert Hello'</span>).
+
+history <span class="cg">execute:</span> (<span class="cc">PKCommand</span>
+    <span class="cg">execute:</span> [buf := buf , <span class="cs">' World'</span>]
+    <span class="cg">undo:</span>    [buf := buf <span class="cg">copyFrom:</span> <span class="cn">1</span> <span class="cg">to:</span> buf size - <span class="cn">6</span>]
+    <span class="cg">label:</span>   <span class="cs">'Insert World'</span>).
+
+buf.               <span class="cm">"=> 'Hello World'"</span>
+history undoLabels. <span class="cm">"=> #('Insert Hello' 'Insert World')"</span>
+history undo.      buf. <span class="cm">"=> 'Hello'"</span>
+history undo.      buf. <span class="cm">"=> ''"</span>
+history redo.      buf. <span class="cm">"=> 'Hello'"</span>
+history canRedo.        <span class="cm">"=> true"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- T1-03 CHAIN -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">03</span>
+                    <span class="pe-name">Chain of Responsibility</span>
+                    <span class="pe-cat cat-B">Behavioral</span>
+                    <span class="pe-badge badge-full">Fully Encapsulated</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKHandler</code> can be used
+                        <strong>two ways</strong>: (1) pass blocks — build an
+                        entire handler chain with zero subclasses; (2) subclass
+                        for handlers with complex state. Both share the same
+                        <code>chainTo:</code> fluent API.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">Library · PKHandler</div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Behavioral</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKHandler</span>
+    instanceVariableNames: <span class="cs">'next canBlock doBlock'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cm">"Block constructor — zero subclassing needed"</span>
+<span class="cc">PKHandler</span> class >> <span class="cg">canHandle:</span> cBlk <span class="cg">then:</span> dBlk
+    <span class="car">^</span> self new
+        pvtCan: cBlk do: dBlk;
+        yourself
+
+<span class="cc">PKHandler</span> >> <span class="cg">pvtCan:</span> c <span class="cg">do:</span> d  canBlock := c. doBlock := d
+
+<span class="cm">"Fluent chain building — returns next for chaining"</span>
+<span class="cc">PKHandler</span> >> <span class="cg">chainTo:</span> h   next := h. <span class="car">^</span> h
+<span class="cc">PKHandler</span> >> next: h        next := h
+
+<span class="cc">PKHandler</span> >> <span class="cg">handle:</span> req
+    (self <span class="cg">canHandle:</span> req)
+        <span class="cg">ifTrue:</span>  [<span class="car">^</span> self <span class="cg">process:</span> req]
+        <span class="cg">ifFalse:</span> [<span class="car">^</span> next
+            <span class="cg">ifNotNil:</span> [next <span class="cg">handle:</span> req]
+            <span class="cg">ifNil:</span>    [self <span class="cg">unhandled:</span> req]]
+
+<span class="cm">"Override in subclasses, or the block is used"</span>
+<span class="cc">PKHandler</span> >> <span class="cg">canHandle:</span> req
+    <span class="car">^</span> canBlock notNil
+        <span class="cg">ifTrue:</span>  [canBlock <span class="cg">value:</span> req]
+        <span class="cg">ifFalse:</span> [self <span class="cg">subclassResponsibility</span>]
+
+<span class="cc">PKHandler</span> >> <span class="cg">process:</span> req
+    <span class="car">^</span> doBlock notNil
+        <span class="cg">ifTrue:</span>  [doBlock <span class="cg">value:</span> req]
+        <span class="cg">ifFalse:</span> [self <span class="cg">subclassResponsibility</span>]
+
+<span class="cm">"Terminal handler hook — override to log/error"</span>
+<span class="cc">PKHandler</span> >> <span class="cg">unhandled:</span> req    <span class="cm">"default: silent"</span></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — block form, zero subclasses
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Entire approval chain with no pattern subclasses"</span>
+| chain |
+chain := (<span class="cc">PKHandler</span>
+    <span class="cg">canHandle:</span> [:<span class="ck">r</span>| r amount <= <span class="cn">500</span>]
+    <span class="cg">then:</span>       [:<span class="ck">r</span>| <span class="cc">Transcript</span> <span class="cg">showCr:</span>
+        <span class="cs">'Team Lead approved $'</span>,r amount <span class="cg">printString</span>]).
+
+(chain <span class="cg">chainTo:</span> (<span class="cc">PKHandler</span>
+    <span class="cg">canHandle:</span> [:<span class="ck">r</span>| r amount <= <span class="cn">5000</span>]
+    <span class="cg">then:</span>       [:<span class="ck">r</span>| <span class="cc">Transcript</span> <span class="cg">showCr:</span>
+        <span class="cs">'Manager approved $'</span>,r amount <span class="cg">printString</span>]))
+<span class="cg">chainTo:</span> (<span class="cc">PKHandler</span>
+    <span class="cg">canHandle:</span> [:<span class="ck">r</span>| true]
+    <span class="cg">then:</span>       [:<span class="ck">r</span>| <span class="cc">Transcript</span> <span class="cg">showCr:</span>
+        <span class="cs">'CFO approved $'</span>,r amount <span class="cg">printString</span>]).
+
+chain <span class="cg">handle:</span> req100.   <span class="cm">"=> 'Team Lead...'"</span>
+chain <span class="cg">handle:</span> req2000.  <span class="cm">"=> 'Manager...'"</span>
+chain <span class="cg">handle:</span> req50k.   <span class="cm">"=> 'CFO...'"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- T1-04 STATE MACHINE -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">04</span>
+                    <span class="pe-name">State Machine</span>
+                    <span class="pe-cat cat-B">Behavioral</span>
+                    <span class="pe-badge badge-full">Fully Encapsulated</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKStateMachine</code> delegates all domain
+                        messages to the current state via
+                        <code>doesNotUnderstand:</code>.
+                        <code>PKState</code> provides
+                        <code>transitionTo:</code>, and
+                        <code>onEnter</code>/<code>onExit</code> hooks. You only
+                        write the state classes and their transition logic.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKStateMachine + PKState
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Behavioral</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKState</span>
+    instanceVariableNames: <span class="cs">'context'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKState</span> >> <span class="cg">context:</span> c   context := c
+<span class="cc">PKState</span> >> context       <span class="car">^</span> context
+
+<span class="cm">"The key method — state classes call this to transition"</span>
+<span class="cc">PKState</span> >> <span class="cg">transitionTo:</span> stateClass
+    context <span class="cg">pvtTransitionTo:</span> stateClass
+
+<span class="cm">"Lifecycle hooks — override as needed"</span>
+<span class="cc">PKState</span> >> <span class="cg">onEnter</span>    <span class="cm">"called when entering state"</span>
+<span class="cc">PKState</span> >> <span class="cg">onExit</span>     <span class="cm">"called when leaving state"</span>
+
+<span class="cm">"Default for unhandled events: raise a clear error"</span>
+<span class="cc">PKState</span> >> <span class="cg">doesNotUnderstand:</span> msg
+    self error: self class name , <span class="cs">' cannot handle: '</span> , msg selector
+
+<span class="cm">"────────────────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKStateMachine</span>
+    instanceVariableNames: <span class="cs">'state'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKStateMachine</span> class >> <span class="cg">startingIn:</span> stateClass
+    <span class="car">^</span> self new <span class="cg">pvtStartIn:</span> stateClass; yourself
+
+<span class="cc">PKStateMachine</span> >> <span class="cg">pvtStartIn:</span> stateClass
+    state := stateClass new <span class="cg">context:</span> self; yourself.
+    state <span class="cg">onEnter</span>
+
+<span class="cc">PKStateMachine</span> >> <span class="cg">pvtTransitionTo:</span> stateClass
+    state <span class="cg">onExit</span>.
+    state := stateClass new <span class="cg">context:</span> self; yourself.
+    state <span class="cg">onEnter</span>
+
+<span class="cc">PKStateMachine</span> >> state      <span class="car">^</span> state
+<span class="cc">PKStateMachine</span> >> stateName  <span class="car">^</span> state class name
+
+<span class="cm">"All domain messages auto-delegate to the current state"</span>
+<span class="cc">PKStateMachine</span> >> <span class="cg">doesNotUnderstand:</span> msg
+    <span class="car">^</span> msg <span class="cg">sendTo:</span> state</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — only write state classes
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Only write: the state classes and their transitions.
+ PKStateMachine handles all routing automatically."</span>
+
+<span class="cc">PKState</span> subclass: <span class="cy">#IdleState</span>
+    instanceVariableNames: <span class="cs">''</span>   package: <span class="cs">'MyApp'</span>
+<span class="cc">IdleState</span> >> <span class="cg">onEnter</span>
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Entered: Idle'</span>
+<span class="cc">IdleState</span> >> <span class="cg">start</span>
+    self <span class="cg">transitionTo:</span> <span class="cc">RunningState</span>
+
+<span class="cc">PKState</span> subclass: <span class="cy">#RunningState</span>
+    instanceVariableNames: <span class="cs">''</span>   package: <span class="cs">'MyApp'</span>
+<span class="cc">RunningState</span> >> <span class="cg">onEnter</span>
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Entered: Running'</span>
+<span class="cc">RunningState</span> >> <span class="cg">pause</span>
+    self <span class="cg">transitionTo:</span> <span class="cc">PausedState</span>
+<span class="cc">RunningState</span> >> <span class="cg">stop</span>
+    self <span class="cg">transitionTo:</span> <span class="cc">IdleState</span>
+
+<span class="cc">PKState</span> subclass: <span class="cy">#PausedState</span>
+    instanceVariableNames: <span class="cs">''</span>   package: <span class="cs">'MyApp'</span>
+<span class="cc">PausedState</span> >> <span class="cg">resume</span>
+    self <span class="cg">transitionTo:</span> <span class="cc">RunningState</span>
+
+<span class="cm">"Usage — PKStateMachine handles ALL routing"</span>
+| machine |
+machine := <span class="cc">PKStateMachine</span> <span class="cg">startingIn:</span> <span class="cc">IdleState</span>.
+machine stateName.  <span class="cm">"=> 'IdleState'"</span>
+machine start.      <span class="cm">"=> 'Entered: Running'"</span>
+machine pause.
+machine resume.
+machine stop.
+machine start.      <span class="cm">"Pause in Running — 'start' sent to IdleState"</span>
+                    <span class="cm">"=> Error: IdleState cannot handle: start"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- T1-05 MEMENTO -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">05</span>
+                    <span class="pe-name">Memento</span>
+                    <span class="pe-cat cat-B">Behavioral</span>
+                    <span class="pe-badge badge-full">Fully Encapsulated</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKOriginator</code> uses introspection to
+                        capture/restore all instance variables generically.
+                        <code>PKCaretaker</code> manages the undo/redo stacks.
+                        <strong
+                            >For most objects, zero overrides needed.</strong
+                        >
+                        Override <code>save</code>/<code>restore:</code> only
+                        for sparse (delta) mementos.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKOriginator + PKCaretaker
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Behavioral</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKOriginator</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cm">"Default: full deep copy — override for sparse mementos"</span>
+<span class="cc">PKOriginator</span> >> <span class="cg">save</span>
+    <span class="car">^</span> self deepCopy
+
+<span class="cm">"Default: restore all inst vars by reflection"</span>
+<span class="cc">PKOriginator</span> >> <span class="cg">restore:</span> memento
+    self class allInstVarNames <span class="cg">doWithIndex:</span> [:<span class="ck">n</span> :<span class="ck">i</span>|
+        self <span class="cg">instVarAt:</span> i <span class="cg">put:</span> (memento <span class="cg">instVarAt:</span> i)]
+
+<span class="cm">"────────────────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKCaretaker</span>
+    instanceVariableNames: <span class="cs">'orig undo redo'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKCaretaker</span> class >> <span class="cg">for:</span> anOriginator
+    <span class="car">^</span> self new <span class="cg">pvtFor:</span> anOriginator; yourself
+
+<span class="cc">PKCaretaker</span> >> <span class="cg">pvtFor:</span> o
+    orig := o. undo := <span class="cc">OrderedCollection</span> new.
+    redo := <span class="cc">OrderedCollection</span> new
+
+<span class="cc">PKCaretaker</span> >> <span class="cg">checkpoint</span>
+    undo <span class="cg">addLast:</span> orig save. redo <span class="cg">removeAll</span>
+
+<span class="cc">PKCaretaker</span> >> <span class="cg">undo</span>
+    undo isEmpty <span class="cg">ifTrue:</span> [<span class="car">^</span> self].
+    redo <span class="cg">addLast:</span> orig save.
+    orig <span class="cg">restore:</span> undo <span class="cg">removeLast</span>
+
+<span class="cc">PKCaretaker</span> >> <span class="cg">redo</span>
+    redo isEmpty <span class="cg">ifTrue:</span> [<span class="car">^</span> self].
+    undo <span class="cg">addLast:</span> orig save.
+    orig <span class="cg">restore:</span> redo <span class="cg">removeLast</span>
+
+<span class="cc">PKCaretaker</span> >> canUndo   <span class="car">^</span> undo notEmpty
+<span class="cc">PKCaretaker</span> >> canRedo   <span class="car">^</span> redo notEmpty
+<span class="cc">PKCaretaker</span> >> depth     <span class="car">^</span> undo size</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — subclass PKOriginator, done
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Just subclass PKOriginator — get undo for free"</span>
+<span class="cc">PKOriginator</span> subclass: <span class="cy">#DrawingCanvas</span>
+    instanceVariableNames: <span class="cs">'shapes backgroundColor zoom'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+
+<span class="cc">DrawingCanvas</span> >> <span class="cg">initialize</span>
+    shapes := <span class="cc">OrderedCollection</span> new.
+    backgroundColor := <span class="cc">Color</span> white.
+    zoom := <span class="cn">1.0</span>
+
+<span class="cc">DrawingCanvas</span> >> <span class="cg">addShape:</span> s   shapes <span class="cg">add:</span> s
+<span class="cc">DrawingCanvas</span> >> <span class="cg">zoom:</span> n       zoom := n
+
+<span class="cm">"Usage — no Memento class needed at all"</span>
+| canvas ct |
+canvas := <span class="cc">DrawingCanvas</span> new.
+ct     := <span class="cc">PKCaretaker</span> <span class="cg">for:</span> canvas.
+
+ct checkpoint.
+canvas <span class="cg">addShape:</span> circleA.
+ct checkpoint.
+canvas <span class="cg">addShape:</span> rectB.
+canvas <span class="cg">zoom:</span> <span class="cn">2.0</span>.
+ct checkpoint.
+
+ct undo.   <span class="cm">"back to: circleA only, zoom 1.0"</span>
+ct undo.   <span class="cm">"back to: empty canvas"</span>
+ct redo.   <span class="cm">"forward to: circleA"</span>
+ct depth.  <span class="cm">"=> 1"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- T1-06 OBSERVER -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">06</span>
+                    <span class="pe-name">Observer</span>
+                    <span class="pe-cat cat-B">Behavioral</span>
+                    <span class="pe-badge badge-native">Already in Pharo</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        Observer is built into the image twice: the legacy
+                        <code>Model/changed:/update:</code> dependency
+                        mechanism, and the modern typed
+                        <code>Announcer</code> framework.
+                        <code>PKObservable</code> is a
+                        <strong>Trait</strong> that lazily adds an
+                        <code>Announcer</code> to any class, so you don't have
+                        to subclass <code>Model</code>.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKObservable Trait
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Behavioral</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Trait — mix into any class, not just Model subclasses"</span>
+<span class="cc">Trait</span> named: <span class="cy">#PKObservable</span>
+    instanceVariableNames: <span class="cs">'pkAnnouncer'</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cm">"Lazy init — announcer created only on first use"</span>
+<span class="cc">PKObservable</span> >> <span class="cg">announcer</span>
+    pkAnnouncer isNil <span class="cg">ifTrue:</span> [
+        pkAnnouncer := <span class="cc">Announcer</span> new ].
+    <span class="car">^</span> pkAnnouncer
+
+<span class="cm">"Subscribe by announcement class + block"</span>
+<span class="cc">PKObservable</span> >> <span class="cg">on:</span> annClass <span class="cg">do:</span> aBlock
+    <span class="car">^</span> self announcer <span class="cg">on:</span> annClass <span class="cg">do:</span> aBlock
+
+<span class="cm">"Subscribe with message-send (avoids retain-cycles)"</span>
+<span class="cc">PKObservable</span> >> <span class="cg">on:</span> annClass <span class="cg">send:</span> msg <span class="cg">to:</span> receiver
+    <span class="car">^</span> self announcer <span class="cg">on:</span> annClass <span class="cg">send:</span> msg <span class="cg">to:</span> receiver
+
+<span class="cm">"Fire an announcement"</span>
+<span class="cc">PKObservable</span> >> <span class="cg">announce:</span> ann
+    pkAnnouncer isNil <span class="cg">ifTrue:</span> [<span class="car">^</span> self]. <span class="cm">"no-op if no subs"</span>
+    pkAnnouncer <span class="cg">announce:</span> ann
+
+<span class="cc">PKObservable</span> >> <span class="cg">unsubscribe:</span> sub
+    pkAnnouncer isNil <span class="cg">ifTrue:</span> [<span class="car">^</span> self].
+    pkAnnouncer <span class="cg">unsubscribe:</span> sub
+
+<span class="cc">PKObservable</span> >> <span class="cg">hasObservers</span>
+    <span class="car">^</span> pkAnnouncer notNil
+
+<span class="cm">"Announcement value objects — define one per event type"</span>
+<span class="cc">Announcement</span> subclass: <span class="cy">#PKValueChanged</span>
+    instanceVariableNames: <span class="cs">'source key oldValue newValue'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKValueChanged</span> class >> <span class="cg">source:</span> s <span class="cg">key:</span> k <span class="cg">from:</span> old <span class="cg">to:</span> new
+    <span class="car">^</span> self new
+        source: s; key: k; oldValue: old; newValue: new;
+        yourself
+<span class="cm">"... accessors ..."</span></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — mixin Observer into any class
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Use the trait — works with any class hierarchy"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#StockQuote</span>
+    uses: <span class="cc">PKObservable</span>
+    instanceVariableNames: <span class="cs">'symbol price'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+
+<span class="cc">StockQuote</span> >> <span class="cg">price:</span> n
+    | old |
+    old := price.
+    price := n.
+    self <span class="cg">announce:</span> (<span class="cc">PKValueChanged</span>
+        <span class="cg">source:</span>   self
+        <span class="cg">key:</span>      <span class="cy">#price</span>
+        <span class="cg">from:</span>     old
+        <span class="cg">to:</span>       n)
+
+<span class="cm">"Subscribers — any object, any callback"</span>
+| quote |
+quote := <span class="cc">StockQuote</span> new <span class="cg">symbol:</span> <span class="cs">'AAPL'</span>.
+
+quote <span class="cg">on:</span> <span class="cc">PKValueChanged</span> <span class="cg">do:</span> [:<span class="ck">e</span>|
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span>
+        e key , <span class="cs">': '</span> , e newValue <span class="cg">printString</span>].
+
+quote <span class="cg">price:</span> <span class="cn">189.50</span>. <span class="cm">"=> 'price: 189.5'"</span>
+quote <span class="cg">price:</span> <span class="cn">191.00</span>. <span class="cm">"=> 'price: 191.0'"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- T1-07 DECORATOR -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">07</span>
+                    <span class="pe-name">Decorator</span>
+                    <span class="pe-cat cat-S">Structural</span>
+                    <span class="pe-badge badge-full">Fully Encapsulated</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKDecorator</code> subclasses
+                        <code>ProtoObject</code> and uses
+                        <code>doesNotUnderstand:</code> to auto-delegate every
+                        unrecognized message to the wrapped component. You
+                        <strong>only override the specific methods</strong> you
+                        want to intercept — everything else passes through
+                        automatically.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">Library · PKDecorator</div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Structural</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"ProtoObject — minimal superclass so almost nothing
+ is inherited; all messages forward to component"</span>
+<span class="cc">ProtoObject</span> subclass: <span class="cy">#PKDecorator</span>
+    instanceVariableNames: <span class="cs">'pkComponent'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKDecorator</span> class >> <span class="cg">wrapping:</span> aComponent
+    <span class="car">^</span> self new <span class="cg">pvtWrap:</span> aComponent; yourself
+
+<span class="cc">PKDecorator</span> >> <span class="cg">pvtWrap:</span> c   pkComponent := c
+<span class="cc">PKDecorator</span> >> component    <span class="car">^</span> pkComponent
+
+<span class="cm">"The magic: unhandled messages auto-delegate"</span>
+<span class="cc">PKDecorator</span> >> <span class="cg">doesNotUnderstand:</span> msg
+    <span class="car">^</span> msg <span class="cg">sendTo:</span> pkComponent
+
+<span class="cm">"Subclasses ONLY override what they want to add/change"</span>
+
+<span class="cm">"Note: ProtoObject means printString, =, class etc.
+ also forward to component — intentional for
+ transparent wrapping, but be aware of it."</span>
+
+<span class="cm">"────────────────────────────"</span>
+<span class="cm">"Helper for before/after decoration"</span>
+<span class="cc">PKDecorator</span> subclass: <span class="cy">#PKAroundDecorator</span>
+    instanceVariableNames: <span class="cs">'selector beforeBlock afterBlock'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKAroundDecorator</span> class >>
+  <span class="cg">wrapping:</span> c <span class="cg">intercept:</span> sel <span class="cg">before:</span> bBlk <span class="cg">after:</span> aBlk
+    <span class="car">^</span> (self <span class="cg">wrapping:</span> c)
+        <span class="cg">pvtSel:</span> sel <span class="cg">before:</span> bBlk <span class="cg">after:</span> aBlk; yourself
+
+<span class="cc">PKAroundDecorator</span> >> <span class="cg">pvtSel:</span> s <span class="cg">before:</span> b <span class="cg">after:</span> a
+    selector := s. beforeBlock := b. afterBlock := a
+
+<span class="cc">PKAroundDecorator</span> >> <span class="cg">doesNotUnderstand:</span> msg
+    msg selector = selector <span class="cg">ifTrue:</span> [
+        beforeBlock <span class="cg">value:</span> msg arguments.
+        | r | r := msg <span class="cg">sendTo:</span> self component.
+        afterBlock <span class="cg">value:</span> r.
+        <span class="car">^</span> r].
+    <span class="car">^</span> super <span class="cg">doesNotUnderstand:</span> msg</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — override only what you add
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Override only 'render'. Everything else auto-delegates."</span>
+<span class="cc">PKDecorator</span> subclass: <span class="cy">#BoldDecorator</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+
+<span class="cc">BoldDecorator</span> >> <span class="cg">render</span>
+    <span class="car">^</span> <span class="cs">'&lt;b&gt;'</span> , self component render , <span class="cs">'&lt;/b&gt;'</span>
+
+<span class="cc">PKDecorator</span> subclass: <span class="cy">#CacheDecorator</span>
+    instanceVariableNames: <span class="cs">'cache'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+
+<span class="cc">CacheDecorator</span> >> <span class="cg">initialize</span>   cache := <span class="cc">Dictionary</span> new
+
+<span class="cc">CacheDecorator</span> >> <span class="cg">render</span>
+    <span class="car">^</span> cache <span class="cg">at:</span> <span class="cy">#render</span> <span class="cg">ifAbsent:</span> [
+        cache <span class="cg">at:</span> <span class="cy">#render</span> <span class="cg">put:</span> self component render]
+
+<span class="cm">"PKAroundDecorator — no subclassing at all"</span>
+| logged |
+logged := <span class="cc">PKAroundDecorator</span>
+    <span class="cg">wrapping:</span>  myWidget
+    <span class="cg">intercept:</span> <span class="cy">#render</span>
+    <span class="cg">before:</span>    [:<span class="ck">_</span>| <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'rendering...'</span>]
+    <span class="cg">after:</span>     [:<span class="ck">r</span>| <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'done'</span>].
+logged render.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- T1-08 PROXY -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">08</span>
+                    <span class="pe-name">Proxy</span>
+                    <span class="pe-cat cat-S">Structural</span>
+                    <span class="pe-badge badge-full">Fully Encapsulated</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        Three concrete proxy types ship with PatternKit:
+                        <code>PKLoggingProxy</code>,
+                        <code>PKVirtualProxy</code> (lazy loader), and
+                        <code>PKProtectionProxy</code>. Custom proxies subclass
+                        <code>PKProxy</code> and override
+                        <code>beforeMessage:</code
+                        >/<code>afterMessage:result:</code>.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKProxy family
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Structural</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">ProtoObject</span> subclass: <span class="cy">#PKProxy</span>
+    instanceVariableNames: <span class="cs">'pkTarget'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKProxy</span> class >> <span class="cg">on:</span> target
+    <span class="car">^</span> self new <span class="cg">pvtTarget:</span> target; yourself
+
+<span class="cc">PKProxy</span> >> <span class="cg">pvtTarget:</span> t    pkTarget := t
+<span class="cc">PKProxy</span> >> target          <span class="car">^</span> pkTarget
+
+<span class="cc">PKProxy</span> >> <span class="cg">doesNotUnderstand:</span> msg
+    self <span class="cg">beforeMessage:</span> msg.
+    | result |
+    result := msg <span class="cg">sendTo:</span> pkTarget.
+    self <span class="cg">afterMessage:</span> msg <span class="cg">result:</span> result.
+    <span class="car">^</span> result
+
+<span class="cm">"Override these hooks in subclasses"</span>
+<span class="cc">PKProxy</span> >> <span class="cg">beforeMessage:</span> msg
+<span class="cc">PKProxy</span> >> <span class="cg">afterMessage:</span> msg <span class="cg">result:</span> r
+
+<span class="cm">"── Logging Proxy ──────────────────"</span>
+<span class="cc">PKProxy</span> subclass: <span class="cy">#PKLoggingProxy</span>
+    instanceVariableNames: <span class="cs">'log'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKLoggingProxy</span> >> <span class="cg">initialize</span>   log := <span class="cc">OrderedCollection</span> new
+<span class="cc">PKLoggingProxy</span> >> log           <span class="car">^</span> log
+<span class="cc">PKLoggingProxy</span> >> <span class="cg">beforeMessage:</span> msg
+    log <span class="cg">add:</span> <span class="cc">DateAndTime</span> now <span class="cg">printString</span> , <span class="cs">' '</span> , msg selector
+
+<span class="cm">"── Virtual (Lazy) Proxy ───────────"</span>
+<span class="cc">PKProxy</span> subclass: <span class="cy">#PKVirtualProxy</span>
+    instanceVariableNames: <span class="cs">'loaderBlock loaded'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKVirtualProxy</span> class >> <span class="cg">loader:</span> aBlock
+    <span class="car">^</span> self new <span class="cg">pvtLoader:</span> aBlock; yourself
+<span class="cc">PKVirtualProxy</span> >> <span class="cg">pvtLoader:</span> b   loaderBlock := b. loaded := false
+<span class="cc">PKVirtualProxy</span> >> target
+    loaded <span class="cg">ifFalse:</span> [
+        pkTarget := loaderBlock value. loaded := true].
+    <span class="car">^</span> pkTarget
+
+<span class="cm">"── Protection Proxy ──────────────"</span>
+<span class="cc">PKProxy</span> subclass: <span class="cy">#PKProtectionProxy</span>
+    instanceVariableNames: <span class="cs">'policy'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKProtectionProxy</span> class >> <span class="cg">on:</span> t <span class="cg">policy:</span> pBlk
+    <span class="car">^</span> (self <span class="cg">on:</span> t) <span class="cg">pvtPolicy:</span> pBlk; yourself
+<span class="cc">PKProtectionProxy</span> >> <span class="cg">pvtPolicy:</span> p   policy := p
+<span class="cc">PKProtectionProxy</span> >> <span class="cg">beforeMessage:</span> msg
+    (policy <span class="cg">value:</span> msg) <span class="cg">ifFalse:</span> [
+        msg <span class="cg">signal:</span> <span class="cs">'Access denied: '</span> , msg selector]</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — use ready-made proxies directly
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Logging proxy — wrap any object"</span>
+| logged |
+logged := <span class="cc">PKLoggingProxy</span> <span class="cg">on:</span> myService.
+logged <span class="cg">findUser:</span> <span class="cs">'alice'</span>.
+logged <span class="cg">saveUser:</span> user.
+logged log.
+<span class="cm">"=> #('2025-... findUser:' '2025-... saveUser:')"</span>
+
+<span class="cm">"Virtual proxy — lazy load expensive resource"</span>
+| images |
+images := (<span class="cn">1</span> to: <span class="cn">1000</span>) <span class="cg">collect:</span> [:<span class="ck">i</span>|
+    <span class="cc">PKVirtualProxy</span> <span class="cg">loader:</span> [
+        <span class="cc">HeavyImage</span> <span class="cg">loadFromDisk:</span> i]].
+<span class="cm">"1000 proxies — nothing loaded"</span>
+images first <span class="cg">width</span>.
+<span class="cm">"=> loads img 1, returns width"</span>
+
+<span class="cm">"Protection proxy — policy as a block"</span>
+| secured |
+secured := <span class="cc">PKProtectionProxy</span>
+    <span class="cg">on:</span>     adminService
+    <span class="cg">policy:</span> [:<span class="ck">msg</span>|
+        <span class="cm">"Allow reads, deny writes to non-admins"</span>
+        (msg selector <span class="cg">startsWith:</span> <span class="cs">'get'</span>)
+            or: [currentUser isAdmin]].
+
+secured <span class="cg">getUsers</span>.     <span class="cm">"=> works"</span>
+secured <span class="cg">deleteUser:</span> u. <span class="cm">"=> Error: Access denied"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- T1-09 FLYWEIGHT -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">09</span>
+                    <span class="pe-name">Flyweight Factory</span>
+                    <span class="pe-cat cat-S">Structural</span>
+                    <span class="pe-badge badge-full">Fully Encapsulated</span>
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKFlyweightFactory</code> provides the caching
+                        registry. You supply a
+                        <strong>key extraction block</strong> and the flyweight
+                        class. The factory handles all the
+                        <em
+                            >"create if not cached, return cached if
+                            present"</em
+                        >
+                        logic automatically.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKFlyweightFactory
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Structural</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKFlyweightFactory</span>
+    instanceVariableNames: <span class="cs">'cache keyBlock creatorBlock'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cm">"keyBlock: extracts cache key from args
+ creatorBlock: creates a new flyweight from args"</span>
+<span class="cc">PKFlyweightFactory</span> class >>
+  <span class="cg">keyedBy:</span> keyBlk <span class="cg">creating:</span> creatorBlk
+    <span class="car">^</span> self new
+        <span class="cg">pvtKey:</span> keyBlk <span class="cg">create:</span> creatorBlk;
+        yourself
+
+<span class="cc">PKFlyweightFactory</span> >> <span class="cg">initialize</span>   cache := <span class="cc">Dictionary</span> new
+<span class="cc">PKFlyweightFactory</span> >> <span class="cg">pvtKey:</span> k <span class="cg">create:</span> c
+    keyBlock := k. creatorBlock := c
+
+<span class="cc">PKFlyweightFactory</span> >> <span class="cg">get:</span> args
+    | key |
+    key := keyBlock <span class="cg">value:</span> args.
+    <span class="car">^</span> cache <span class="cg">at:</span> key <span class="cg">ifAbsent:</span> [
+        | fw |
+        fw := creatorBlock <span class="cg">value:</span> args.
+        cache <span class="cg">at:</span> key <span class="cg">put:</span> fw.
+        fw]
+
+<span class="cc">PKFlyweightFactory</span> >> cacheSize   <span class="car">^</span> cache size
+<span class="cc">PKFlyweightFactory</span> >> purge        cache := <span class="cc">Dictionary</span> new
+<span class="cc">PKFlyweightFactory</span> >> cachedKeys   <span class="car">^</span> cache keys</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — define key + creator, done
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Define intrinsic state once per unique key"</span>
+| glyphFactory |
+glyphFactory := <span class="cc">PKFlyweightFactory</span>
+    <span class="cg">keyedBy:</span>  [:<span class="ck">args</span>| args first , <span class="cs">'@'</span> , args last name]
+    <span class="cg">creating:</span> [:<span class="ck">args</span>|
+        <span class="cc">Glyph</span> new
+            <span class="cg">char:</span> args first;
+            <span class="cg">font:</span> args last;
+            yourself].
+
+<span class="cm">"10,000 characters — intrinsic state shared,
+ extrinsic state (position, color) stored per-context"</span>
+| contexts |
+contexts := (<span class="cn">0</span> to: <span class="cn">9999</span>) <span class="cg">collect:</span> [:<span class="ck">i</span>|
+    | fw |
+    fw := glyphFactory <span class="cg">get:</span> { $A. helvetica }.
+    <span class="cc">GlyphContext</span> new
+        <span class="cg">glyph:</span> fw;
+        <span class="cg">x:</span> i * <span class="cn">8</span>;
+        <span class="cg">y:</span> i // <span class="cn">80</span> * <span class="cn">16</span>;
+        yourself].
+
+glyphFactory cacheSize.  <span class="cm">"=> 1 (one Glyph for $A@Helvetica)"</span>
+contexts size.           <span class="cm">"=> 10000 contexts sharing it"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     TIER 2
+══════════════════════════════════════ -->
+            <div id="tier2" class="section-head">
+                <div class="section-eyebrow" style="color: var(--tier2)">
+                    Tier 2
+                </div>
+                <h2 style="color: var(--tier2)">Partially Encapsulated</h2>
+                <p>
+                    The library provides infrastructure — base classes,
+                    protocols, and structural scaffolding. You subclass and fill
+                    in the domain-specific parts. Boilerplate is eliminated;
+                    intentional design is preserved.
+                </p>
+            </div>
+
+            <!-- T2 patterns as compact entries -->
+            <!-- PROTOTYPE -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">10</span>
+                    <span class="pe-name">Prototype + Registry</span>
+                    <span class="pe-cat cat-C">Creational</span>
+                    <span class="pe-badge badge-partial"
+                        >Partially Encapsulated</span
+                    >
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>copy</code>/<code>deepCopy</code>/<code
+                            >postCopy</code
+                        >
+                        are already on <code>Object</code>. The library adds
+                        <code>PKPrototypeRegistry</code> — a named registry that
+                        holds prototypes and produces clones. You register
+                        prototypes once; thereafter <code>clone:</code> is the
+                        only API.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKPrototypeRegistry
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Creational</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKPrototypeRegistry</span>
+    instanceVariableNames: <span class="cs">'registry'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Creational'</span>
+
+<span class="cc">PKPrototypeRegistry</span> >> <span class="cg">initialize</span>
+    registry := <span class="cc">Dictionary</span> new
+
+<span class="cc">PKPrototypeRegistry</span> >> <span class="cg">register:</span> name <span class="cg">prototype:</span> proto
+    registry <span class="cg">at:</span> name <span class="cg">put:</span> proto
+
+<span class="cc">PKPrototypeRegistry</span> >> <span class="cg">clone:</span> name
+    <span class="car">^</span> (registry <span class="cg">at:</span> name
+        <span class="cg">ifAbsent:</span> [self error: <span class="cs">'Unknown prototype: '</span> , name])
+        deepCopy
+
+<span class="cc">PKPrototypeRegistry</span> >> <span class="cg">names</span>     <span class="car">^</span> registry keys
+<span class="cc">PKPrototypeRegistry</span> >> <span class="cg">size</span>      <span class="car">^</span> registry size
+<span class="cc">PKPrototypeRegistry</span> >> <span class="cg">includes:</span> n <span class="car">^</span> registry <span class="cg">includesKey:</span> n</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">Usage</div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre class="code">| reg doc1 doc2 |
+reg := <span class="cc">PKPrototypeRegistry</span> new.
+reg <span class="cg">register:</span> <span class="cs">'report'</span> <span class="cg">prototype:</span>
+    (<span class="cc">ReportDoc</span> new
+        <span class="cg">styles:</span> corporateStyles;
+        <span class="cg">sections:</span> defaultSections;
+        yourself).
+
+<span class="cm">"Clones are fully independent deep copies"</span>
+doc1 := reg <span class="cg">clone:</span> <span class="cs">'report'</span>.
+doc2 := reg <span class="cg">clone:</span> <span class="cs">'report'</span>.
+doc1 <span class="cg">title:</span> <span class="cs">'Q1 Report'</span>.
+doc2 <span class="cg">title:</span> <span class="cs">'Q2 Report'</span>.
+doc1 title.  <span class="cm">"=> 'Q1 Report'"</span>
+doc2 title.  <span class="cm">"=> 'Q2 Report'"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FACTORY -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">11</span>
+                    <span class="pe-name"
+                        >Factory Method + Abstract Factory</span
+                    >
+                    <span class="pe-cat cat-C">Creational</span>
+                    <span class="pe-badge badge-partial"
+                        >Partially Encapsulated</span
+                    >
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKFactory</code> is a class-side registration
+                        dictionary: register a symbol key + creator block, call
+                        <code>make:</code>.
+                        <code>PKAbstractFactory</code> extends this with family
+                        namespacing. Neither needs subclassing for registration
+                        — just <code>register:creator:</code> calls at startup.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKFactory + PKAbstractFactory
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Creational</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKFactory</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">'Creators'</span>
+    package: <span class="cs">'PatternKit-Creational'</span>
+
+<span class="cc">PKFactory</span> class >> <span class="cg">initialize</span>
+    <span class="cc">Creators</span> := <span class="cc">Dictionary</span> new
+
+<span class="cc">PKFactory</span> class >> <span class="cg">register:</span> key <span class="cg">creator:</span> aBlock
+    <span class="cc">Creators</span> <span class="cg">at:</span> key <span class="cg">put:</span> aBlock
+
+<span class="cc">PKFactory</span> class >> <span class="cg">make:</span> key
+    <span class="car">^</span> (<span class="cc">Creators</span> <span class="cg">at:</span> key
+        <span class="cg">ifAbsent:</span> [self error: <span class="cs">'Unknown: '</span> , key]) value
+
+<span class="cc">PKFactory</span> class >> <span class="cg">make:</span> key <span class="cg">with:</span> arg
+    <span class="car">^</span> (<span class="cc">Creators</span> <span class="cg">at:</span> key
+        <span class="cg">ifAbsent:</span> [self error: <span class="cs">'Unknown: '</span> , key]) <span class="cg">value:</span> arg
+
+<span class="cc">PKFactory</span> class >> <span class="cg">registeredKeys</span>   <span class="car">^</span> <span class="cc">Creators</span> keys
+
+<span class="cm">"── Abstract Factory ─────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKAbstractFactory</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">'Families'</span>
+    package: <span class="cs">'PatternKit-Creational'</span>
+
+<span class="cc">PKAbstractFactory</span> class >> <span class="cg">initialize</span>
+    <span class="cc">Families</span> := <span class="cc">Dictionary</span> new
+
+<span class="cc">PKAbstractFactory</span> class >>
+  <span class="cg">registerFamily:</span> fKey <span class="cg">creators:</span> dict
+    <span class="cc">Families</span> <span class="cg">at:</span> fKey <span class="cg">put:</span> dict
+
+<span class="cc">PKAbstractFactory</span> class >>
+  <span class="cg">create:</span> productKey <span class="cg">inFamily:</span> fKey
+    <span class="car">^</span> ((<span class="cc">Families</span> <span class="cg">at:</span> fKey) <span class="cg">at:</span> productKey) value
+
+<span class="cc">PKAbstractFactory</span> class >>
+  <span class="cg">currentFamily:</span> fKey
+    <span class="car">^</span> <span class="cc">PKBoundFactory</span> <span class="cg">family:</span> fKey</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">Usage</div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Register at startup — no factory subclasses needed"</span>
+<span class="cc">PKAbstractFactory</span>
+    <span class="cg">registerFamily:</span> <span class="cy">#mac</span>
+    <span class="cg">creators:</span> {
+        <span class="cy">#button</span>   -> [<span class="cc">MacButton</span> new].
+        <span class="cy">#checkbox</span> -> [<span class="cc">MacCheckbox</span> new].
+        <span class="cy">#dialog</span>   -> [<span class="cc">MacDialog</span> new] } asDictionary.
+
+<span class="cc">PKAbstractFactory</span>
+    <span class="cg">registerFamily:</span> <span class="cy">#windows</span>
+    <span class="cg">creators:</span> {
+        <span class="cy">#button</span>   -> [<span class="cc">WinButton</span> new].
+        <span class="cy">#checkbox</span> -> [<span class="cc">WinCheckbox</span> new].
+        <span class="cy">#dialog</span>   -> [<span class="cc">WinDialog</span> new] } asDictionary.
+
+<span class="cm">"Swap entire family at one callsite"</span>
+| platform btn chk |
+platform := <span class="cy">#mac</span>.
+btn := <span class="cc">PKAbstractFactory</span> <span class="cg">create:</span> <span class="cy">#button</span>   <span class="cg">inFamily:</span> platform.
+chk := <span class="cc">PKAbstractFactory</span> <span class="cg">create:</span> <span class="cy">#checkbox</span> <span class="cg">inFamily:</span> platform.
+btn render.   <span class="cm">"=> '( Mac Button )'"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUILDER -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">12</span>
+                    <span class="pe-name">Builder + Director</span>
+                    <span class="pe-cat cat-C">Creational</span>
+                    <span class="pe-badge badge-partial"
+                        >Partially Encapsulated</span
+                    >
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKBuilder</code> mandates the
+                        <code>reset</code>/<code>build</code> protocol.
+                        <code>PKDirector</code> takes any builder and a
+                        construction block. You override
+                        <code>productClass</code> and add step methods to your
+                        builder subclass; the Director handles orchestration.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKBuilder + PKDirector
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Creational</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKBuilder</span>
+    instanceVariableNames: <span class="cs">'product'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Creational'</span>
+
+<span class="cc">PKBuilder</span> >> <span class="cg">initialize</span>    self reset
+<span class="cc">PKBuilder</span> >> <span class="cg">productClass</span>  <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">PKBuilder</span> >> <span class="cg">reset</span>
+    product := self productClass new initialize
+<span class="cc">PKBuilder</span> >> product   <span class="car">^</span> product   <span class="cm">"access mid-build"</span>
+<span class="cc">PKBuilder</span> >> <span class="cg">build</span>
+    | result |
+    result := product.
+    self reset.
+    <span class="car">^</span> result
+
+<span class="cm">"────────────────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKDirector</span>
+    instanceVariableNames: <span class="cs">'builder'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Creational'</span>
+
+<span class="cc">PKDirector</span> class >> <span class="cg">with:</span> aBuilder
+    <span class="car">^</span> self new <span class="cg">builder:</span> aBuilder; yourself
+
+<span class="cc">PKDirector</span> >> <span class="cg">builder:</span> b   builder := b
+
+<span class="cm">"Takes a block that calls step methods on the builder"</span>
+<span class="cc">PKDirector</span> >> <span class="cg">construct:</span> stepsBlock
+    stepsBlock <span class="cg">value:</span> builder.
+    <span class="car">^</span> builder build
+
+<span class="cm">"Override in subclasses for named construction recipes"</span>
+<span class="cc">PKDirector</span> >> <span class="cg">buildFull</span>
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">PKDirector</span> >> <span class="cg">buildMinimal</span>
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">Usage</div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">PKBuilder</span> subclass: <span class="cy">#PersonBuilder</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+
+<span class="cm">"Only productClass and step methods needed"</span>
+<span class="cc">PersonBuilder</span> >> <span class="cg">productClass</span>  <span class="car">^</span> <span class="cc">Person</span>
+<span class="cc">PersonBuilder</span> >> <span class="cg">name:</span> n       product <span class="cg">name:</span> n
+<span class="cc">PersonBuilder</span> >> <span class="cg">age:</span> n        product <span class="cg">age:</span> n
+<span class="cc">PersonBuilder</span> >> <span class="cg">email:</span> e      product <span class="cg">email:</span> e
+
+<span class="cm">"Director with a named recipe"</span>
+<span class="cc">PKDirector</span> subclass: <span class="cy">#PersonDirector</span>
+    instanceVariableNames: <span class="cs">''</span>   package: <span class="cs">'MyApp'</span>
+<span class="cc">PersonDirector</span> >> <span class="cg">buildAnonymous</span>
+    <span class="car">^</span> self <span class="cg">construct:</span> [:<span class="ck">b</span>|
+        b <span class="cg">name:</span> <span class="cs">'Anonymous'</span>; <span class="cg">age:</span> <span class="cn">0</span>]
+
+<span class="cm">"Or just use block form — no Director subclass"</span>
+| director person |
+director := <span class="cc">PKDirector</span> <span class="cg">with:</span> <span class="cc">PersonBuilder</span> new.
+person := director <span class="cg">construct:</span> [:<span class="ck">b</span>|
+    b <span class="cg">name:</span> <span class="cs">'Alice'</span>; <span class="cg">age:</span> <span class="cn">30</span>; <span class="cg">email:</span> <span class="cs">'a@b.com'</span>].
+person name.   <span class="cm">"=> 'Alice'"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPOSITE -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">13</span>
+                    <span class="pe-name">Composite</span>
+                    <span class="pe-cat cat-S">Structural</span>
+                    <span class="pe-badge badge-partial"
+                        >Partially Encapsulated</span
+                    >
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKComponent</code>, <code>PKLeaf</code>, and
+                        <code>PKComposite</code> provide the full tree
+                        structure, recursive <code>do:</code>,
+                        <code>parent</code> back-links, and depth tracking. You
+                        subclass and add domain-specific fields and the
+                        <code>size</code> computation.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKComponent / PKLeaf / PKComposite
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Structural</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKComponent</span>
+    instanceVariableNames: <span class="cs">'parent'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKComponent</span> >> <span class="cg">parent:</span> p   parent := p
+<span class="cc">PKComponent</span> >> parent       <span class="car">^</span> parent
+<span class="cc">PKComponent</span> >> isLeaf       <span class="car">^</span> true
+<span class="cc">PKComponent</span> >> children     <span class="car">^</span> #()
+<span class="cc">PKComponent</span> >> depth
+    <span class="car">^</span> <span class="cn">1</span> + (self children
+        <span class="cg">inject:</span> <span class="cn">0</span>
+        <span class="cg">into:</span>  [:<span class="ck">m</span> :<span class="ck">c</span>| m max: c depth])
+<span class="cc">PKComponent</span> >> <span class="cg">do:</span> aBlock   aBlock <span class="cg">value:</span> self
+<span class="cc">PKComponent</span> >> value   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">PKComponent</span> subclass: <span class="cy">#PKComposite</span>
+    instanceVariableNames: <span class="cs">'children'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKComposite</span> >> <span class="cg">initialize</span>   children := <span class="cc">OrderedCollection</span> new
+<span class="cc">PKComposite</span> >> isLeaf        <span class="car">^</span> false
+<span class="cc">PKComposite</span> >> children      <span class="car">^</span> children copy
+<span class="cc">PKComposite</span> >> <span class="cg">add:</span> child
+    child <span class="cg">parent:</span> self. children <span class="cg">add:</span> child. <span class="car">^</span> child
+<span class="cc">PKComposite</span> >> <span class="cg">remove:</span> child
+    children <span class="cg">remove:</span> child <span class="cg">ifAbsent:</span> [].
+    child <span class="cg">parent:</span> nil
+<span class="cc">PKComposite</span> >> <span class="cg">do:</span> aBlock
+    aBlock <span class="cg">value:</span> self.
+    children <span class="cg">do:</span> [:<span class="ck">c</span>| c <span class="cg">do:</span> aBlock]
+<span class="cc">PKComposite</span> >> value
+    <span class="cm">"Override or use: sum children's values"</span>
+    <span class="car">^</span> children
+        <span class="cg">inject:</span> self <span class="cg">identityValue</span>
+        <span class="cg">into:</span>  [:<span class="ck">acc</span> :<span class="ck">c</span>| acc + c value]
+<span class="cc">PKComposite</span> >> identityValue   <span class="car">^</span> <span class="cn">0</span></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — add only domain fields
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">PKComponent</span> subclass: <span class="cy">#TaskItem</span>
+    instanceVariableNames: <span class="cs">'title hours'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+<span class="cc">TaskItem</span> >> <span class="cg">title:</span> t   title := t
+<span class="cc">TaskItem</span> >> <span class="cg">hours:</span> h   hours := h
+<span class="cc">TaskItem</span> >> value      <span class="car">^</span> hours   <span class="cm">"leaf value = its hours"</span>
+
+<span class="cc">PKComposite</span> subclass: <span class="cy">#TaskGroup</span>
+    instanceVariableNames: <span class="cs">'title'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+<span class="cc">TaskGroup</span> >> <span class="cg">title:</span> t   title := t
+<span class="cm">"value sums children automatically via PKComposite"</span>
+
+| sprint |
+sprint := <span class="cc">TaskGroup</span> new <span class="cg">title:</span> <span class="cs">'Sprint 1'</span>.
+sprint <span class="cg">add:</span> (<span class="cc">TaskItem</span> new <span class="cg">title:</span> <span class="cs">'Auth'</span>;   <span class="cg">hours:</span> <span class="cn">8</span>;  yourself).
+sprint <span class="cg">add:</span> (<span class="cc">TaskItem</span> new <span class="cg">title:</span> <span class="cs">'API'</span>;    <span class="cg">hours:</span> <span class="cn">12</span>; yourself).
+sprint <span class="cg">add:</span> (<span class="cc">TaskItem</span> new <span class="cg">title:</span> <span class="cs">'Tests'</span>;  <span class="cg">hours:</span> <span class="cn">6</span>;  yourself).
+
+sprint value.   <span class="cm">"=> 26 (sum via PKComposite)"</span>
+sprint depth.   <span class="cm">"=> 2"</span>
+sprint <span class="cg">do:</span> [:<span class="ck">n</span>| <span class="cc">Transcript</span> <span class="cg">showCr:</span> n class name].</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISITOR -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">14</span>
+                    <span class="pe-name">Visitor + Visitable</span>
+                    <span class="pe-cat cat-B">Behavioral</span>
+                    <span class="pe-badge badge-partial"
+                        >Partially Encapsulated</span
+                    >
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKVisitor</code> uses a
+                        <strong>convention-based dispatch</strong>: if you send
+                        <code>visit:</code> to a visitor with a
+                        <code>Circle</code>, it looks for
+                        <code>visitCircle:</code>. No manual
+                        <code>accept:</code> wiring required.
+                        <code>PKVisitable</code> is a Trait that adds
+                        <code>accept:</code>.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKVisitor + PKVisitable
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Behavioral</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKVisitor</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cm">"Convention-based dispatch: visit: Circle → visitCircle:
+ No manual accept:/visitXxx: wiring required in elements"</span>
+<span class="cc">PKVisitor</span> >> <span class="cg">visit:</span> element
+    | sel |
+    sel := (<span class="cs">'visit'</span> , element class name) asSymbol.
+    (self <span class="cg">respondsTo:</span> sel)
+        <span class="cg">ifTrue:</span>  [<span class="car">^</span> self <span class="cg">perform:</span> sel <span class="cg">with:</span> element]
+        <span class="cg">ifFalse:</span> [<span class="car">^</span> self <span class="cg">visitUnknown:</span> element]
+
+<span class="cc">PKVisitor</span> >> <span class="cg">visitAll:</span> collection
+    <span class="car">^</span> collection <span class="cg">collect:</span> [:<span class="ck">e</span>| self <span class="cg">visit:</span> e]
+
+<span class="cm">"Override to handle missing element types"</span>
+<span class="cc">PKVisitor</span> >> <span class="cg">visitUnknown:</span> e
+    self error: <span class="cs">'No visit method for '</span> , e class name
+
+<span class="cm">"────────────────────────────"</span>
+<span class="cc">Trait</span> named: <span class="cy">#PKVisitable</span>
+    instanceVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKVisitable</span> >> <span class="cg">accept:</span> visitor
+    <span class="car">^</span> visitor <span class="cg">visit:</span> self</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — just write visitXxx: methods
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Elements — use the Trait"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#Circle</span>
+    uses: <span class="cc">PKVisitable</span>
+    instanceVariableNames: <span class="cs">'radius'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+<span class="cc">Circle</span> >> <span class="cg">radius:</span> r   radius := r.   >> radius   <span class="car">^</span> radius
+
+<span class="cc">Object</span> subclass: <span class="cy">#Rectangle</span>
+    uses: <span class="cc">PKVisitable</span>
+    instanceVariableNames: <span class="cs">'w h'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+<span class="cc">Rectangle</span> >> <span class="cg">w:</span> x <span class="cg">h:</span> y   w:=x. h:=y.   >> w   <span class="car">^</span> w.   >> h   <span class="car">^</span> h
+
+<span class="cm">"Visitor — just define visitXxx: methods"</span>
+<span class="cc">PKVisitor</span> subclass: <span class="cy">#AreaVisitor</span>
+    instanceVariableNames: <span class="cs">''</span>   package: <span class="cs">'MyApp'</span>
+
+<span class="cc">AreaVisitor</span> >> <span class="cg">visitCircle:</span> c
+    <span class="car">^</span> <span class="cc">Float</span> pi * c radius * c radius
+
+<span class="cc">AreaVisitor</span> >> <span class="cg">visitRectangle:</span> r
+    <span class="car">^</span> r w * r h
+
+<span class="cm">"No accept: methods needed in Circle or Rectangle"</span>
+| shapes av |
+shapes := { <span class="cc">Circle</span> new <span class="cg">radius:</span> <span class="cn">5</span>. <span class="cc">Rectangle</span> new <span class="cg">w:</span> <span class="cn">4</span> <span class="cg">h:</span> <span class="cn">6</span> }.
+av := <span class="cc">AreaVisitor</span> new.
+shapes <span class="cg">collect:</span> [:<span class="ck">s</span>| s <span class="cg">accept:</span> av].
+<span class="cm">"=> #(78.53... 24)"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEDIATOR -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">15</span>
+                    <span class="pe-name">Mediator</span>
+                    <span class="pe-cat cat-B">Behavioral</span>
+                    <span class="pe-badge badge-partial"
+                        >Partially Encapsulated</span
+                    >
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        <code>PKMediator</code> provides the component registry
+                        and the <code>notify:from:</code> dispatch contract.
+                        <code>PKMediatedComponent</code> gives any component its
+                        <code>mediator</code> slot and
+                        <code>notify:</code> shorthand. You subclass
+                        <code>PKMediator</code> and write only the coordination
+                        logic in <code>notify:from:</code>.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">
+                                Library · PKMediator + PKMediatedComponent
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit-Behavioral</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">Object</span> subclass: <span class="cy">#PKMediator</span>
+    instanceVariableNames: <span class="cs">'components'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKMediator</span> >> <span class="cg">initialize</span>   components := <span class="cc">Dictionary</span> new
+
+<span class="cc">PKMediator</span> >> <span class="cg">register:</span> comp <span class="cg">as:</span> name
+    components <span class="cg">at:</span> name <span class="cg">put:</span> comp.
+    comp <span class="cg">mediator:</span> self. <span class="car">^</span> comp
+
+<span class="cc">PKMediator</span> >> <span class="cg">componentAt:</span> name
+    <span class="car">^</span> components <span class="cg">at:</span> name <span class="cg">ifAbsent:</span> [nil]
+
+<span class="cm">"Subclasses implement this — pure coordination logic"</span>
+<span class="cc">PKMediator</span> >> <span class="cg">notify:</span> event <span class="cg">from:</span> sender
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"────────────────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKMediatedComponent</span>
+    instanceVariableNames: <span class="cs">'pkMediator'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKMediatedComponent</span> >> <span class="cg">mediator:</span> m   pkMediator := m
+<span class="cc">PKMediatedComponent</span> >> mediator     <span class="car">^</span> pkMediator
+<span class="cc">PKMediatedComponent</span> >> <span class="cg">notify:</span> evt
+    pkMediator <span class="cg">notify:</span> evt <span class="cg">from:</span> self</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">
+                                Usage — write only coordination logic
+                            </div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cc">PKMediator</span> subclass: <span class="cy">#LoginMediator</span>
+    instanceVariableNames: <span class="cs">''</span>   package: <span class="cs">'MyApp'</span>
+
+<span class="cc">LoginMediator</span> >> <span class="cg">notify:</span> event <span class="cg">from:</span> sender
+    <span class="cm">"This is all you write — the cross-component rules"</span>
+    event = <span class="cy">#usernameChanged</span> <span class="cg">ifTrue:</span> [
+        | ok |
+        ok := (self <span class="cg">componentAt:</span> <span class="cy">#username</span>) text size >= <span class="cn">3</span>.
+        (self <span class="cg">componentAt:</span> <span class="cy">#submitBtn</span>) <span class="cg">enabled:</span> ok.
+        (self <span class="cg">componentAt:</span> <span class="cy">#hint</span>)
+            <span class="cg">text:</span> (ok
+                <span class="cg">ifTrue:</span>  [<span class="cs">'✓'</span>]
+                <span class="cg">ifFalse:</span> [<span class="cs">'3 chars min'</span>])]
+
+<span class="cc">PKMediatedComponent</span> subclass: <span class="cy">#TextField</span>  <span class="cm">"..."</span>
+<span class="cc">TextField</span> >> <span class="cg">text:</span> t   text := t. self <span class="cg">notify:</span> <span class="cy">#usernameChanged</span>
+<span class="cc">TextField</span> >> text      <span class="car">^</span> text
+
+| med |
+med := <span class="cc">LoginMediator</span> new.
+med <span class="cg">register:</span> <span class="cc">TextField</span> new  <span class="cg">as:</span> <span class="cy">#username</span>.
+med <span class="cg">register:</span> <span class="cc">Button</span> new    <span class="cg">as:</span> <span class="cy">#submitBtn</span>.
+med <span class="cg">register:</span> <span class="cc">Label</span> new     <span class="cg">as:</span> <span class="cy">#hint</span>.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADAPTER BRIDGE INTERPRETER (compact) -->
+            <div class="pattern-entry">
+                <div class="pe-header" onclick="toggle(this)">
+                    <span class="pe-num">16–21</span>
+                    <span class="pe-name"
+                        >Adapter · Bridge · Interpreter · Iterator · Memento ·
+                        Prototype</span
+                    >
+                    <span class="pe-cat cat-S">Structural + Behavioral</span>
+                    <span class="pe-badge badge-partial"
+                        >Partially Encapsulated</span
+                    >
+                    <span class="pe-chevron">▼</span>
+                </div>
+                <div class="pe-body">
+                    <p class="pe-note">
+                        The remaining Tier 2 patterns follow the same principle:
+                        a base class handles the structural wiring; you fill in
+                        the domain-specific pieces. Shown here are their library
+                        stubs.
+                    </p>
+                    <div class="split">
+                        <div>
+                            <div class="split-label">Library stubs</div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span
+                                        ><span class="dot"></span
+                                        >PatternKit</span
+                                    >
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"── Adapter ──────────────────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKAdapter</span>
+    instanceVariableNames: <span class="cs">'adaptee'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKAdapter</span> class >> <span class="cg">adapting:</span> a   <span class="car">^</span> self new pvtAdaptee: a; yourself
+<span class="cc">PKAdapter</span> >> <span class="cg">pvtAdaptee:</span> a  adaptee := a
+<span class="cc">PKAdapter</span> >> adaptee         <span class="car">^</span> adaptee
+
+<span class="cm">"── Bridge ───────────────────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKAbstraction</span>
+    instanceVariableNames: <span class="cs">'implementor'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cc">PKAbstraction</span> class >> <span class="cg">with:</span> impl
+    <span class="car">^</span> self new <span class="cg">implementor:</span> impl; yourself
+<span class="cc">PKAbstraction</span> >> <span class="cg">implementor:</span> i  implementor := i
+<span class="cc">PKAbstraction</span> >> implementor    <span class="car">^</span> implementor
+
+<span class="cc">Object</span> subclass: <span class="cy">#PKImplementor</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cm">"── Interpreter ──────────────────────────"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKASTNode</span>
+    instanceVariableNames: <span class="cs">'children'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cc">PKASTNode</span> >> <span class="cg">initialize</span>   children := <span class="cc">OrderedCollection</span> new
+<span class="cc">PKASTNode</span> >> <span class="cg">addChild:</span> n   children <span class="cg">add:</span> n. <span class="car">^</span> n
+<span class="cc">PKASTNode</span> >> children      <span class="car">^</span> children
+<span class="cc">PKASTNode</span> >> <span class="cg">evaluate:</span> ctx <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">PKASTNode</span> >> <span class="cg">accept:</span> v     <span class="car">^</span> v <span class="cg">visit:</span> self
+
+<span class="cm">"── Iterator (Custom Collections) ────────"</span>
+<span class="cc">Trait</span> named: <span class="cy">#PKIterable</span>
+    instanceVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cm">"Requires: do:  Provides: all Collection methods"</span>
+<span class="cc">PKIterable</span> >> <span class="cg">collect:</span> blk
+    | r | r := <span class="cc">OrderedCollection</span> new.
+    self <span class="cg">do:</span> [:<span class="ck">e</span>| r <span class="cg">add:</span> (blk <span class="cg">value:</span> e)]. <span class="car">^</span> r
+<span class="cc">PKIterable</span> >> <span class="cg">select:</span> blk
+    | r | r := <span class="cc">OrderedCollection</span> new.
+    self <span class="cg">do:</span> [:<span class="ck">e</span>| (blk <span class="cg">value:</span> e) <span class="cg">ifTrue:</span> [r <span class="cg">add:</span> e]]. <span class="car">^</span> r
+<span class="cc">PKIterable</span> >> <span class="cg">inject:</span> s <span class="cg">into:</span> blk
+    | acc | acc := s.
+    self <span class="cg">do:</span> [:<span class="ck">e</span>| acc := blk <span class="cg">value:</span> acc <span class="cg">value:</span> e]. <span class="car">^</span> acc
+<span class="cc">PKIterable</span> >> <span class="cg">detect:</span> blk
+    self <span class="cg">do:</span> [:<span class="ck">e</span>| (blk <span class="cg">value:</span> e) <span class="cg">ifTrue:</span> [<span class="car">^</span> e]].
+    self error: <span class="cs">'Not found'</span>
+<span class="cc">PKIterable</span> >> <span class="cg">reject:</span> blk
+    <span class="car">^</span> self <span class="cg">select:</span> [:<span class="ck">e</span>| (blk <span class="cg">value:</span> e) not]
+<span class="cc">PKIterable</span> >> asArray
+    <span class="car">^</span> (self <span class="cg">collect:</span> [:<span class="ck">e</span>|e]) asArray</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="split-label">Adapter usage pattern</div>
+                            <div class="code-wrap">
+                                <div class="code-title">
+                                    <span><span class="dot"></span>MyApp</span>
+                                </div>
+                                <pre
+                                    class="code"
+                                ><span class="cm">"Adapter: subclass and route your interface to adaptee"</span>
+<span class="cc">PKAdapter</span> subclass: <span class="cy">#StripeAdapter</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+
+<span class="cc">StripeAdapter</span> >> <span class="cg">charge:</span> amount <span class="cg">to:</span> card
+    <span class="car">^</span> adaptee <span class="cg">createCharge:</span> (amount * <span class="cn">100</span>) <span class="cg">source:</span> card token
+
+<span class="cm">"Bridge usage pattern"</span>
+<span class="cc">PKAbstraction</span> subclass: <span class="cy">#MessageSender</span>
+    instanceVariableNames: <span class="cs">'template'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+<span class="cc">MessageSender</span> >> <span class="cg">send:</span> msg
+    implementor <span class="cg">deliver:</span> (<span class="cc">template</span> <span class="cg">format:</span> msg)
+
+<span class="cc">PKIterable</span> usage:
+<span class="cm">"Custom tree implementing PKIterable"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#MyTree</span>
+    uses: <span class="cc">PKIterable</span>
+    instanceVariableNames: <span class="cs">'root'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'MyApp'</span>
+
+<span class="cm">"Implement do: — get everything else for free"</span>
+<span class="cc">MyTree</span> >> <span class="cg">do:</span> aBlock
+    self <span class="cg">depthFirst:</span> root <span class="cg">applying:</span> aBlock
+
+<span class="cm">"Now you get:"</span>
+tree <span class="cg">collect:</span>   [:<span class="ck">n</span>| n value * <span class="cn">2</span>].
+tree <span class="cg">select:</span>    [:<span class="ck">n</span>| n isLeaf].
+tree <span class="cg">inject:</span> <span class="cn">0</span> <span class="cg">into:</span> [:<span class="ck">s</span> :<span class="ck">n</span>| s + n value].
+<span class="cm">"All of these work with no extra code"</span></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     TIER 3 — CANNOT ENCAPSULATE
+══════════════════════════════════════ -->
+            <div id="tier3" class="section-head">
+                <div class="section-eyebrow" style="color: var(--tier3)">
+                    Tier 3
+                </div>
+                <h2 style="color: var(--tier3)">Cannot Be Encapsulated</h2>
+                <p>
+                    Not a limitation of Pharo. These two patterns cannot be
+                    encapsulated in <em>any</em> OO language. The reason reveals
+                    something fundamental about what patterns are.
+                </p>
+            </div>
+
+            <div class="cannot-card">
+                <h3>⊘ Facade</h3>
+                <p>
+                    Consider what a <code>PKFacade</code> library class would
+                    look like. It would need to simplify your subsystem, but it
+                    knows nothing about your subsystem. The only option is:
+                </p>
+                <div class="code-wrap">
+                    <div class="code-title">
+                        <span><span class="dot"></span>Attempted PKFacade</span>
+                    </div>
+                    <pre
+                        class="code"
+                    ><span class="cm">"The honest attempt:"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PKFacade</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Structural'</span>
+
+<span class="cm">"That's it. That's the whole class. It IS Object."</span>
+<span class="cm">"Nothing useful can be added without knowing what subsystem is being wrapped."</span></pre>
+                </div>
+                <p>
+                    A <code>PKFacade</code> superclass would add
+                    <strong>literally zero functionality</strong> beyond
+                    <code>Object</code>. The Facade pattern's entire value IS
+                    the domain-specific simplification you write inside it. The
+                    simplification cannot be parameterized because it
+                    presupposes knowing the structure of your subsystem — which
+                    a general-purpose library cannot know.
+                </p>
+                <p>
+                    What PatternKit <em>can</em> provide here is a
+                    <strong>marker and a convention</strong>: inherit from
+                    <code>PKFacade</code> to signal architectural intent to your
+                    team. But that is documentation, not encapsulation.
+                </p>
+                <div class="insight-box">
+                    <strong>The insight:</strong> Facade is a pattern about
+                    <em>what you write</em> — simple methods covering a complex
+                    subsystem. It is not a structural arrangement of objects.
+                    There is nothing structural to abstract. Any pattern whose
+                    "implementation" IS just writing methods in a class is
+                    immune to library encapsulation.
+                </div>
+            </div>
+
+            <div class="cannot-card">
+                <h3>⊘ Template Method</h3>
+                <p>
+                    This is the more profound of the two. Template Method says:
+                    <em
+                        >"write a method that calls other methods, some of which
+                        are abstract."</em
+                    >
+                    Consider what you would need from a library to avoid writing
+                    this yourself:
+                </p>
+                <div class="code-wrap">
+                    <div class="code-title">
+                        <span
+                            ><span class="dot"></span>Attempted
+                            PKTemplateMethod</span
+                        >
+                    </div>
+                    <pre
+                        class="code"
+                    ><span class="cm">"What would the library class need to provide?
+ The template method IS just a normal method."</span>
+
+<span class="cc">Object</span> subclass: <span class="cy">#PKTemplateMethod</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'PatternKit-Behavioral'</span>
+
+<span class="cm">"The 'template' IS a method body. You have to write it."</span>
+<span class="cc">PKTemplateMethod</span> >> <span class="cg">run</span>
+    self setup.
+    self doWork.
+    self teardown
+
+<span class="cm">"The 'primitives' ARE subclassResponsibility — already in Pharo."</span>
+<span class="cc">PKTemplateMethod</span> >> setup    <span class="cm">"hook"</span>
+<span class="cc">PKTemplateMethod</span> >> doWork   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">PKTemplateMethod</span> >> teardown <span class="cm">"hook"</span>
+
+<span class="cm">"But this only encapsulates THIS specific algorithm skeleton.
+ Every different skeleton needs its own template method.
+ A library can never write your algorithm skeleton for you."</span></pre>
+                </div>
+                <p>
+                    The issue is that every Template Method is a
+                    <strong>different algorithm</strong> with a different
+                    skeleton. A library can provide one skeleton — but then it
+                    IS just one specific algorithm, not a general-purpose
+                    pattern.
+                </p>
+                <p>
+                    More deeply: Template Method is not a structural arrangement
+                    of objects at all. It is a
+                    <strong
+                        >description of how OO inheritance already works</strong
+                    >. Every time you write a method in a superclass that calls
+                    overridable methods, you have implemented Template Method.
+                    The "library" for Template Method is Pharo's object model
+                    itself — <code>subclassResponsibility</code> is its
+                    primitive marker. It shipped with the first Smalltalk.
+                </p>
+                <div class="insight-box">
+                    <strong>The insight:</strong> Some GoF patterns are
+                    structural arrangements of objects that can be abstracted
+                    into reusable base classes (<strong
+                        >Strategy, Command, Chain, State</strong
+                    >). Others are simply
+                    <strong>descriptions of how OOP already works</strong>
+                    (<strong>Template Method</strong>) or descriptions of
+                    <strong>purposeful writing</strong>
+                    (<strong>Facade</strong>). The former are encapsulateable;
+                    the latter never will be, in any language.
+                </div>
+                <p style="margin-top: 14px">
+                    This is why the GoF book itself says about Template Method:
+                    <em
+                        >"template methods are so fundamental they can be found
+                        in almost every abstract class."</em
+                    >
+                    It's not a design choice you make — it's a consequence of
+                    using inheritance at all.
+                </p>
+            </div>
+
+            <!-- FINAL SUMMARY -->
+            <div class="verdict" style="margin-top: 40px">
+                <h3>PatternKit — what it looks like in practice</h3>
+                <p>
+                    Loading PatternKit gives you 9 fully-encapsulated pattern
+                    objects you use directly, 12 base classes you subclass with
+                    only domain-logic overrides, and 2 marker conventions
+                    (Facade, Template Method) that document intent but add no
+                    code.
+                </p>
+                <p>
+                    For a typical Pharo application, the patterns you reach for
+                    most (<strong
+                        >Observer, Command, Strategy, Iterator, State, Memento,
+                        Chain</strong
+                    >) are all in Tier 1 — fully encapsulated, zero structural
+                    boilerplate. The patterns requiring genuine subclassing
+                    (Composite, Visitor, Interpreter, Abstract Factory) are the
+                    ones where
+                    <strong
+                        >domain structure is intrinsic to the pattern's
+                        value</strong
+                    >, and no library can know that structure for you.
+                </p>
+                <p>
+                    <strong>The honest verdict:</strong> Yes, a PatternKit
+                    library is worth writing and using. But the patterns you'll
+                    most want to avoid rewriting from scratch — Command,
+                    Observer, State Machine, Memento — are precisely the ones
+                    PatternKit handles completely. The patterns that still need
+                    your code are the ones that should need your code: they're
+                    encoding your domain model, and that's not something a
+                    library can do for you.
+                </p>
+            </div>
+        </div>
+        <!-- /wrap -->
+
+        <script>
+            function toggle(header) {
+                header.classList.toggle("open");
+                const body = header.nextElementSibling;
+                body.classList.toggle("open");
+            }
+            // Open first entry by default
+            document.querySelector(".pe-header").click();
+        </script>
+    </body>
+</html>

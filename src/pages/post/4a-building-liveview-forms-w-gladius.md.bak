@@ -1,0 +1,302 @@
+# Building Phoenix LiveView Forms with Gladius
+
+If you've built Phoenix LiveView forms, you know the validation story: define an Ecto schema, write a changeset function, sprinkle in `validate_required`, `validate_format`, and `validate_length`, wire it to `inputs_for`, and hope the error messages make sense to your users.
+
+It works. But the validation logic is spread across the schema module, the changeset function, and sometimes the context module. Coercions happen implicitly through Ecto's type system. Error messages are tuples that you format in the template. And if you want to reuse a validation rule somewhere else — in a background job, an API endpoint, a CLI tool — you're copying code or reaching for a shared context function that wasn't designed for that.
+
+Gladius is a validation library built around a different idea: **parse, don't validate**. Instead of checking whether data is valid, you describe the shape of valid data and let `conform/2` return a shaped value — coercions applied, transforms run, defaults injected — or a list of structured errors. The same spec works at an HTTP boundary, in a LiveView form, in a background job, or in a function signature check.
+
+This post walks through building a real Phoenix LiveView form with Gladius: nested embeds, live validation, custom error messages, and the create/update/patch pattern. It covers everything we learned during a real battle test so you don't have to discover the rough edges yourself.
+
+---
+
+## Setup
+
+Add Gladius to your deps:
+
+```elixir
+# mix.exs
+def deps do
+  [
+    {:gladius, "~> 0.6"},
+    {:ecto, "~> 3.0"},  # already in Phoenix apps
+  ]
+end
+```
+
+Gladius starts its own registry under your application's supervision tree. No configuration needed.
+
+---
+
+## The Schema
+
+We'll build a user registration form with a nested address embed and a role dropdown. Let's define the schemas first.
+
+```elixir
+defmodule MyAppWeb.UserFormLive do
+  use MyAppWeb, :live_view
+  import Gladius
+
+  # ⚠ Schemas must be functions, NOT module attributes.
+  #
+  # Gladius specs contain anonymous functions (coercions, transforms).
+  # Elixir cannot escape anonymous functions at compile time, so storing
+  # a spec in @module_attr raises ArgumentError. Define schemas as private
+  # functions instead.
+
+  defp address_schema do
+    schema([
+      {required(:street), string(:filled?)},
+      {required(:city),   string(:filled?)},
+      {required(:zip),    string(size?: 5, message: "must be exactly 5 digits")}
+    ])
+  end
+
+  defp user_schema do
+    schema([
+      {required(:name),    transform(string(:filled?), &String.trim/1)},
+      {required(:email),   transform(
+                             string(:filled?, format: ~r/@/, message: "must be a valid email"),
+                             &String.downcase/1
+                           )},
+      {required(:age),     coerce(integer(gte?: 18, message: "must be at least 18"),
+                             from: :string,
+                             message: "must be a number")},
+      {optional(:role),    default(atom(in?: [:admin, :user]), :user)},
+      {required(:address), address_schema()}
+    ])
+  end
+end
+```
+
+A few things worth noting here:
+
+**List-based schemas preserve field order.** `schema([...])` takes a list of 2-tuples instead of a map. Lists preserve insertion order in Elixir; map literals don't. This matters for form rendering, JSON Schema export, and admin UIs where field order is meaningful.
+
+**Coercions, transforms, and defaults compose naturally.** `:age` is coerced from string to integer (Phoenix sends all form params as strings) and then validated as an integer ≥ 18. `:name` is validated as a non-empty string and then trimmed. `:email` is validated and then downcased. These happen in the right order automatically — coerce, then validate, then transform.
+
+**Custom error messages are per-spec.** The `message:` option overrides the generated error string for any failure of that spec. Use a plain string for simple overrides or a `{domain, msgid, bindings}` tuple for i18n.
+
+---
+
+## The Changeset
+
+`Gladius.Ecto` converts a Gladius schema to an `%Ecto.Changeset{}`:
+
+```elixir
+defp build_changeset(params) do
+  Gladius.Ecto.changeset(user_schema(), params)
+end
+```
+
+This one function does a surprising amount:
+
+- Runs Gladius conforming — coercions, validations, transforms, defaults — and maps errors to the changeset
+- Builds a nested `%Ecto.Changeset{}` for `:address` and registers it as an Ecto embed type, making it compatible with Phoenix's `inputs_for/4`
+- Auto-seeds `%{}` in `changeset.data` for the address field so `inputs_for` doesn't raise a `KeyError` on initial render
+- Strips Phoenix LiveView's internal bookkeeping keys (`_unused_*`, `_persistent_id`) that would otherwise cause a `CastError` from mixed atom/string key maps
+
+You don't need to configure any of this. It happens automatically.
+
+---
+
+## The LiveView
+
+```elixir
+def mount(_params, _session, socket) do
+  # to_form/2 converts the changeset to a %Phoenix.HTML.Form{} that
+  # Phoenix's input/1 component understands. Always store the form,
+  # not the raw changeset.
+  #
+  # as: :user is required for schemaless changesets — Phoenix cannot
+  # derive a form name without a backing struct module.
+  form = build_changeset(%{}) |> to_form(as: :user)
+  {:ok, assign(socket, form: form, result: nil)}
+end
+
+def handle_event("validate", %{"_target" => target, "user" => params}, socket) do
+  # Only show errors for the field the user just interacted with.
+  # Without this, every field shows an error the moment the user
+  # touches anything — bad UX.
+  touched = List.last(target)
+
+  form =
+    build_changeset(params)
+    |> then(fn cs ->
+      filtered_errors = Enum.filter(cs.errors, fn {field, _} ->
+        to_string(field) == touched
+      end)
+      %{cs | action: :validate, errors: filtered_errors}
+    end)
+    |> to_form(as: :user)
+
+  {:noreply, assign(socket, form: form)}
+end
+
+def handle_event("submit", %{"user" => params}, socket) do
+  case build_changeset(params) do
+    %{valid?: true} = cs ->
+      # apply_changes/1 returns the shaped value — coercions and
+      # transforms have already run, so this is production-ready data.
+      user = Ecto.Changeset.apply_changes(cs)
+      # user.name is trimmed, user.email is downcased, user.age is an integer
+      {:noreply, assign(socket, result: user)}
+
+    cs ->
+      form = cs |> Map.put(:action, :validate) |> to_form(as: :user)
+      {:noreply, assign(socket, form: form)}
+  end
+end
+```
+
+---
+
+## The Template
+
+```heex
+<.form for={@form} as={:user} phx-change="validate" phx-submit="submit">
+
+  <.input field={@form[:name]}  type="text"  label="Name" />
+  <.input field={@form[:email]} type="email" label="Email" />
+  <.input field={@form[:age]}   type="text"  label="Age" />
+  <.input field={@form[:role]}  type="select" label="Role"
+    options={[{"User", "user"}, {"Admin", "admin"}]} />
+
+  <fieldset>
+    <legend>Address</legend>
+    <.inputs_for :let={addr} field={@form[:address]}>
+      <.input field={addr[:street]} type="text" label="Street" />
+      <.input field={addr[:city]}   type="text" label="City" />
+      <.input field={addr[:zip]}    type="text" label="ZIP" maxlength="5" />
+    </.inputs_for>
+  </fieldset>
+
+  <button type="submit">Save</button>
+</.form>
+
+<%= if @result do %>
+  <pre><%= inspect(@result, pretty: true) %></pre>
+<% end %>
+```
+
+`inputs_for` renders the address sub-form because Gladius automatically registered `:address` as an Ecto embedded type (`{:embed, %Ecto.Embedded{cardinality: :one}}`). This is the piece that took the most work to get right — it just works now.
+
+---
+
+## The Five Things You Need to Know
+
+These are the gotchas we discovered during a real battle test. They're all documented in the library, but they're worth calling out explicitly.
+
+**1. Schemas must be functions, not module attributes.**
+
+```elixir
+# This raises ArgumentError at compile time:
+@schema schema(%{required(:name) => transform(string(), &String.trim/1)})
+
+# This works:
+defp user_schema, do: schema(%{required(:name) => transform(string(), &String.trim/1)})
+```
+
+Anonymous functions in coercions and transforms cannot be stored in module attributes. Elixir can't escape them at compile time. Define schemas as private functions.
+
+**2. `as:` is required on the form.**
+
+```heex
+<%!-- This raises: cannot generate name for changeset not backed by a struct --%>
+<.form for={@form} phx-change="validate">
+
+<%!-- This works: --%>
+<.form for={@form} as={:user} phx-change="validate">
+```
+
+Schemaless Ecto changesets have no struct module to derive a form name from. Phoenix needs you to supply it.
+
+**3. Store `to_form(changeset, as: :user)` in assigns, not the raw changeset.**
+
+Phoenix's `input/1` component expects a `%Phoenix.HTML.Form{}`, not an `%Ecto.Changeset{}`. Convert with `to_form/2` before assigning.
+
+**4. Filter errors by `_target` during `phx-change`.**
+
+Phoenix sends the field name that triggered the event in `_target`. Use it to only show errors for fields the user has actually interacted with. Showing all errors immediately creates a hostile form experience.
+
+**5. `Gladius.Ecto` strips Phoenix's internal params automatically.**
+
+LiveView injects `_unused_*` and `_persistent_id` keys into form params. These used to cause a `CastError` from mixed atom/string key maps. Gladius strips them automatically — you don't need a `clean_params` helper in your LiveView.
+
+---
+
+## The Create / Update / Patch Pattern
+
+One of Gladius's strongest features is schema derivation. You define a base schema once and derive all variants from it:
+
+```elixir
+defp base_schema do
+  schema([
+    {required(:name),  string(:filled?)},
+    {required(:email), string(:filled?, format: ~r/@/)},
+    {required(:age),   coerce(integer(gte?: 0), from: :string)}
+  ])
+end
+
+defp create_schema do
+  extend(base_schema(), [{required(:password), string(min_length: 12)}])
+end
+
+defp update_schema do
+  extend(base_schema(), [{optional(:role), atom(in?: [:admin, :user])}])
+end
+
+defp patch_schema do
+  selection(update_schema(), [:name, :email, :age, :role])
+end
+```
+
+`extend/2` takes a base schema and a list of additional or overriding keys. `selection/2` takes a schema and a list of field names, returning a new schema with only those fields, all made optional.
+
+`patch_schema` conforms to PATCH semantics: any subset of fields is valid (none are required), and only the declared fields are accepted (no mass-assignment). A change to `base_schema` propagates automatically to all three variants.
+
+---
+
+## Error Traversal for Nested Forms
+
+After submission, you can collect nested errors for display or logging using `Gladius.Ecto.traverse_errors/2`:
+
+```elixir
+Gladius.Ecto.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+#=> %{
+#=>   name:    ["can't be blank"],
+#=>   address: %{zip: ["must be exactly 5 digits"]}
+#=> }
+```
+
+Note: use `Gladius.Ecto.traverse_errors/2`, not Ecto's built-in `Ecto.Changeset.traverse_errors/2`. Ecto's built-in only recurses into declared embed/assoc fields backed by schema modules. Gladius's version handles the schemaless nested changesets that `Gladius.Ecto` produces.
+
+---
+
+## JSON Schema Export
+
+Because Gladius schemas are composable data, you can export them as JSON Schema for API documentation:
+
+```elixir
+Gladius.Schema.to_json_schema(user_schema(), title: "User")
+|> Jason.encode!(pretty: true)
+```
+
+The output is a valid JSON Schema draft 2020-12 document. Use it to generate OpenAPI specs, validate request bodies in API tests, or power a documentation UI. The same schema that drives your LiveView form drives your API docs.
+
+---
+
+## What's Next
+
+Gladius is available on [Hex.pm](https://hex.pm/packages/gladius). The source is at [github.com/Xs-and-10s/gladius](https://github.com/Xs-and-10s/gladius).
+
+The library currently covers:
+- Composable spec algebra with coercions, transforms, defaults, and cross-field validation
+- Schema extension (`extend/2`) and partial schemas (`selection/2`)
+- Phoenix LiveView integration with nested embeds and `inputs_for` support
+- JSON Schema export
+- StreamData generator inference for property-based testing
+- Function signature validation (dev/test only, zero prod overhead)
+- Typespec bridge for `@type` generation
+
+If you try it and hit something unexpected, open an issue. The battle test described in this post already found and fixed several integration issues — real usage finds things tests don't.

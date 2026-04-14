@@ -1,0 +1,3004 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>GoF Patterns · Pharo Smalltalk</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Lato:wght@300;400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            :root {
+                --bg: #0d1117;
+                --surface: #161b22;
+                --card: #1c2230;
+                --card2: #1a1f2e;
+                --border: #21293a;
+                --border2: #2d3955;
+                --accent: #e8b84b;
+                --accent2: rgba(232, 184, 75, 0.12);
+                --teal: #4ecdc4;
+                --teal2: rgba(78, 205, 196, 0.1);
+                --purple: #c084fc;
+                --blue: #60a5fa;
+                --green: #4ade80;
+                --red: #f87171;
+                --text: #cdd6f4;
+                --text2: #7c8db5;
+                --text3: #4a5568;
+                --c-comment: #5c6a7a;
+                --c-string: #98d4a3;
+                --c-number: #f0a868;
+                --c-keyword: #c792ea;
+                --c-class: #ffcb6b;
+                --c-msg: #82aaff;
+                --c-symbol: #89ddff;
+                --c-caret: #ff9cac;
+                --cat-c: #a78bfa;
+                --cat-s: #38bdf8;
+                --cat-b: #34d399;
+                --sidebar: 260px;
+            }
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                font-family: "Lato", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                font-size: 14px;
+                line-height: 1.6;
+                display: flex;
+                min-height: 100vh;
+            }
+
+            /* ── Sidebar ── */
+            nav.sidebar {
+                width: var(--sidebar);
+                min-width: var(--sidebar);
+                background: var(--surface);
+                border-right: 1px solid var(--border);
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                overflow-y: auto;
+                z-index: 50;
+                padding-bottom: 32px;
+            }
+            .nav-header {
+                padding: 20px 16px 12px;
+                border-bottom: 1px solid var(--border);
+                margin-bottom: 8px;
+            }
+            .nav-header h2 {
+                font-family: "Playfair Display", serif;
+                font-size: 16px;
+                font-weight: 700;
+                color: #fff;
+                margin-bottom: 2px;
+            }
+            .nav-header span {
+                font-size: 11px;
+                color: var(--text2);
+                font-family: "JetBrains Mono", monospace;
+            }
+            .nav-group {
+                margin-bottom: 4px;
+            }
+            .nav-group-label {
+                padding: 6px 16px 4px;
+                font-size: 9px;
+                letter-spacing: 0.15em;
+                text-transform: uppercase;
+                font-weight: 700;
+            }
+            .nav-group-label.c {
+                color: var(--cat-c);
+            }
+            .nav-group-label.s {
+                color: var(--cat-s);
+            }
+            .nav-group-label.b {
+                color: var(--cat-b);
+            }
+            .nav-link {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 5px 16px;
+                font-size: 12.5px;
+                color: var(--text2);
+                text-decoration: none;
+                transition: all 0.12s;
+                border-left: 2px solid transparent;
+            }
+            .nav-link:hover {
+                color: var(--text);
+                background: rgba(255, 255, 255, 0.03);
+            }
+            .nav-link.active {
+                color: #fff;
+                border-left-color: var(--accent);
+                background: rgba(232, 184, 75, 0.07);
+            }
+            .nav-link .num {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                color: var(--text3);
+                min-width: 18px;
+            }
+
+            /* ── Main ── */
+            main {
+                margin-left: var(--sidebar);
+                flex: 1;
+                padding: 0;
+            }
+
+            /* ── Page header ── */
+            .page-header {
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                padding: 40px 48px 32px;
+            }
+            .eyebrow {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                color: var(--accent);
+                margin-bottom: 12px;
+            }
+            .page-header h1 {
+                font-family: "Playfair Display", serif;
+                font-size: clamp(28px, 4vw, 44px);
+                font-weight: 900;
+                color: #fff;
+                line-height: 1.1;
+                margin-bottom: 10px;
+            }
+            .page-header p {
+                color: var(--text2);
+                max-width: 640px;
+                font-size: 14px;
+                line-height: 1.7;
+            }
+            .legend {
+                display: flex;
+                gap: 20px;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                color: var(--text2);
+            }
+            .legend-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 2px;
+            }
+
+            /* ── Category sections ── */
+            .category-block {
+                padding: 32px 48px 16px;
+            }
+            .category-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 24px;
+                padding-bottom: 14px;
+                border-bottom: 1px solid var(--border);
+            }
+            .category-badge {
+                display: inline-flex;
+                align-items: center;
+                padding: 4px 14px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+            }
+            .cat-c {
+                background: rgba(167, 139, 250, 0.15);
+                color: var(--cat-c);
+            }
+            .cat-s {
+                background: rgba(56, 189, 248, 0.15);
+                color: var(--cat-s);
+            }
+            .cat-b {
+                background: rgba(52, 211, 153, 0.15);
+                color: var(--cat-b);
+            }
+            .category-title {
+                font-family: "Playfair Display", serif;
+                font-size: 22px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .category-count {
+                font-size: 12px;
+                color: var(--text3);
+                margin-left: auto;
+                font-family: "JetBrains Mono", monospace;
+            }
+
+            /* ── Pattern card ── */
+            .pattern {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                margin-bottom: 20px;
+                overflow: hidden;
+            }
+            .pattern-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 14px 20px;
+                border-bottom: 1px solid var(--border);
+                background: var(--card2);
+            }
+            .pattern-num {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11px;
+                color: var(--text3);
+                min-width: 24px;
+            }
+            .pattern-name {
+                font-family: "Playfair Display", serif;
+                font-size: 18px;
+                font-weight: 700;
+                color: #fff;
+                flex: 1;
+            }
+            .pharo-badge {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                padding: 2px 8px;
+                border-radius: 4px;
+                background: var(--teal2);
+                color: var(--teal);
+                border: 1px solid rgba(78, 205, 196, 0.2);
+                white-space: nowrap;
+            }
+            .pattern-body {
+                padding: 18px 20px 20px;
+            }
+            .pattern-intent {
+                font-size: 13px;
+                color: var(--text2);
+                line-height: 1.75;
+                margin-bottom: 16px;
+                padding-left: 12px;
+                border-left: 2px solid var(--border2);
+            }
+            .pattern-intent strong {
+                color: var(--text);
+            }
+
+            /* ── Code blocks ── */
+            pre.code {
+                background: #090d14;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 18px 20px;
+                overflow-x: auto;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 12.5px;
+                line-height: 1.7;
+                color: #abb2bf;
+                tab-size: 4;
+                counter-reset: line;
+            }
+            pre.code .section {
+                display: block;
+                border-top: 1px solid #1a2030;
+                margin-top: 12px;
+                padding-top: 12px;
+            }
+            pre.code .section:first-child {
+                border-top: none;
+                margin-top: 0;
+                padding-top: 0;
+            }
+            .code-label {
+                display: inline-block;
+                background: #0f1520;
+                border: 1px solid var(--border);
+                border-bottom: none;
+                border-radius: 6px 6px 0 0;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                color: var(--text2);
+                padding: 4px 12px;
+                margin-bottom: -1px;
+            }
+            /* Syntax */
+            .cm {
+                color: var(--c-comment);
+                font-style: italic;
+            }
+            .cs {
+                color: var(--c-string);
+            }
+            .cn {
+                color: var(--c-number);
+            }
+            .ck {
+                color: var(--c-keyword);
+            }
+            .cc {
+                color: var(--c-class);
+                font-weight: 500;
+            }
+            .cg {
+                color: var(--c-msg);
+            }
+            .cy {
+                color: var(--c-symbol);
+            }
+            .car {
+                color: var(--c-caret);
+            }
+
+            /* ── Pharo notes ── */
+            .pharo-note {
+                display: flex;
+                gap: 10px;
+                align-items: flex-start;
+                background: var(--teal2);
+                border: 1px solid rgba(78, 205, 196, 0.15);
+                border-radius: 7px;
+                padding: 10px 14px;
+                font-size: 12.5px;
+                color: var(--text2);
+                margin-bottom: 14px;
+                line-height: 1.65;
+            }
+            .pharo-note-icon {
+                color: var(--teal);
+                font-size: 14px;
+                margin-top: 1px;
+                flex-shrink: 0;
+            }
+            .pharo-note strong {
+                color: var(--teal);
+            }
+
+            /* ── Scrollbar ── */
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: var(--bg);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: var(--border2);
+                border-radius: 3px;
+            }
+
+            /* ── Responsive ── */
+            @media (max-width: 768px) {
+                nav.sidebar {
+                    display: none;
+                }
+                main {
+                    margin-left: 0;
+                }
+                .category-block,
+                .page-header {
+                    padding-left: 20px;
+                    padding-right: 20px;
+                }
+            }
+
+            /* ── Active nav tracking ── */
+            .pattern[data-id] {
+                scroll-margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- ══════════ SIDEBAR ══════════ -->
+        <nav class="sidebar">
+            <div class="nav-header">
+                <h2>GoF Patterns</h2>
+                <span>Pharo Smalltalk · 23 total</span>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-label c">Creational · 5</div>
+                <a class="nav-link" href="#abstract-factory"
+                    ><span class="num">01</span>Abstract Factory</a
+                >
+                <a class="nav-link" href="#builder"
+                    ><span class="num">02</span>Builder</a
+                >
+                <a class="nav-link" href="#factory-method"
+                    ><span class="num">03</span>Factory Method</a
+                >
+                <a class="nav-link" href="#prototype"
+                    ><span class="num">04</span>Prototype</a
+                >
+                <a class="nav-link" href="#singleton"
+                    ><span class="num">05</span>Singleton</a
+                >
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-label s">Structural · 7</div>
+                <a class="nav-link" href="#adapter"
+                    ><span class="num">06</span>Adapter</a
+                >
+                <a class="nav-link" href="#bridge"
+                    ><span class="num">07</span>Bridge</a
+                >
+                <a class="nav-link" href="#composite"
+                    ><span class="num">08</span>Composite</a
+                >
+                <a class="nav-link" href="#decorator"
+                    ><span class="num">09</span>Decorator</a
+                >
+                <a class="nav-link" href="#facade"
+                    ><span class="num">10</span>Facade</a
+                >
+                <a class="nav-link" href="#flyweight"
+                    ><span class="num">11</span>Flyweight</a
+                >
+                <a class="nav-link" href="#proxy"
+                    ><span class="num">12</span>Proxy</a
+                >
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-label b">Behavioral · 11</div>
+                <a class="nav-link" href="#chain"
+                    ><span class="num">13</span>Chain of Resp.</a
+                >
+                <a class="nav-link" href="#command"
+                    ><span class="num">14</span>Command</a
+                >
+                <a class="nav-link" href="#interpreter"
+                    ><span class="num">15</span>Interpreter</a
+                >
+                <a class="nav-link" href="#iterator"
+                    ><span class="num">16</span>Iterator</a
+                >
+                <a class="nav-link" href="#mediator"
+                    ><span class="num">17</span>Mediator</a
+                >
+                <a class="nav-link" href="#memento"
+                    ><span class="num">18</span>Memento</a
+                >
+                <a class="nav-link" href="#observer"
+                    ><span class="num">19</span>Observer</a
+                >
+                <a class="nav-link" href="#state"
+                    ><span class="num">20</span>State</a
+                >
+                <a class="nav-link" href="#strategy"
+                    ><span class="num">21</span>Strategy</a
+                >
+                <a class="nav-link" href="#template"
+                    ><span class="num">22</span>Template Method</a
+                >
+                <a class="nav-link" href="#visitor"
+                    ><span class="num">23</span>Visitor</a
+                >
+            </div>
+        </nav>
+
+        <!-- ══════════ MAIN ══════════ -->
+        <main>
+            <div class="page-header">
+                <div class="eyebrow">Gang of Four · All 23 Patterns</div>
+                <h1>Design Patterns in<br />Pharo Smalltalk</h1>
+                <p>
+                    Idiomatic implementations of every GoF pattern. Notes call
+                    out where Pharo's dynamic nature, first-class blocks, and
+                    metaclass system reduce or eliminate pattern boilerplate.
+                </p>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div
+                            class="legend-dot"
+                            style="background: var(--cat-c)"
+                        ></div>
+                        Creational
+                    </div>
+                    <div class="legend-item">
+                        <div
+                            class="legend-dot"
+                            style="background: var(--cat-s)"
+                        ></div>
+                        Structural
+                    </div>
+                    <div class="legend-item">
+                        <div
+                            class="legend-dot"
+                            style="background: var(--cat-b)"
+                        ></div>
+                        Behavioral
+                    </div>
+                    <div class="legend-item">
+                        <div
+                            class="legend-dot"
+                            style="background: var(--teal)"
+                        ></div>
+                        🟣 Pharo native advantage
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     CREATIONAL
+══════════════════════════════════════ -->
+            <div class="category-block">
+                <div class="category-header">
+                    <span class="category-badge cat-c">Creational</span>
+                    <span class="category-title">Object Creation Patterns</span>
+                    <span class="category-count">5 patterns</span>
+                </div>
+
+                <!-- 01 ABSTRACT FACTORY -->
+                <div
+                    class="pattern"
+                    id="abstract-factory"
+                    data-id="abstract-factory"
+                >
+                    <div class="pattern-header">
+                        <span class="pattern-num">01</span>
+                        <span class="pattern-name">Abstract Factory</span>
+                        <span
+                            class="category-badge cat-c"
+                            style="font-size: 9px"
+                            >Creational</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Provide an interface for creating
+                            <strong>families of related objects</strong> without
+                            specifying their concrete classes. The factory
+                            itself is an object you can swap out to change the
+                            entire product family.
+                        </p>
+                        <span class="code-label">abstract_factory.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Abstract Products ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#Button</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cc">Button</span> &gt;&gt; <span class="cg">render</span>
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">Object</span> subclass: <span class="cy">#Checkbox</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cc">Checkbox</span> &gt;&gt; <span class="cg">render</span>
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Windows Family ════════════"</span>
+<span class="cc">Button</span> subclass: <span class="cy">#WinButton</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cc">WinButton</span> &gt;&gt; <span class="cg">render</span>
+    <span class="car">^</span> <span class="cs">'[ Windows Button ]'</span>
+
+<span class="cc">Checkbox</span> subclass: <span class="cy">#WinCheckbox</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cc">WinCheckbox</span> &gt;&gt; <span class="cg">render</span>
+    <span class="car">^</span> <span class="cs">'[x] Windows Checkbox'</span>
+
+<span class="cm">"════════════ Mac Family ════════════"</span>
+<span class="cc">Button</span> subclass: <span class="cy">#MacButton</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cc">MacButton</span> &gt;&gt; <span class="cg">render</span>
+    <span class="car">^</span> <span class="cs">'( Mac Button )'</span>
+
+<span class="cc">Checkbox</span> subclass: <span class="cy">#MacCheckbox</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cc">MacCheckbox</span> &gt;&gt; <span class="cg">render</span>
+    <span class="car">^</span> <span class="cs">'(✓) Mac Checkbox'</span>
+
+<span class="cm">"════════════ Abstract Factory ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#UIFactory</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cm">"Class-side convenience: pick a factory by platform symbol"</span>
+<span class="cc">UIFactory</span> class &gt;&gt; <span class="cg">forPlatform:</span> aSymbol
+    aSymbol = <span class="cy">#windows</span> <span class="cg">ifTrue:</span> [ <span class="car">^</span> <span class="cc">WinUIFactory</span> new ].
+    aSymbol = <span class="cy">#mac</span>     <span class="cg">ifTrue:</span> [ <span class="car">^</span> <span class="cc">MacUIFactory</span> new ].
+    <span class="car">^</span> self <span class="cg">error:</span> <span class="cs">'Unknown platform: '</span> , aSymbol
+
+<span class="cc">UIFactory</span> &gt;&gt; <span class="cg">createButton</span>
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">UIFactory</span> &gt;&gt; <span class="cg">createCheckbox</span>
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Concrete Factories ════════════"</span>
+<span class="cc">UIFactory</span> subclass: <span class="cy">#WinUIFactory</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cc">WinUIFactory</span> &gt;&gt; <span class="cg">createButton</span>    <span class="car">^</span> <span class="cc">WinButton</span> new
+<span class="cc">WinUIFactory</span> &gt;&gt; <span class="cg">createCheckbox</span> <span class="car">^</span> <span class="cc">WinCheckbox</span> new
+
+<span class="cc">UIFactory</span> subclass: <span class="cy">#MacUIFactory</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-AbstractFactory'</span>
+
+<span class="cc">MacUIFactory</span> &gt;&gt; <span class="cg">createButton</span>    <span class="car">^</span> <span class="cc">MacButton</span> new
+<span class="cc">MacUIFactory</span> &gt;&gt; <span class="cg">createCheckbox</span> <span class="car">^</span> <span class="cc">MacCheckbox</span> new
+
+<span class="cm">"════════════ Client code ════════════"</span>
+<span class="cm">"Swap factory → entire UI family changes; client code unchanged"</span>
+| factory btn chk |
+factory := <span class="cc">UIFactory</span> <span class="cg">forPlatform:</span> <span class="cy">#mac</span>.
+btn := factory <span class="cg">createButton</span>.
+chk := factory <span class="cg">createCheckbox</span>.
+btn <span class="cg">render</span>.   <span class="cm">"=> '( Mac Button )'"</span>
+chk <span class="cg">render</span>.   <span class="cm">"=> '(✓) Mac Checkbox'"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 02 BUILDER -->
+                <div class="pattern" id="builder" data-id="builder">
+                    <div class="pattern-header">
+                        <span class="pattern-num">02</span>
+                        <span class="pattern-name">Builder</span>
+                        <span
+                            class="category-badge cat-c"
+                            style="font-size: 9px"
+                            >Creational</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 Cascade + yourself idiom</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Separate the construction of a complex object from
+                            its representation. The same construction process
+                            can produce different representations. A Director
+                            orchestrates a Builder to construct step-by-step.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                For many objects, Pharo's
+                                <strong>cascade + <code>yourself</code></strong>
+                                pattern (<code
+                                    >Foo new field: x; field: y; yourself</code
+                                >) is a lightweight inline Builder that needs no
+                                separate class. Reserve the full GoF Builder for
+                                objects with multiple distinct representations
+                                or complex multi-step construction.
+                            </div>
+                        </div>
+                        <span class="code-label">builder.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Product ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#SQLQuery</span>
+    instanceVariableNames: <span class="cs">'table columns conditions orderBy limit'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Builder'</span>
+
+<span class="cc">SQLQuery</span> &gt;&gt; <span class="cg">initialize</span>
+    columns    := <span class="cc">OrderedCollection</span> new.
+    conditions := <span class="cc">OrderedCollection</span> new.
+
+<span class="cc">SQLQuery</span> &gt;&gt; <span class="cg">table:</span> t        table    := t
+<span class="cc">SQLQuery</span> &gt;&gt; <span class="cg">addColumn:</span> c    columns    <span class="cg">add:</span> c
+<span class="cc">SQLQuery</span> &gt;&gt; <span class="cg">addCondition:</span> c conditions <span class="cg">add:</span> c
+<span class="cc">SQLQuery</span> &gt;&gt; <span class="cg">orderBy:</span> col    orderBy  := col
+<span class="cc">SQLQuery</span> &gt;&gt; <span class="cg">limit:</span> n         limit    := n
+
+<span class="cc">SQLQuery</span> &gt;&gt; <span class="cg">asString</span>
+    | colStr sql |
+    colStr := columns <span class="cg">isEmpty</span>
+        <span class="cg">ifTrue:</span>  [ <span class="cs">'*'</span> ]
+        <span class="cg">ifFalse:</span> [ <span class="cs">', '</span> <span class="cg">join:</span> columns ].
+    sql := <span class="cs">'SELECT '</span> , colStr , <span class="cs">' FROM '</span> , table.
+    conditions <span class="cg">isEmpty</span> <span class="cg">ifFalse:</span> [
+        sql := sql , <span class="cs">' WHERE '</span> , (<span class="cs">' AND '</span> <span class="cg">join:</span> conditions) ].
+    orderBy <span class="cg">isNil</span> <span class="cg">ifFalse:</span> [ sql := sql , <span class="cs">' ORDER BY '</span> , orderBy ].
+    limit   <span class="cg">isNil</span> <span class="cg">ifFalse:</span> [ sql := sql , <span class="cs">' LIMIT '</span>    , limit <span class="cg">printString</span> ].
+    <span class="car">^</span> sql
+
+<span class="cm">"════════════ Abstract Builder ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#QueryBuilder</span>
+    instanceVariableNames: <span class="cs">'query'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Builder'</span>
+
+<span class="cc">QueryBuilder</span> &gt;&gt; <span class="cg">reset</span>         query := <span class="cc">SQLQuery</span> new
+<span class="cc">QueryBuilder</span> &gt;&gt; <span class="cg">result</span>        <span class="car">^</span> query
+<span class="cc">QueryBuilder</span> &gt;&gt; <span class="cg">buildTable</span>    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">QueryBuilder</span> &gt;&gt; <span class="cg">buildColumns</span>  <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">QueryBuilder</span> &gt;&gt; <span class="cg">buildFilters</span>  <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Concrete Builder ════════════"</span>
+<span class="cc">QueryBuilder</span> subclass: <span class="cy">#ActiveUsersQueryBuilder</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Builder'</span>
+
+<span class="cc">ActiveUsersQueryBuilder</span> &gt;&gt; <span class="cg">buildTable</span>
+    query <span class="cg">table:</span> <span class="cs">'users'</span>
+
+<span class="cc">ActiveUsersQueryBuilder</span> &gt;&gt; <span class="cg">buildColumns</span>
+    query <span class="cg">addColumn:</span> <span class="cs">'id'</span>.
+    query <span class="cg">addColumn:</span> <span class="cs">'email'</span>.
+    query <span class="cg">addColumn:</span> <span class="cs">'last_login'</span>
+
+<span class="cc">ActiveUsersQueryBuilder</span> &gt;&gt; <span class="cg">buildFilters</span>
+    query
+        <span class="cg">addCondition:</span> <span class="cs">'active = TRUE'</span>;
+        <span class="cg">orderBy:</span>      <span class="cs">'last_login DESC'</span>;
+        <span class="cg">limit:</span>        <span class="cn">100</span>
+
+<span class="cm">"════════════ Director ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#QueryDirector</span>
+    instanceVariableNames: <span class="cs">'builder'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Builder'</span>
+
+<span class="cc">QueryDirector</span> &gt;&gt; <span class="cg">builder:</span> b   builder := b
+
+<span class="cc">QueryDirector</span> &gt;&gt; <span class="cg">build</span>
+    builder reset.
+    builder buildTable.
+    builder buildColumns.
+    builder buildFilters.
+    <span class="car">^</span> builder result
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| builder director query |
+builder  := <span class="cc">ActiveUsersQueryBuilder</span> new.
+director := <span class="cc">QueryDirector</span> new <span class="cg">builder:</span> builder.
+query    := director build.
+query <span class="cg">asString</span>.
+<span class="cm">"=> 'SELECT id, email, last_login FROM users WHERE active = TRUE ORDER BY last_login DESC LIMIT 100'"</span>
+
+<span class="cm">"════════ Pharo lightweight alternative (cascade + yourself) ════════"</span>
+<span class="cm">"For simpler cases, skip the Director/Builder classes entirely:"</span>
+<span class="cc">SQLQuery</span> new
+    <span class="cg">table:</span> <span class="cs">'products'</span>;
+    <span class="cg">addColumn:</span> <span class="cs">'name'</span>;
+    <span class="cg">addCondition:</span> <span class="cs">'price > 100'</span>;
+    <span class="cg">limit:</span> <span class="cn">20</span>;
+    <span class="cg">yourself</span></pre>
+                    </div>
+                </div>
+
+                <!-- 03 FACTORY METHOD -->
+                <div
+                    class="pattern"
+                    id="factory-method"
+                    data-id="factory-method"
+                >
+                    <div class="pattern-header">
+                        <span class="pattern-num">03</span>
+                        <span class="pattern-name">Factory Method</span>
+                        <span
+                            class="category-badge cat-c"
+                            style="font-size: 9px"
+                            >Creational</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 Class-side constructors are idiomatic</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Define an interface for creating an object, but let
+                            <strong>subclasses decide</strong> which class to
+                            instantiate. The factory method defers instantiation
+                            to subclasses. Pharo idiom: expressive class-side
+                            constructor methods.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                In Pharo, every class is an object (an instance
+                                of its metaclass), so
+                                <strong
+                                    >class-side methods are factory
+                                    methods</strong
+                                >. <code>OrderedCollection new</code>,
+                                <code>Color red</code>,
+                                <code>Date today</code> are all factory methods.
+                                Adding expressive class-side constructors (<code
+                                    >Connection https: 'host'</code
+                                >) is the idiomatic Pharo approach — no extra
+                                pattern infrastructure needed.
+                            </div>
+                        </div>
+                        <span class="code-label">factory_method.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ GoF-style: subclass determines the product ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#DocumentEditor</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-FactoryMethod'</span>
+
+<span class="cm">"The factory method — subclasses override this"</span>
+<span class="cc">DocumentEditor</span> &gt;&gt; <span class="cg">createDocument</span>
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"Template that uses the factory method — fixed algorithm, variable product"</span>
+<span class="cc">DocumentEditor</span> &gt;&gt; <span class="cg">newDocument</span>
+    | doc |
+    doc := self <span class="cg">createDocument</span>.   <span class="cm">"&lt;— factory method call"</span>
+    doc <span class="cg">setDefaults</span>.
+    doc <span class="cg">openInEditor</span>.
+    <span class="car">^</span> doc
+
+<span class="cm">"Concrete creators"</span>
+<span class="cc">DocumentEditor</span> subclass: <span class="cy">#PDFEditor</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-FactoryMethod'</span>
+
+<span class="cc">PDFEditor</span> &gt;&gt; <span class="cg">createDocument</span>   <span class="car">^</span> <span class="cc">PDFDocument</span> new
+
+<span class="cc">DocumentEditor</span> subclass: <span class="cy">#MarkdownEditor</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-FactoryMethod'</span>
+
+<span class="cc">MarkdownEditor</span> &gt;&gt; <span class="cg">createDocument</span>   <span class="car">^</span> <span class="cc">MarkdownDocument</span> new
+
+<span class="cm">"════════════ Pharo idiom: expressive class-side constructors ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#Connection</span>
+    instanceVariableNames: <span class="cs">'host port tls timeout'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-FactoryMethod'</span>
+
+<span class="cm">"Multiple named constructors — each sets up a different configuration"</span>
+<span class="cc">Connection</span> class &gt;&gt; <span class="cg">http:</span> aHost
+    <span class="car">^</span> self new
+        <span class="cg">host:</span> aHost;
+        <span class="cg">port:</span> <span class="cn">80</span>;
+        <span class="cg">tls:</span> false;
+        <span class="cg">timeout:</span> <span class="cn">30</span>;
+        yourself
+
+<span class="cc">Connection</span> class &gt;&gt; <span class="cg">https:</span> aHost
+    <span class="car">^</span> self new
+        <span class="cg">host:</span> aHost;
+        <span class="cg">port:</span> <span class="cn">443</span>;
+        <span class="cg">tls:</span> true;
+        <span class="cg">timeout:</span> <span class="cn">30</span>;
+        yourself
+
+<span class="cc">Connection</span> class &gt;&gt; <span class="cg">postgres:</span> aHost <span class="cg">port:</span> aPort
+    <span class="car">^</span> self new
+        <span class="cg">host:</span> aHost;
+        <span class="cg">port:</span> aPort;
+        <span class="cg">tls:</span> false;
+        <span class="cg">timeout:</span> <span class="cn">10</span>;
+        yourself
+
+<span class="cc">Connection</span> &gt;&gt; <span class="cg">host:</span> h    host    := h
+<span class="cc">Connection</span> &gt;&gt; <span class="cg">port:</span> p    port    := p
+<span class="cc">Connection</span> &gt;&gt; <span class="cg">tls:</span> b     tls     := b
+<span class="cc">Connection</span> &gt;&gt; <span class="cg">timeout:</span> t timeout := t
+
+<span class="cm">"Usage — reads like a DSL, zero construction noise"</span>
+<span class="cc">Connection</span> <span class="cg">https:</span> <span class="cs">'api.example.com'</span>.
+<span class="cc">Connection</span> <span class="cg">postgres:</span> <span class="cs">'db.prod'</span> <span class="cg">port:</span> <span class="cn">5432</span>.</pre>
+                    </div>
+                </div>
+
+                <!-- 04 PROTOTYPE -->
+                <div class="pattern" id="prototype" data-id="prototype">
+                    <div class="pattern-header">
+                        <span class="pattern-num">04</span>
+                        <span class="pattern-name">Prototype</span>
+                        <span
+                            class="category-badge cat-c"
+                            style="font-size: 9px"
+                            >Creational</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 copy / deepCopy on every Object</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Specify the kinds of objects to create using a
+                            prototypical instance, and create new objects by
+                            <strong>cloning</strong> that prototype. Useful when
+                            direct instantiation is expensive or when you want
+                            to clone pre-configured objects.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                <strong
+                                    >Prototype is essentially built in.</strong
+                                >
+                                <code>copy</code> (shallow) and
+                                <code>deepCopy</code> (deep graph copy) live on
+                                <code>Object</code> itself. Override
+                                <code>postCopy</code> to re-initialize fields
+                                that should be independent between clones.
+                                Prototype registries are just class-side
+                                <code>Dictionary</code> instances.
+                            </div>
+                        </div>
+                        <span class="code-label">prototype.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Basic copy / deepCopy (built-in) ════════════"</span>
+| original clone |
+original := <span class="cc">OrderedCollection</span> <span class="cg">with:</span> <span class="cn">1</span> <span class="cg">with:</span> <span class="cn">2</span> <span class="cg">with:</span> <span class="cn">3</span>.
+clone    := original <span class="cg">copy</span>.    <span class="cm">"shallow — new collection, shared elements"</span>
+clone    := original <span class="cg">deepCopy</span>. <span class="cm">"deep   — entire object graph is duplicated"</span>
+clone <span class="cg">add:</span> <span class="cn">99</span>.
+original <span class="cg">size</span>.  <span class="cm">"=> 3  (original unaffected)"</span>
+clone <span class="cg">size</span>.     <span class="cm">"=> 4"</span>
+
+<span class="cm">"════════════ Prototype with postCopy ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#DocumentTemplate</span>
+    instanceVariableNames: <span class="cs">'title content styles metadata'</span>
+    classVariableNames: <span class="cs">'Registry'</span>
+    package: <span class="cs">'Patterns-Prototype'</span>
+
+<span class="cc">DocumentTemplate</span> class &gt;&gt; <span class="cg">initialize</span>
+    <span class="cc">Registry</span> := <span class="cc">Dictionary</span> new.
+    <span class="cc">Registry</span>
+        <span class="cg">at:</span> <span class="cy">#report</span> <span class="cg">put:</span> (self new
+            <span class="cg">title:</span>  <span class="cs">'Untitled Report'</span>;
+            <span class="cg">styles:</span> { <span class="cy">#font</span> -&gt; <span class="cs">'Georgia'</span>. <span class="cy">#size</span> -&gt; <span class="cn">12</span> } asDictionary;
+            yourself);
+        <span class="cg">at:</span> <span class="cy">#invoice</span> <span class="cg">put:</span> (self new
+            <span class="cg">title:</span>  <span class="cs">'Invoice #'</span>;
+            <span class="cg">styles:</span> { <span class="cy">#font</span> -&gt; <span class="cs">'Arial'</span>. <span class="cy">#size</span> -&gt; <span class="cn">10</span> } asDictionary;
+            yourself)
+
+<span class="cm">"Produce a clone from the registry"</span>
+<span class="cc">DocumentTemplate</span> class &gt;&gt; <span class="cg">clone:</span> aSymbol
+    <span class="car">^</span> (<span class="cc">Registry</span> <span class="cg">at:</span> aSymbol) <span class="cg">deepCopy</span>
+
+<span class="cc">DocumentTemplate</span> &gt;&gt; <span class="cg">title:</span> s    title    := s
+<span class="cc">DocumentTemplate</span> &gt;&gt; <span class="cg">styles:</span> d   styles   := d
+<span class="cc">DocumentTemplate</span> &gt;&gt; <span class="cg">title</span>       <span class="car">^</span> title
+
+<span class="cm">"Override postCopy to re-initialise per-clone mutable state"</span>
+<span class="cc">DocumentTemplate</span> &gt;&gt; <span class="cg">postCopy</span>
+    content  := <span class="cs">''</span>.               <span class="cm">"each clone starts empty"</span>
+    metadata := <span class="cc">Dictionary</span> new    <span class="cm">"independent metadata dict"</span>
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| r1 r2 |
+r1 := <span class="cc">DocumentTemplate</span> <span class="cg">clone:</span> <span class="cy">#report</span>.
+r2 := <span class="cc">DocumentTemplate</span> <span class="cg">clone:</span> <span class="cy">#report</span>.
+r1 <span class="cg">title:</span> <span class="cs">'Q1 2025 Report'</span>.
+r2 <span class="cg">title:</span> <span class="cs">'Q2 2025 Report'</span>.
+r1 <span class="cg">title</span>.   <span class="cm">"=> 'Q1 2025 Report'"</span>
+r2 <span class="cg">title</span>.   <span class="cm">"=> 'Q2 2025 Report'  — independent"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 05 SINGLETON -->
+                <div class="pattern" id="singleton" data-id="singleton">
+                    <div class="pattern-header">
+                        <span class="pattern-num">05</span>
+                        <span class="pattern-name">Singleton</span>
+                        <span
+                            class="category-badge cat-c"
+                            style="font-size: 9px"
+                            >Creational</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 The class itself IS a singleton</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Ensure a class has only one instance, and provide a
+                            global access point to it.
+                            <strong>Use sparingly</strong> — Singleton
+                            introduces global state, hides dependencies, and
+                            makes testing difficult.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                <strong
+                                    >In Pharo, you often don't need this pattern
+                                    at all.</strong
+                                >
+                                Every class is a unique object (an instance of
+                                its metaclass). Class-side instance variables
+                                with class-side accessors achieve singleton
+                                semantics without any pattern overhead. Prefer
+                                this to the classic pattern.
+                            </div>
+                        </div>
+                        <span class="code-label">singleton.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Classic Singleton ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#AppLogger</span>
+    instanceVariableNames: <span class="cs">'log'</span>
+    classVariableNames: <span class="cs">'Instance'</span>
+    package: <span class="cs">'Patterns-Singleton'</span>
+
+<span class="cc">AppLogger</span> class &gt;&gt; <span class="cg">instance</span>
+    <span class="cc">Instance</span> <span class="cg">isNil</span> <span class="cg">ifTrue:</span> [ <span class="cc">Instance</span> := super <span class="cg">new</span> <span class="cg">initialize</span> ].
+    <span class="car">^</span> <span class="cc">Instance</span>
+
+<span class="cm">"Block direct instantiation"</span>
+<span class="cc">AppLogger</span> class &gt;&gt; <span class="cg">new</span>
+    <span class="car">^</span> self <span class="cg">error:</span> <span class="cs">'Use AppLogger instance'</span>
+
+<span class="cm">"Reset for tests — always provide this!"</span>
+<span class="cc">AppLogger</span> class &gt;&gt; <span class="cg">reset</span>
+    <span class="cc">Instance</span> := nil
+
+<span class="cc">AppLogger</span> &gt;&gt; <span class="cg">initialize</span>
+    log := <span class="cc">OrderedCollection</span> new
+
+<span class="cc">AppLogger</span> &gt;&gt; <span class="cg">log:</span> msg
+    log <span class="cg">add:</span> <span class="cc">DateAndTime</span> <span class="cg">now</span> <span class="cg">printString</span> , <span class="cs">' '</span> , msg
+
+<span class="cc">AppLogger</span> &gt;&gt; <span class="cg">entries</span>   <span class="car">^</span> log <span class="cg">copy</span>
+
+<span class="cm">"Usage"</span>
+<span class="cc">AppLogger</span> instance <span class="cg">log:</span> <span class="cs">'System started'</span>.
+<span class="cc">AppLogger</span> instance <span class="cg">log:</span> <span class="cs">'User logged in'</span>.
+<span class="cc">AppLogger</span> instance == <span class="cc">AppLogger</span> instance.   <span class="cm">"=> true"</span>
+
+<span class="cm">"════════════ Pharo-idiomatic: use the class directly ════════════"</span>
+<span class="cm">"No instance needed — class-side vars hold the state."</span>
+<span class="cm">"The class is literally a unique object in the image."</span>
+<span class="cc">Object</span> subclass: <span class="cy">#Config</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">'Host Port Debug'</span>
+    package: <span class="cs">'Patterns-Singleton'</span>
+
+<span class="cc">Config</span> class &gt;&gt; <span class="cg">initialize</span>
+    <span class="cc">Host</span>  := <span class="cs">'localhost'</span>.
+    <span class="cc">Port</span>  := <span class="cn">8080</span>.
+    <span class="cc">Debug</span> := false
+
+<span class="cc">Config</span> class &gt;&gt; host    <span class="car">^</span> <span class="cc">Host</span>
+<span class="cc">Config</span> class &gt;&gt; port    <span class="car">^</span> <span class="cc">Port</span>
+<span class="cc">Config</span> class &gt;&gt; debug   <span class="car">^</span> <span class="cc">Debug</span>
+<span class="cc">Config</span> class &gt;&gt; <span class="cg">host:</span> s  <span class="cc">Host</span> := s
+
+<span class="cm">"Usage — zero ceremony"</span>
+<span class="cc">Config</span> host.    <span class="cm">"=> 'localhost'"</span>
+<span class="cc">Config</span> port.    <span class="cm">"=> 8080"</span></pre>
+                    </div>
+                </div>
+            </div>
+            <!-- /creational -->
+
+            <!-- ══════════════════════════════════════
+     STRUCTURAL
+══════════════════════════════════════ -->
+            <div class="category-block">
+                <div class="category-header">
+                    <span class="category-badge cat-s">Structural</span>
+                    <span class="category-title"
+                        >Object Composition Patterns</span
+                    >
+                    <span class="category-count">7 patterns</span>
+                </div>
+
+                <!-- 06 ADAPTER -->
+                <div class="pattern" id="adapter" data-id="adapter">
+                    <div class="pattern-header">
+                        <span class="pattern-num">06</span>
+                        <span class="pattern-name">Adapter</span>
+                        <span
+                            class="category-badge cat-s"
+                            style="font-size: 9px"
+                            >Structural</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Convert the interface of a class into another
+                            interface that clients expect. Adapter lets classes
+                            work together that couldn't otherwise due to
+                            <strong>incompatible interfaces</strong>. Also
+                            called Wrapper.
+                        </p>
+                        <span class="code-label">adapter.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Adaptee — existing, incompatible class ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#LegacyPaymentGateway</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Adapter'</span>
+
+<span class="cc">LegacyPaymentGateway</span> &gt;&gt; <span class="cg">debitAccount:</span> accountId <span class="cg">amount:</span> cents <span class="cg">currency:</span> code
+    <span class="cm">"Old API: amounts in cents, currency as ISO string"</span>
+    <span class="car">^</span> { <span class="cy">#status</span> -&gt; <span class="cy">#ok</span>. <span class="cy">#txId</span> -&gt; <span class="cc">UUID</span> new } asDictionary
+
+<span class="cm">"════════════ Target — the interface our system expects ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PaymentProcessor</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Adapter'</span>
+
+<span class="cc">PaymentProcessor</span> &gt;&gt; <span class="cg">charge:</span> amount <span class="cg">currency:</span> aCurrency <span class="cg">to:</span> anAccount
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Object Adapter — wraps via composition ════════════"</span>
+<span class="cc">PaymentProcessor</span> subclass: <span class="cy">#LegacyGatewayAdapter</span>
+    instanceVariableNames: <span class="cs">'gateway'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Adapter'</span>
+
+<span class="cc">LegacyGatewayAdapter</span> &gt;&gt; <span class="cg">initialize</span>
+    gateway := <span class="cc">LegacyPaymentGateway</span> new
+
+<span class="cc">LegacyGatewayAdapter</span> &gt;&gt; <span class="cg">charge:</span> amount <span class="cg">currency:</span> aCurrency <span class="cg">to:</span> anAccount
+    <span class="cm">"Adapt: convert decimal amount to cents for the legacy API"</span>
+    | cents result |
+    cents  := (amount * <span class="cn">100</span>) <span class="cg">truncated</span>.
+    result := gateway
+        <span class="cg">debitAccount:</span> anAccount id
+        <span class="cg">amount:</span>        cents
+        <span class="cg">currency:</span>      aCurrency isoCode.
+    <span class="car">^</span> (result <span class="cg">at:</span> <span class="cy">#status</span>) = <span class="cy">#ok</span>
+
+<span class="cm">"════════════ Usage ════════════"</span>
+<span class="cm">"Client only knows PaymentProcessor — completely unaware of legacy API"</span>
+| processor |
+processor := <span class="cc">LegacyGatewayAdapter</span> new.
+processor <span class="cg">charge:</span> <span class="cn">49.99</span> <span class="cg">currency:</span> usd <span class="cg">to:</span> account.   <span class="cm">"=> true"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 07 BRIDGE -->
+                <div class="pattern" id="bridge" data-id="bridge">
+                    <div class="pattern-header">
+                        <span class="pattern-num">07</span>
+                        <span class="pattern-name">Bridge</span>
+                        <span
+                            class="category-badge cat-s"
+                            style="font-size: 9px"
+                            >Structural</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Decouple an abstraction from its implementation so
+                            the two can <strong>vary independently</strong>.
+                            Bridge avoids a permanent binding between
+                            abstraction and implementation and prevents an
+                            exponential subclass explosion when both dimensions
+                            need to vary.
+                        </p>
+                        <span class="code-label">bridge.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Implementor hierarchy ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#Renderer</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Bridge'</span>
+
+<span class="cc">Renderer</span> &gt;&gt; <span class="cg">renderCircle:</span> radius <span class="cg">at:</span> point
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">Renderer</span> &gt;&gt; <span class="cg">renderRect:</span> width <span class="cg">height:</span> height <span class="cg">at:</span> point
+    <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">Renderer</span> subclass: <span class="cy">#SVGRenderer</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Bridge'</span>
+
+<span class="cc">SVGRenderer</span> &gt;&gt; <span class="cg">renderCircle:</span> r <span class="cg">at:</span> pt
+    <span class="car">^</span> <span class="cs">'&lt;circle r="'</span>, r <span class="cg">printString</span>, <span class="cs">'" cx="'</span>, pt x <span class="cg">printString</span>, <span class="cs">'" cy="'</span>, pt y <span class="cg">printString</span>, <span class="cs">'" /&gt;'</span>
+
+<span class="cc">SVGRenderer</span> &gt;&gt; <span class="cg">renderRect:</span> w <span class="cg">height:</span> h <span class="cg">at:</span> pt
+    <span class="car">^</span> <span class="cs">'&lt;rect width="'</span>, w <span class="cg">printString</span>, <span class="cs">'" height="'</span>, h <span class="cg">printString</span>, <span class="cs">'" /&gt;'</span>
+
+<span class="cc">Renderer</span> subclass: <span class="cy">#CanvasRenderer</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Bridge'</span>
+
+<span class="cc">CanvasRenderer</span> &gt;&gt; <span class="cg">renderCircle:</span> r <span class="cg">at:</span> pt
+    <span class="car">^</span> <span class="cs">'ctx.arc('</span>, pt x <span class="cg">printString</span>, <span class="cs">','</span>, pt y <span class="cg">printString</span>, <span class="cs">','</span>, r <span class="cg">printString</span>, <span class="cs">')'</span>
+
+<span class="cc">CanvasRenderer</span> &gt;&gt; <span class="cg">renderRect:</span> w <span class="cg">height:</span> h <span class="cg">at:</span> pt
+    <span class="car">^</span> <span class="cs">'ctx.fillRect('</span>, pt x <span class="cg">printString</span>, <span class="cs">','</span>, pt y <span class="cg">printString</span>, <span class="cs">','</span>, w <span class="cg">printString</span>, <span class="cs">','</span>, h <span class="cg">printString</span>, <span class="cs">')'</span>
+
+<span class="cm">"════════════ Abstraction hierarchy — holds a renderer (the bridge) ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#Shape</span>
+    instanceVariableNames: <span class="cs">'renderer position'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Bridge'</span>
+
+<span class="cc">Shape</span> &gt;&gt; <span class="cg">renderer:</span> r   renderer := r
+<span class="cc">Shape</span> &gt;&gt; <span class="cg">position:</span> p   position := p
+<span class="cc">Shape</span> &gt;&gt; <span class="cg">draw</span>           <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">Shape</span> subclass: <span class="cy">#Circle</span>
+    instanceVariableNames: <span class="cs">'radius'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Bridge'</span>
+
+<span class="cc">Circle</span> &gt;&gt; <span class="cg">radius:</span> r   radius := r
+<span class="cc">Circle</span> &gt;&gt; <span class="cg">draw</span>
+    <span class="car">^</span> renderer <span class="cg">renderCircle:</span> radius <span class="cg">at:</span> position
+
+<span class="cc">Shape</span> subclass: <span class="cy">#Rectangle</span>
+    instanceVariableNames: <span class="cs">'width height'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Bridge'</span>
+
+<span class="cc">Rectangle</span> &gt;&gt; <span class="cg">width:</span> w <span class="cg">height:</span> h   width := w. height := h
+<span class="cc">Rectangle</span> &gt;&gt; <span class="cg">draw</span>
+    <span class="car">^</span> renderer <span class="cg">renderRect:</span> width <span class="cg">height:</span> height <span class="cg">at:</span> position
+
+<span class="cm">"════════════ Usage ════════════"</span>
+<span class="cm">"Mix any Shape with any Renderer — 2×2 = 4 combinations, only 4 classes total"</span>
+| svg canvas |
+svg    := <span class="cc">SVGRenderer</span> new.
+canvas := <span class="cc">CanvasRenderer</span> new.
+
+(<span class="cc">Circle</span> new <span class="cg">renderer:</span> svg;    <span class="cg">radius:</span> <span class="cn">50</span>; <span class="cg">position:</span> <span class="cn">100</span>@<span class="cn">100</span>; yourself) <span class="cg">draw</span>.
+(<span class="cc">Circle</span> new <span class="cg">renderer:</span> canvas; <span class="cg">radius:</span> <span class="cn">50</span>; <span class="cg">position:</span> <span class="cn">200</span>@<span class="cn">200</span>; yourself) <span class="cg">draw</span>.
+(<span class="cc">Rectangle</span> new <span class="cg">renderer:</span> svg; <span class="cg">width:</span> <span class="cn">80</span> <span class="cg">height:</span> <span class="cn">40</span>; <span class="cg">position:</span> <span class="cn">0</span>@<span class="cn">0</span>; yourself) <span class="cg">draw</span>.</pre>
+                    </div>
+                </div>
+
+                <!-- 08 COMPOSITE -->
+                <div class="pattern" id="composite" data-id="composite">
+                    <div class="pattern-header">
+                        <span class="pattern-num">08</span>
+                        <span class="pattern-name">Composite</span>
+                        <span
+                            class="category-badge cat-s"
+                            style="font-size: 9px"
+                            >Structural</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Compose objects into
+                            <strong>tree structures</strong> to represent
+                            part-whole hierarchies. Composite lets clients treat
+                            individual objects (Leaves) and compositions
+                            (Composites) uniformly via the same interface.
+                        </p>
+                        <span class="code-label">composite.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Component — the uniform interface ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#FileSystemItem</span>
+    instanceVariableNames: <span class="cs">'name'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Composite'</span>
+
+<span class="cc">FileSystemItem</span> &gt;&gt; <span class="cg">name:</span> s    name := s
+<span class="cc">FileSystemItem</span> &gt;&gt; name        <span class="car">^</span> name
+<span class="cc">FileSystemItem</span> &gt;&gt; <span class="cg">size</span>        <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">FileSystemItem</span> &gt;&gt; <span class="cg">printOn:</span> s  <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Leaf ════════════"</span>
+<span class="cc">FileSystemItem</span> subclass: <span class="cy">#File</span>
+    instanceVariableNames: <span class="cs">'size'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Composite'</span>
+
+<span class="cc">File</span> class &gt;&gt; <span class="cg">name:</span> n <span class="cg">size:</span> s
+    <span class="car">^</span> self new <span class="cg">name:</span> n; <span class="cg">size:</span> s; yourself
+
+<span class="cc">File</span> &gt;&gt; <span class="cg">size:</span> n   size := n
+<span class="cc">File</span> &gt;&gt; size        <span class="car">^</span> size
+<span class="cc">File</span> &gt;&gt; <span class="cg">printOn:</span> s <span class="cg">indent:</span> n
+    s <span class="cg">nextPutAll:</span> (<span class="cc">String</span> <span class="cg">new:</span> n <span class="cg">withAll:</span> $ ).
+    s <span class="cg">nextPutAll:</span> name.
+    s <span class="cg">nextPutAll:</span> <span class="cs">' ('</span> , size <span class="cg">printString</span> , <span class="cs">' B)'</span>.
+    s nl
+
+<span class="cm">"════════════ Composite ════════════"</span>
+<span class="cc">FileSystemItem</span> subclass: <span class="cy">#Directory</span>
+    instanceVariableNames: <span class="cs">'children'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Composite'</span>
+
+<span class="cc">Directory</span> class &gt;&gt; <span class="cg">name:</span> n
+    <span class="car">^</span> self new <span class="cg">name:</span> n; yourself
+
+<span class="cc">Directory</span> &gt;&gt; <span class="cg">initialize</span>     children := <span class="cc">OrderedCollection</span> new
+<span class="cc">Directory</span> &gt;&gt; <span class="cg">add:</span> item       children <span class="cg">add:</span> item. <span class="car">^</span> item
+<span class="cc">Directory</span> &gt;&gt; <span class="cg">remove:</span> item   children <span class="cg">remove:</span> item
+
+<span class="cm">"Recursive size — identical call for Leaf and Composite"</span>
+<span class="cc">Directory</span> &gt;&gt; size
+    <span class="car">^</span> children <span class="cg">inject:</span> <span class="cn">0</span> <span class="cg">into:</span> [ :<span class="ck">sum</span> :<span class="ck">child</span> | sum + child size ]
+
+<span class="cm">"Depth-first traversal — combines with Iterator"</span>
+<span class="cc">Directory</span> &gt;&gt; <span class="cg">do:</span> aBlock
+    aBlock <span class="cg">value:</span> self.
+    children <span class="cg">do:</span> [ :<span class="ck">child</span> | child <span class="cg">do:</span> aBlock ]
+
+<span class="cc">File</span> &gt;&gt; <span class="cg">do:</span> aBlock
+    aBlock <span class="cg">value:</span> self    <span class="cm">"Leaf — no children to recurse"</span>
+
+<span class="cc">Directory</span> &gt;&gt; <span class="cg">printOn:</span> s <span class="cg">indent:</span> n
+    s <span class="cg">nextPutAll:</span> (<span class="cc">String</span> <span class="cg">new:</span> n <span class="cg">withAll:</span> $ ).
+    s <span class="cg">nextPutAll:</span> <span class="cs">'📁 '</span> , name. s nl.
+    children <span class="cg">do:</span> [ :<span class="ck">c</span> | c <span class="cg">printOn:</span> s <span class="cg">indent:</span> n + <span class="cn">2</span> ]
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| root src test |
+root := <span class="cc">Directory</span> <span class="cg">name:</span> <span class="cs">'project'</span>.
+src  := <span class="cc">Directory</span> <span class="cg">name:</span> <span class="cs">'src'</span>.
+test := <span class="cc">Directory</span> <span class="cg">name:</span> <span class="cs">'test'</span>.
+
+src  <span class="cg">add:</span> (<span class="cc">File</span> <span class="cg">name:</span> <span class="cs">'main.st'</span>    <span class="cg">size:</span> <span class="cn">2048</span>).
+src  <span class="cg">add:</span> (<span class="cc">File</span> <span class="cg">name:</span> <span class="cs">'utils.st'</span>   <span class="cg">size:</span> <span class="cn">1024</span>).
+test <span class="cg">add:</span> (<span class="cc">File</span> <span class="cg">name:</span> <span class="cs">'suite.st'</span>   <span class="cg">size:</span> <span class="cn">512</span>).
+root <span class="cg">add:</span> src; <span class="cg">add:</span> test.
+root <span class="cg">add:</span> (<span class="cc">File</span> <span class="cg">name:</span> <span class="cs">'README.md'</span>  <span class="cg">size:</span> <span class="cn">256</span>).
+
+root size.   <span class="cm">"=> 3840 — recursive, treats all children uniformly"</span>
+root <span class="cg">do:</span> [ :<span class="ck">item</span> | <span class="cc">Transcript</span> <span class="cg">showCr:</span> item name ].   <span class="cm">"depth-first"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 09 DECORATOR -->
+                <div class="pattern" id="decorator" data-id="decorator">
+                    <div class="pattern-header">
+                        <span class="pattern-num">09</span>
+                        <span class="pattern-name">Decorator</span>
+                        <span
+                            class="category-badge cat-s"
+                            style="font-size: 9px"
+                            >Structural</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Attach additional responsibilities to an object
+                            <strong>dynamically</strong>. Decorators provide a
+                            flexible alternative to subclassing for extending
+                            functionality, composing behaviors at runtime by
+                            wrapping objects in other objects.
+                        </p>
+                        <span class="code-label">decorator.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Component interface ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#DataSource</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Decorator'</span>
+
+<span class="cc">DataSource</span> &gt;&gt; <span class="cg">writeData:</span> data   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">DataSource</span> &gt;&gt; <span class="cg">readData</span>          <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Concrete Component ════════════"</span>
+<span class="cc">DataSource</span> subclass: <span class="cy">#FileDataSource</span>
+    instanceVariableNames: <span class="cs">'filename data'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Decorator'</span>
+
+<span class="cc">FileDataSource</span> &gt;&gt; <span class="cg">filename:</span> f   filename := f
+<span class="cc">FileDataSource</span> &gt;&gt; <span class="cg">writeData:</span> d  data := d.  <span class="cm">"simplified"</span>
+<span class="cc">FileDataSource</span> &gt;&gt; <span class="cg">readData</span>      <span class="car">^</span> data
+
+<span class="cm">"════════════ Base Decorator — delegates everything ════════════"</span>
+<span class="cc">DataSource</span> subclass: <span class="cy">#DataSourceDecorator</span>
+    instanceVariableNames: <span class="cs">'wrapped'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Decorator'</span>
+
+<span class="cc">DataSourceDecorator</span> &gt;&gt; <span class="cg">wrapping:</span> ds   wrapped := ds
+<span class="cc">DataSourceDecorator</span> &gt;&gt; <span class="cg">writeData:</span> d   wrapped <span class="cg">writeData:</span> d
+<span class="cc">DataSourceDecorator</span> &gt;&gt; <span class="cg">readData</span>       <span class="car">^</span> wrapped <span class="cg">readData</span>
+
+<span class="cm">"════════════ Concrete Decorators ════════════"</span>
+<span class="cc">DataSourceDecorator</span> subclass: <span class="cy">#CompressionDecorator</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Decorator'</span>
+
+<span class="cc">CompressionDecorator</span> &gt;&gt; <span class="cg">writeData:</span> d
+    wrapped <span class="cg">writeData:</span> self <span class="cg">compress:</span> d
+
+<span class="cc">CompressionDecorator</span> &gt;&gt; <span class="cg">readData</span>
+    <span class="car">^</span> self <span class="cg">decompress:</span> wrapped <span class="cg">readData</span>
+
+<span class="cc">CompressionDecorator</span> &gt;&gt; <span class="cg">compress:</span> d   <span class="car">^</span> <span class="cs">'compressed('</span> , d , <span class="cs">')'</span>
+<span class="cc">CompressionDecorator</span> &gt;&gt; <span class="cg">decompress:</span> d <span class="car">^</span> d <span class="cg">copyFrom:</span> <span class="cn">12</span> <span class="cg">to:</span> d size - <span class="cn">1</span>
+
+<span class="cc">DataSourceDecorator</span> subclass: <span class="cy">#EncryptionDecorator</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Decorator'</span>
+
+<span class="cc">EncryptionDecorator</span> &gt;&gt; <span class="cg">writeData:</span> d
+    wrapped <span class="cg">writeData:</span> self <span class="cg">encrypt:</span> d
+
+<span class="cc">EncryptionDecorator</span> &gt;&gt; <span class="cg">readData</span>
+    <span class="car">^</span> self <span class="cg">decrypt:</span> wrapped <span class="cg">readData</span>
+
+<span class="cc">EncryptionDecorator</span> &gt;&gt; <span class="cg">encrypt:</span> d   <span class="car">^</span> <span class="cs">'enc{'</span> , d , <span class="cs">'}'</span>
+<span class="cc">EncryptionDecorator</span> &gt;&gt; <span class="cg">decrypt:</span> d   <span class="car">^</span> d <span class="cg">copyFrom:</span> <span class="cn">5</span> <span class="cg">to:</span> d size - <span class="cn">1</span>
+
+<span class="cm">"════════════ Usage — stack decorators like an onion ════════════"</span>
+| source |
+source := <span class="cc">EncryptionDecorator</span> new
+    <span class="cg">wrapping:</span> (<span class="cc">CompressionDecorator</span> new
+        <span class="cg">wrapping:</span> (<span class="cc">FileDataSource</span> new <span class="cg">filename:</span> <span class="cs">'data.dat'</span>));
+    yourself.
+
+source <span class="cg">writeData:</span> <span class="cs">'Hello World'</span>.
+<span class="cm">"Writes: enc{compressed(Hello World)}"</span>
+
+source <span class="cg">readData</span>.
+<span class="cm">"Reads and transparently decrypts + decompresses"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 10 FACADE -->
+                <div class="pattern" id="facade" data-id="facade">
+                    <div class="pattern-header">
+                        <span class="pattern-num">10</span>
+                        <span class="pattern-name">Facade</span>
+                        <span
+                            class="category-badge cat-s"
+                            style="font-size: 9px"
+                            >Structural</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Provide a
+                            <strong>simplified, unified interface</strong> to a
+                            complex subsystem. Facade doesn't encapsulate the
+                            subsystem — clients can still use it directly — it
+                            just offers a convenience layer that covers the most
+                            common workflows.
+                        </p>
+                        <span class="code-label">facade.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Complex subsystem classes ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#VideoDecoder</span>   package: <span class="cs">'Patterns-Facade'</span>
+<span class="cc">VideoDecoder</span> &gt;&gt; <span class="cg">decode:</span> path   <span class="car">^</span> <span class="cs">'video-frames'</span>
+
+<span class="cc">Object</span> subclass: <span class="cy">#AudioDecoder</span>   package: <span class="cs">'Patterns-Facade'</span>
+<span class="cc">AudioDecoder</span> &gt;&gt; <span class="cg">decode:</span> path   <span class="car">^</span> <span class="cs">'audio-samples'</span>
+
+<span class="cc">Object</span> subclass: <span class="cy">#SubtitleParser</span>   package: <span class="cs">'Patterns-Facade'</span>
+<span class="cc">SubtitleParser</span> &gt;&gt; <span class="cg">parse:</span> path   <span class="car">^</span> <span class="cs">'subtitle-cues'</span>
+
+<span class="cc">Object</span> subclass: <span class="cy">#FrameBuffer</span>   package: <span class="cs">'Patterns-Facade'</span>
+<span class="cc">FrameBuffer</span> &gt;&gt; <span class="cg">allocate:</span> n   <span class="car">^</span> self
+
+<span class="cc">Object</span> subclass: <span class="cy">#AudioMixer</span>   package: <span class="cs">'Patterns-Facade'</span>
+<span class="cc">AudioMixer</span> &gt;&gt; <span class="cg">mix:</span> audio <span class="cg">with:</span> subs   <span class="car">^</span> <span class="cs">'mixed-audio'</span>
+
+<span class="cc">Object</span> subclass: <span class="cy">#MediaRenderer</span>   package: <span class="cs">'Patterns-Facade'</span>
+<span class="cc">MediaRenderer</span> &gt;&gt; <span class="cg">render:</span> frames <span class="cg">audio:</span> audio   <span class="car">^</span> <span class="cs">'rendered-stream'</span>
+
+<span class="cm">"════════════ Facade — one simple class hides the complexity ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#VideoPlayerFacade</span>
+    instanceVariableNames: <span class="cs">'videoDec audioDec subtitleParser buffer mixer renderer'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Facade'</span>
+
+<span class="cc">VideoPlayerFacade</span> &gt;&gt; <span class="cg">initialize</span>
+    videoDec       := <span class="cc">VideoDecoder</span> new.
+    audioDec       := <span class="cc">AudioDecoder</span> new.
+    subtitleParser := <span class="cc">SubtitleParser</span> new.
+    buffer         := <span class="cc">FrameBuffer</span> new.
+    mixer          := <span class="cc">AudioMixer</span> new.
+    renderer       := <span class="cc">MediaRenderer</span> new
+
+<span class="cm">"Client sees ONE message — all coordination is hidden inside"</span>
+<span class="cc">VideoPlayerFacade</span> &gt;&gt; <span class="cg">play:</span> filePath
+    | frames audio subs mixedAudio |
+    buffer         <span class="cg">allocate:</span> <span class="cn">1024</span>.
+    frames       := videoDec       <span class="cg">decode:</span>  filePath.
+    audio        := audioDec       <span class="cg">decode:</span>  filePath.
+    subs         := subtitleParser <span class="cg">parse:</span>   filePath.
+    mixedAudio   := mixer          <span class="cg">mix:</span> audio <span class="cg">with:</span> subs.
+    <span class="car">^</span>               renderer        <span class="cg">render:</span> frames <span class="cg">audio:</span> mixedAudio
+
+<span class="cc">VideoPlayerFacade</span> &gt;&gt; <span class="cg">stop</span>
+    <span class="cm">"Clean up all subsystems in the right order"</span>
+    buffer <span class="cg">release</span>
+
+<span class="cm">"════════════ Usage ════════════"</span>
+<span class="cm">"Six classes reduced to one message. Client is completely decoupled."</span>
+<span class="cc">VideoPlayerFacade</span> new <span class="cg">play:</span> <span class="cs">'/videos/documentary.mp4'</span>.</pre>
+                    </div>
+                </div>
+
+                <!-- 11 FLYWEIGHT -->
+                <div class="pattern" id="flyweight" data-id="flyweight">
+                    <div class="pattern-header">
+                        <span class="pattern-num">11</span>
+                        <span class="pattern-name">Flyweight</span>
+                        <span
+                            class="category-badge cat-s"
+                            style="font-size: 9px"
+                            >Structural</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Use sharing to efficiently support a
+                            <strong>large number of fine-grained objects</strong
+                            >. Splits object state into
+                            <em>intrinsic</em> (shared, stored in flyweight) and
+                            <em>extrinsic</em> (contextual, passed in at use
+                            time). Classic use: characters in a text editor,
+                            particles in a simulation.
+                        </p>
+                        <span class="code-label">flyweight.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Flyweight — intrinsic (shared) state only ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#GlyphFlyweight</span>
+    instanceVariableNames: <span class="cs">'char font'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Flyweight'</span>
+
+<span class="cc">GlyphFlyweight</span> class &gt;&gt; <span class="cg">char:</span> aChar <span class="cg">font:</span> aFont
+    <span class="car">^</span> self new <span class="cg">char:</span> aChar; <span class="cg">font:</span> aFont; yourself
+
+<span class="cc">GlyphFlyweight</span> &gt;&gt; <span class="cg">char:</span> c   char := c.   <span class="cc">GlyphFlyweight</span> &gt;&gt; char   <span class="car">^</span> char
+<span class="cc">GlyphFlyweight</span> &gt;&gt; <span class="cg">font:</span> f   font := f.   <span class="cc">GlyphFlyweight</span> &gt;&gt; font   <span class="car">^</span> font
+
+<span class="cm">"Extrinsic state (position, color) is passed IN — not stored"</span>
+<span class="cc">GlyphFlyweight</span> &gt;&gt; <span class="cg">drawAt:</span> position <span class="cg">color:</span> color <span class="cg">on:</span> canvas
+    canvas
+        <span class="cg">setFont:</span> font;
+        <span class="cg">setColor:</span> color;
+        <span class="cg">drawChar:</span> char <span class="cg">at:</span> position
+
+<span class="cm">"════════════ Flyweight Factory — the cache ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#GlyphFactory</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">'Cache'</span>
+    package: <span class="cs">'Patterns-Flyweight'</span>
+
+<span class="cc">GlyphFactory</span> class &gt;&gt; <span class="cg">initialize</span>
+    <span class="cc">Cache</span> := <span class="cc">Dictionary</span> new
+
+<span class="cc">GlyphFactory</span> class &gt;&gt; <span class="cg">glyphFor:</span> aChar <span class="cg">font:</span> aFont
+    | key |
+    key := aChar <span class="cg">printString</span> , <span class="cs">'@'</span> , aFont name.
+    <span class="car">^</span> <span class="cc">Cache</span> <span class="cg">at:</span> key <span class="cg">ifAbsent:</span> [
+        | glyph |
+        glyph := <span class="cc">GlyphFlyweight</span> <span class="cg">char:</span> aChar <span class="cg">font:</span> aFont.
+        <span class="cc">Cache</span> <span class="cg">at:</span> key <span class="cg">put:</span> glyph.
+        glyph ]
+
+<span class="cc">GlyphFactory</span> class &gt;&gt; <span class="cg">cacheSize</span>   <span class="car">^</span> <span class="cc">Cache</span> size
+
+<span class="cm">"════════════ Context — holds extrinsic state + a flyweight ref ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#GlyphContext</span>
+    instanceVariableNames: <span class="cs">'glyph x y color'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Flyweight'</span>
+
+<span class="cc">GlyphContext</span> class &gt;&gt; <span class="cg">char:</span> c <span class="cg">font:</span> f <span class="cg">at:</span> pt <span class="cg">color:</span> col
+    | g |
+    g := <span class="cc">GlyphFactory</span> <span class="cg">glyphFor:</span> c <span class="cg">font:</span> f.
+    <span class="car">^</span> self new <span class="cg">glyph:</span> g; <span class="cg">x:</span> pt x; <span class="cg">y:</span> pt y; <span class="cg">color:</span> col; yourself
+
+<span class="cc">GlyphContext</span> &gt;&gt; <span class="cg">glyph:</span> g   glyph := g
+<span class="cc">GlyphContext</span> &gt;&gt; <span class="cg">x:</span> n       x := n
+<span class="cc">GlyphContext</span> &gt;&gt; <span class="cg">y:</span> n       y := n
+<span class="cc">GlyphContext</span> &gt;&gt; <span class="cg">color:</span> c   color := c
+
+<span class="cc">GlyphContext</span> &gt;&gt; <span class="cg">drawOn:</span> canvas
+    glyph <span class="cg">drawAt:</span> x@y <span class="cg">color:</span> color <span class="cg">on:</span> canvas
+
+<span class="cm">"════════════ Usage ════════════"</span>
+<span class="cm">"1000 'A' characters at different positions — only 1 GlyphFlyweight object for 'A'"</span>
+| glyphs |
+glyphs := (<span class="cn">0</span> to: <span class="cn">999</span>) <span class="cg">collect:</span> [ :<span class="ck">i</span> |
+    <span class="cc">GlyphContext</span>
+        <span class="cg">char:</span>  $A
+        <span class="cg">font:</span>  helvetica
+        <span class="cg">at:</span>    (i * <span class="cn">8</span>) @ <span class="cn">0</span>
+        <span class="cg">color:</span> <span class="cc">Color</span> black ].
+
+<span class="cc">GlyphFactory</span> cacheSize.   <span class="cm">"=> 1  (one flyweight for 'A@Helvetica')"</span>
+glyphs size.              <span class="cm">"=> 1000 contexts, all sharing 1 flyweight"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 12 PROXY -->
+                <div class="pattern" id="proxy" data-id="proxy">
+                    <div class="pattern-header">
+                        <span class="pattern-num">12</span>
+                        <span class="pattern-name">Proxy</span>
+                        <span
+                            class="category-badge cat-s"
+                            style="font-size: 9px"
+                            >Structural</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 doesNotUnderstand: for transparent proxy</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Provide a surrogate or placeholder for another
+                            object to <strong>control access</strong> to it.
+                            Variants: Virtual Proxy (lazy init), Remote Proxy
+                            (network), Protection Proxy (auth), Smart Reference
+                            (caching).
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                Pharo enables a
+                                <strong>fully transparent proxy</strong> by
+                                subclassing <code>ProtoObject</code> (which has
+                                almost no methods) and overriding
+                                <code>doesNotUnderstand:</code>. Every message
+                                sent to the proxy is caught and forwarded —
+                                powerful for AOP-style wrappers, mocking, and
+                                remote object proxies.
+                            </div>
+                        </div>
+                        <span class="code-label">proxy.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Virtual Proxy — lazy loading ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#ImageProxy</span>
+    instanceVariableNames: <span class="cs">'filename realImage'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Proxy'</span>
+
+<span class="cc">ImageProxy</span> class &gt;&gt; <span class="cg">filename:</span> f
+    <span class="car">^</span> self new <span class="cg">filename:</span> f; yourself
+
+<span class="cc">ImageProxy</span> &gt;&gt; <span class="cg">filename:</span> f   filename := f
+
+<span class="cc">ImageProxy</span> &gt;&gt; <span class="cg">realImage</span>
+    <span class="cm">"Load on first access only"</span>
+    realImage <span class="cg">isNil</span> <span class="cg">ifTrue:</span> [
+        <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'⟳ Loading: '</span> , filename.
+        realImage := <span class="cc">RealImage</span> new <span class="cg">load:</span> filename ].
+    <span class="car">^</span> realImage
+
+<span class="cc">ImageProxy</span> &gt;&gt; <span class="cg">display</span>       self <span class="cg">realImage</span> <span class="cg">display</span>
+<span class="cc">ImageProxy</span> &gt;&gt; <span class="cg">width</span>         <span class="car">^</span> self <span class="cg">realImage</span> <span class="cg">width</span>
+<span class="cc">ImageProxy</span> &gt;&gt; <span class="cg">height</span>        <span class="car">^</span> self <span class="cg">realImage</span> <span class="cg">height</span>
+
+<span class="cm">"════════════ Protection Proxy — authorization wrapper ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#DocumentProxy</span>
+    instanceVariableNames: <span class="cs">'realDoc currentUser'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Proxy'</span>
+
+<span class="cc">DocumentProxy</span> &gt;&gt; <span class="cg">realDoc:</span> d    realDoc := d
+<span class="cc">DocumentProxy</span> &gt;&gt; <span class="cg">currentUser:</span> u currentUser := u
+
+<span class="cc">DocumentProxy</span> &gt;&gt; <span class="cg">read</span>
+    <span class="car">^</span> realDoc <span class="cg">read</span>   <span class="cm">"anyone can read"</span>
+
+<span class="cc">DocumentProxy</span> &gt;&gt; <span class="cg">write:</span> content
+    currentUser <span class="cg">canEdit</span>
+        <span class="cg">ifFalse:</span> [ <span class="car">^</span> self <span class="cg">error:</span> <span class="cs">'Access denied'</span> ].
+    realDoc <span class="cg">write:</span> content
+
+<span class="cc">DocumentProxy</span> &gt;&gt; <span class="cg">delete</span>
+    currentUser <span class="cg">isAdmin</span>
+        <span class="cg">ifFalse:</span> [ <span class="car">^</span> self <span class="cg">error:</span> <span class="cs">'Admin only'</span> ].
+    realDoc <span class="cg">delete</span>
+
+<span class="cm">"════════════ Transparent Proxy via doesNotUnderstand: (Pharo power) ════════════"</span>
+<span class="cm">"Subclass ProtoObject to avoid inheriting ANY methods that would bypass the proxy"</span>
+<span class="cc">ProtoObject</span> subclass: <span class="cy">#LoggingProxy</span>
+    instanceVariableNames: <span class="cs">'target log'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Proxy'</span>
+
+<span class="cc">LoggingProxy</span> class &gt;&gt; <span class="cg">on:</span> anObject
+    <span class="car">^</span> self new <span class="cg">pvtTarget:</span> anObject; <span class="cg">pvtLog:</span> <span class="cc">OrderedCollection</span> new; yourself
+
+<span class="cc">LoggingProxy</span> &gt;&gt; <span class="cg">pvtTarget:</span> t   target := t
+<span class="cc">LoggingProxy</span> &gt;&gt; <span class="cg">pvtLog:</span> l      log    := l
+<span class="cc">LoggingProxy</span> &gt;&gt; <span class="cg">pvtLog</span>         <span class="car">^</span> log
+
+<span class="cm">"Every single message is caught here and forwarded"</span>
+<span class="cc">LoggingProxy</span> &gt;&gt; <span class="cg">doesNotUnderstand:</span> aMessage
+    log <span class="cg">add:</span> aMessage <span class="cg">selector</span>.
+    <span class="car">^</span> aMessage <span class="cg">sendTo:</span> target
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| images proxy calc |
+images := (<span class="cn">1</span> to: <span class="cn">500</span>) <span class="cg">collect:</span> [ :<span class="ck">i</span> |
+    <span class="cc">ImageProxy</span> <span class="cg">filename:</span> <span class="cs">'img'</span> , i <span class="cg">printString</span> , <span class="cs">'.jpg'</span> ].
+images first <span class="cg">display</span>.   <span class="cm">"=> '⟳ Loading: img1.jpg' (first call only)"</span>
+images first <span class="cg">display</span>.   <span class="cm">"=> (silent — cached)"</span>
+
+proxy := <span class="cc">LoggingProxy</span> <span class="cg">on:</span> <span class="cc">OrderedCollection</span> new.
+proxy <span class="cg">add:</span> <span class="cn">1</span>; <span class="cg">add:</span> <span class="cn">2</span>; <span class="cg">size</span>.
+proxy <span class="cg">pvtLog</span>.   <span class="cm">"=> #(#add: #add: #size)"</span></pre>
+                    </div>
+                </div>
+            </div>
+            <!-- /structural -->
+
+            <!-- ══════════════════════════════════════
+     BEHAVIORAL
+══════════════════════════════════════ -->
+            <div class="category-block">
+                <div class="category-header">
+                    <span class="category-badge cat-b">Behavioral</span>
+                    <span class="category-title"
+                        >Communication &amp; Algorithm Patterns</span
+                    >
+                    <span class="category-count">11 patterns</span>
+                </div>
+
+                <!-- 13 CHAIN OF RESPONSIBILITY -->
+                <div class="pattern" id="chain" data-id="chain">
+                    <div class="pattern-header">
+                        <span class="pattern-num">13</span>
+                        <span class="pattern-name"
+                            >Chain of Responsibility</span
+                        >
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Pass a request along a
+                            <strong>chain of handlers</strong>. Each handler
+                            decides to process it or forward it to the next.
+                            Decouples senders from receivers. Used in middleware
+                            pipelines, event bubbling, auth chains.
+                        </p>
+                        <span class="code-label"
+                            >chain_of_responsibility.st</span
+                        >
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Abstract Handler ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#ApprovalHandler</span>
+    instanceVariableNames: <span class="cs">'next'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Chain'</span>
+
+<span class="cm">"Returns next to allow fluent chaining: h1 chainTo: h2 chainTo: h3"</span>
+<span class="cc">ApprovalHandler</span> &gt;&gt; <span class="cg">chainTo:</span> handler
+    next := handler.
+    <span class="car">^</span> handler   <span class="cm">"return next for fluent chaining"</span>
+
+<span class="cc">ApprovalHandler</span> &gt;&gt; <span class="cg">handle:</span> request
+    (self <span class="cg">canApprove:</span> request)
+        <span class="cg">ifTrue:</span>  [ <span class="car">^</span> self <span class="cg">approve:</span> request ]
+        <span class="cg">ifFalse:</span> [ <span class="car">^</span> next
+            <span class="cg">ifNotNil:</span> [ next <span class="cg">handle:</span> request ]
+            <span class="cg">ifNil:</span>    [ <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'No handler for: '</span> , request <span class="cg">printString</span> ] ]
+
+<span class="cc">ApprovalHandler</span> &gt;&gt; <span class="cg">canApprove:</span> req   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">ApprovalHandler</span> &gt;&gt; <span class="cg">approve:</span> req     <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Concrete Handlers ════════════"</span>
+<span class="cc">ApprovalHandler</span> subclass: <span class="cy">#TeamLeadApprover</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Chain'</span>
+
+<span class="cc">TeamLeadApprover</span> &gt;&gt; <span class="cg">canApprove:</span> req   <span class="car">^</span> req amount &lt;= <span class="cn">500</span>
+<span class="cc">TeamLeadApprover</span> &gt;&gt; <span class="cg">approve:</span> req
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Team Lead approved $'</span> , req amount <span class="cg">printString</span>
+
+<span class="cc">ApprovalHandler</span> subclass: <span class="cy">#ManagerApprover</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Chain'</span>
+
+<span class="cc">ManagerApprover</span> &gt;&gt; <span class="cg">canApprove:</span> req   <span class="car">^</span> req amount &lt;= <span class="cn">5000</span>
+<span class="cc">ManagerApprover</span> &gt;&gt; <span class="cg">approve:</span> req
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Manager approved $'</span> , req amount <span class="cg">printString</span>
+
+<span class="cc">ApprovalHandler</span> subclass: <span class="cy">#CFOApprover</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Chain'</span>
+
+<span class="cc">CFOApprover</span> &gt;&gt; <span class="cg">canApprove:</span> req   <span class="car">^</span> true
+<span class="cc">CFOApprover</span> &gt;&gt; <span class="cg">approve:</span> req
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'CFO approved $'</span> , req amount <span class="cg">printString</span>
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| lead mgr cfo |
+lead := <span class="cc">TeamLeadApprover</span> new.
+mgr  := <span class="cc">ManagerApprover</span>  new.
+cfo  := <span class="cc">CFOApprover</span>      new.
+(lead <span class="cg">chainTo:</span> mgr) <span class="cg">chainTo:</span> cfo.   <span class="cm">"fluent chain construction"</span>
+
+lead <span class="cg">handle:</span> (<span class="cc">ExpenseRequest</span> <span class="cg">amount:</span> <span class="cn">100</span>).    <span class="cm">"Team Lead"</span>
+lead <span class="cg">handle:</span> (<span class="cc">ExpenseRequest</span> <span class="cg">amount:</span> <span class="cn">2000</span>).   <span class="cm">"Manager"</span>
+lead <span class="cg">handle:</span> (<span class="cc">ExpenseRequest</span> <span class="cg">amount:</span> <span class="cn">50000</span>).  <span class="cm">"CFO"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 14 COMMAND -->
+                <div class="pattern" id="command" data-id="command">
+                    <div class="pattern-header">
+                        <span class="pattern-num">14</span>
+                        <span class="pattern-name">Command</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 Blocks are first-class commands</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Encapsulate a request as an object, allowing
+                            parameterization, queueing, logging, and
+                            <strong>undoable operations</strong>. Decouples
+                            invoker from the object performing the action.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                A Pharo
+                                <strong>block is already a command</strong> —
+                                it's a closure, storable, passable, and invoked
+                                with <code>value</code>. For simple cases, pair
+                                an execute block with an undo block. Full
+                                class-based Command shines when commands need
+                                serialization, history logging, or complex undo
+                                trees with state.
+                            </div>
+                        </div>
+                        <span class="code-label">command.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Command protocol ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#Command</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Command'</span>
+
+<span class="cc">Command</span> &gt;&gt; <span class="cg">execute</span>   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">Command</span> &gt;&gt; <span class="cg">undo</span>      <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Concrete commands ════════════"</span>
+<span class="cc">Command</span> subclass: <span class="cy">#InsertTextCommand</span>
+    instanceVariableNames: <span class="cs">'document text position'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Command'</span>
+
+<span class="cc">InsertTextCommand</span> class &gt;&gt; <span class="cg">document:</span> doc <span class="cg">text:</span> t <span class="cg">at:</span> pos
+    <span class="car">^</span> self new <span class="cg">document:</span> doc; <span class="cg">text:</span> t; <span class="cg">position:</span> pos; yourself
+
+<span class="cc">InsertTextCommand</span> &gt;&gt; <span class="cg">document:</span> d   document := d
+<span class="cc">InsertTextCommand</span> &gt;&gt; <span class="cg">text:</span> t        text     := t
+<span class="cc">InsertTextCommand</span> &gt;&gt; <span class="cg">position:</span> p   position := p
+
+<span class="cc">InsertTextCommand</span> &gt;&gt; <span class="cg">execute</span>
+    document <span class="cg">insertText:</span> text <span class="cg">at:</span> position
+
+<span class="cc">InsertTextCommand</span> &gt;&gt; <span class="cg">undo</span>
+    document <span class="cg">deleteFrom:</span> position <span class="cg">to:</span> position + text size - <span class="cn">1</span>
+
+<span class="cm">"════════════ Invoker — the command queue / history ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#CommandHistory</span>
+    instanceVariableNames: <span class="cs">'done undone'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Command'</span>
+
+<span class="cc">CommandHistory</span> &gt;&gt; <span class="cg">initialize</span>
+    done   := <span class="cc">OrderedCollection</span> new.
+    undone := <span class="cc">OrderedCollection</span> new.
+
+<span class="cc">CommandHistory</span> &gt;&gt; <span class="cg">execute:</span> cmd
+    cmd execute.
+    done <span class="cg">addLast:</span> cmd.
+    undone <span class="cg">removeAll</span>   <span class="cm">"new action clears redo stack"</span>
+
+<span class="cc">CommandHistory</span> &gt;&gt; <span class="cg">undo</span>
+    done <span class="cg">isEmpty</span> <span class="cg">ifTrue:</span> [ <span class="car">^</span> self ].
+    | cmd | cmd := done <span class="cg">removeLast</span>.
+    cmd undo.
+    undone <span class="cg">addLast:</span> cmd
+
+<span class="cc">CommandHistory</span> &gt;&gt; <span class="cg">redo</span>
+    undone <span class="cg">isEmpty</span> <span class="cg">ifTrue:</span> [ <span class="car">^</span> self ].
+    | cmd | cmd := undone <span class="cg">removeLast</span>.
+    cmd execute.
+    done <span class="cg">addLast:</span> cmd
+
+<span class="cm">"════════════ Block-based Command (lightweight Pharo idiom) ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#BlockCommand</span>
+    instanceVariableNames: <span class="cs">'execBlock undoBlock'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Command'</span>
+
+<span class="cc">BlockCommand</span> class &gt;&gt; <span class="cg">execute:</span> eBlock <span class="cg">undo:</span> uBlock
+    <span class="car">^</span> self new <span class="cg">execBlock:</span> eBlock; <span class="cg">undoBlock:</span> uBlock; yourself
+
+<span class="cc">BlockCommand</span> &gt;&gt; <span class="cg">execBlock:</span> b   execBlock := b
+<span class="cc">BlockCommand</span> &gt;&gt; <span class="cg">undoBlock:</span> b   undoBlock := b
+<span class="cc">BlockCommand</span> &gt;&gt; <span class="cg">execute</span>         execBlock value
+<span class="cc">BlockCommand</span> &gt;&gt; <span class="cg">undo</span>            undoBlock value
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| history doc |
+doc     := <span class="cc">TextDocument</span> new.
+history := <span class="cc">CommandHistory</span> new.
+
+history <span class="cg">execute:</span> (<span class="cc">InsertTextCommand</span> <span class="cg">document:</span> doc <span class="cg">text:</span> <span class="cs">'Hello'</span> <span class="cg">at:</span> <span class="cn">1</span>).
+history <span class="cg">execute:</span> (<span class="cc">InsertTextCommand</span> <span class="cg">document:</span> doc <span class="cg">text:</span> <span class="cs">' World'</span> <span class="cg">at:</span> <span class="cn">6</span>).
+doc content.    <span class="cm">"=> 'Hello World'"</span>
+history undo.   doc content.   <span class="cm">"=> 'Hello'"</span>
+history undo.   doc content.   <span class="cm">"=> ''"</span>
+history redo.   doc content.   <span class="cm">"=> 'Hello'"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 15 INTERPRETER -->
+                <div class="pattern" id="interpreter" data-id="interpreter">
+                    <div class="pattern-header">
+                        <span class="pattern-num">15</span>
+                        <span class="pattern-name">Interpreter</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Given a language, define a representation for its
+                            grammar and an <strong>interpreter</strong> that
+                            uses the representation to interpret sentences. Each
+                            grammar rule becomes a class. Best for simple DSLs
+                            and expression trees.
+                        </p>
+                        <span class="code-label">interpreter.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Boolean Expression DSL ════════════"</span>
+<span class="cm">"Grammar: expr ::= Var | Not(expr) | And(expr,expr) | Or(expr,expr)"</span>
+
+<span class="cm">"Abstract Expression"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#BoolExpression</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Interpreter'</span>
+
+<span class="cc">BoolExpression</span> &gt;&gt; <span class="cg">evaluate:</span> ctx   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"Terminal — looks up a variable in the context"</span>
+<span class="cc">BoolExpression</span> subclass: <span class="cy">#VariableExpr</span>
+    instanceVariableNames: <span class="cs">'name'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Interpreter'</span>
+
+<span class="cc">VariableExpr</span> class &gt;&gt; <span class="cg">name:</span> n   <span class="car">^</span> self new <span class="cg">name:</span> n; yourself
+<span class="cc">VariableExpr</span> &gt;&gt; <span class="cg">name:</span> n   name := n
+<span class="cc">VariableExpr</span> &gt;&gt; <span class="cg">evaluate:</span> ctx   <span class="car">^</span> ctx <span class="cg">at:</span> name
+
+<span class="cm">"Non-terminal — negation"</span>
+<span class="cc">BoolExpression</span> subclass: <span class="cy">#NotExpr</span>
+    instanceVariableNames: <span class="cs">'operand'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Interpreter'</span>
+
+<span class="cc">NotExpr</span> class &gt;&gt; <span class="cg">of:</span> e   <span class="car">^</span> self new <span class="cg">operand:</span> e; yourself
+<span class="cc">NotExpr</span> &gt;&gt; <span class="cg">operand:</span> e   operand := e
+<span class="cc">NotExpr</span> &gt;&gt; <span class="cg">evaluate:</span> ctx   <span class="car">^</span> (operand <span class="cg">evaluate:</span> ctx) <span class="cg">not</span>
+
+<span class="cm">"Non-terminal — conjunction"</span>
+<span class="cc">BoolExpression</span> subclass: <span class="cy">#AndExpr</span>
+    instanceVariableNames: <span class="cs">'left right'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Interpreter'</span>
+
+<span class="cc">AndExpr</span> class &gt;&gt; <span class="cg">left:</span> l <span class="cg">right:</span> r   <span class="car">^</span> self new <span class="cg">left:</span> l; <span class="cg">right:</span> r; yourself
+<span class="cc">AndExpr</span> &gt;&gt; <span class="cg">left:</span> l    left := l
+<span class="cc">AndExpr</span> &gt;&gt; <span class="cg">right:</span> r   right := r
+<span class="cc">AndExpr</span> &gt;&gt; <span class="cg">evaluate:</span> ctx
+    <span class="car">^</span> (left <span class="cg">evaluate:</span> ctx) &amp; (right <span class="cg">evaluate:</span> ctx)
+
+<span class="cm">"Non-terminal — disjunction"</span>
+<span class="cc">BoolExpression</span> subclass: <span class="cy">#OrExpr</span>
+    instanceVariableNames: <span class="cs">'left right'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Interpreter'</span>
+
+<span class="cc">OrExpr</span> class &gt;&gt; <span class="cg">left:</span> l <span class="cg">right:</span> r   <span class="car">^</span> self new <span class="cg">left:</span> l; <span class="cg">right:</span> r; yourself
+<span class="cc">OrExpr</span> &gt;&gt; <span class="cg">left:</span> l    left := l
+<span class="cc">OrExpr</span> &gt;&gt; <span class="cg">right:</span> r   right := r
+<span class="cc">OrExpr</span> &gt;&gt; <span class="cg">evaluate:</span> ctx
+    <span class="car">^</span> (left <span class="cg">evaluate:</span> ctx) | (right <span class="cg">evaluate:</span> ctx)
+
+<span class="cm">"════════════ Usage — build and interpret an expression tree ════════════"</span>
+<span class="cm">"Represents: (active AND NOT banned) OR admin"</span>
+| expr ctx |
+expr :=
+    <span class="cc">OrExpr</span>
+        <span class="cg">left:</span>  (<span class="cc">AndExpr</span>
+                    <span class="cg">left:</span>  (<span class="cc">VariableExpr</span> <span class="cg">name:</span> <span class="cy">#active</span>)
+                    <span class="cg">right:</span> (<span class="cc">NotExpr</span> <span class="cg">of:</span> (<span class="cc">VariableExpr</span> <span class="cg">name:</span> <span class="cy">#banned</span>)))
+        <span class="cg">right:</span> (<span class="cc">VariableExpr</span> <span class="cg">name:</span> <span class="cy">#admin</span>).
+
+ctx := { <span class="cy">#active</span> -&gt; true. <span class="cy">#banned</span> -&gt; false. <span class="cy">#admin</span> -&gt; false } asDictionary.
+expr <span class="cg">evaluate:</span> ctx.   <span class="cm">"=> true  (active AND NOT banned)"</span>
+
+ctx <span class="cg">at:</span> <span class="cy">#active</span> <span class="cg">put:</span> false.
+expr <span class="cg">evaluate:</span> ctx.   <span class="cm">"=> false"</span>
+
+ctx <span class="cg">at:</span> <span class="cy">#admin</span> <span class="cg">put:</span> true.
+expr <span class="cg">evaluate:</span> ctx.   <span class="cm">"=> true  (admin)"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 16 ITERATOR -->
+                <div class="pattern" id="iterator" data-id="iterator">
+                    <div class="pattern-header">
+                        <span class="pattern-num">16</span>
+                        <span class="pattern-name">Iterator</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 The entire Collection protocol IS Iterator</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Provide a way to access elements of an aggregate
+                            object
+                            <strong
+                                >sequentially without exposing its
+                                representation</strong
+                            >. Smalltalk essentially invented the internal
+                            iterator — the entire collection protocol is
+                            Iterator.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                <strong
+                                    >Pharo's collection protocol is the Iterator
+                                    pattern.</strong
+                                >
+                                <code>do:</code>, <code>collect:</code>,
+                                <code>select:</code>, <code>reject:</code>,
+                                <code>detect:</code>,
+                                <code>inject:into:</code> are all iterators.
+                                Implement <code>do:</code> on a custom class and
+                                you get the entire ecosystem via
+                                <code>Collection</code> trait. You primarily
+                                implement Iterator for custom data structures
+                                (trees, graphs, lazy sequences).
+                            </div>
+                        </div>
+                        <span class="code-label">iterator.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Built-in Iterator — the collection protocol ════════════"</span>
+<span class="cm">"These are all iterators — you use them constantly in Pharo"</span>
+<span class="cy">#(</span><span class="cn">1 2 3 4 5</span><span class="cy">)</span> <span class="cg">do:</span>        [ :<span class="ck">e</span> | <span class="cc">Transcript</span> <span class="cg">showCr:</span> e <span class="cg">printString</span> ].
+<span class="cy">#(</span><span class="cn">1 2 3 4 5</span><span class="cy">)</span> <span class="cg">collect:</span>   [ :<span class="ck">e</span> | e * <span class="cn">2</span> ].          <span class="cm">"=> #(2 4 6 8 10)"</span>
+<span class="cy">#(</span><span class="cn">1 2 3 4 5</span><span class="cy">)</span> <span class="cg">select:</span>    [ :<span class="ck">e</span> | e odd ].          <span class="cm">"=> #(1 3 5)"</span>
+<span class="cy">#(</span><span class="cn">1 2 3 4 5</span><span class="cy">)</span> <span class="cg">reject:</span>    [ :<span class="ck">e</span> | e odd ].          <span class="cm">"=> #(2 4)"</span>
+<span class="cy">#(</span><span class="cn">1 2 3 4 5</span><span class="cy">)</span> <span class="cg">detect:</span>    [ :<span class="ck">e</span> | e > <span class="cn">3</span>  ].          <span class="cm">"=> 4"</span>
+<span class="cy">#(</span><span class="cn">1 2 3 4 5</span><span class="cy">)</span> <span class="cg">inject:</span> <span class="cn">0</span> <span class="cg">into:</span> [ :<span class="ck">acc</span> :<span class="ck">e</span> | acc + e ].   <span class="cm">"=> 15 (fold)"</span>
+<span class="cy">#(</span><span class="cn">1 2 3 4 5</span><span class="cy">)</span> <span class="cg">withIndex:</span> [ :<span class="ck">e</span> :<span class="ck">i</span> | e * i ].    <span class="cm">"=> 1 4 9 16 25"</span>
+
+<span class="cm">"════════════ Custom Iterator for a binary tree ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#BSTNode</span>
+    instanceVariableNames: <span class="cs">'value left right'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Iterator'</span>
+
+<span class="cc">BSTNode</span> class &gt;&gt; <span class="cg">value:</span> v   <span class="car">^</span> self new <span class="cg">value:</span> v; yourself
+<span class="cc">BSTNode</span> &gt;&gt; <span class="cg">value:</span> v   value := v.   <span class="cc">BSTNode</span> &gt;&gt; value   <span class="car">^</span> value
+<span class="cc">BSTNode</span> &gt;&gt; <span class="cg">left:</span> n    left := n.    <span class="cc">BSTNode</span> &gt;&gt; left    <span class="car">^</span> left
+<span class="cc">BSTNode</span> &gt;&gt; <span class="cg">right:</span> n   right := n.   <span class="cc">BSTNode</span> &gt;&gt; right   <span class="car">^</span> right
+
+<span class="cc">BSTNode</span> &gt;&gt; <span class="cg">insert:</span> v
+    v &lt; value
+        <span class="cg">ifTrue:</span>  [ left <span class="cg">isNil</span>
+            <span class="cg">ifTrue:</span>  [ left  := <span class="cc">BSTNode</span> <span class="cg">value:</span> v ]
+            <span class="cg">ifFalse:</span> [ left  <span class="cg">insert:</span> v ] ]
+        <span class="cg">ifFalse:</span> [ right <span class="cg">isNil</span>
+            <span class="cg">ifTrue:</span>  [ right := <span class="cc">BSTNode</span> <span class="cg">value:</span> v ]
+            <span class="cg">ifFalse:</span> [ right <span class="cg">insert:</span> v ] ]
+
+<span class="cm">"Implement do: for in-order traversal — plugs into the entire Collection ecosystem"</span>
+<span class="cc">BSTNode</span> &gt;&gt; <span class="cg">do:</span> aBlock
+    left  <span class="cg">isNil</span> <span class="cg">ifFalse:</span> [ left  <span class="cg">do:</span> aBlock ].
+    aBlock <span class="cg">value:</span> value.
+    right <span class="cg">isNil</span> <span class="cg">ifFalse:</span> [ right <span class="cg">do:</span> aBlock ]
+
+<span class="cm">"External iterator — for callers who need to control traversal pace"</span>
+<span class="cc">BSTNode</span> &gt;&gt; <span class="cg">readStream</span>
+    | result |
+    result := <span class="cc">OrderedCollection</span> new.
+    self <span class="cg">do:</span> [ :<span class="ck">v</span> | result <span class="cg">add:</span> v ].
+    <span class="car">^</span> result <span class="cg">readStream</span>
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| tree |
+tree := <span class="cc">BSTNode</span> <span class="cg">value:</span> <span class="cn">5</span>.
+<span class="cy">#(</span><span class="cn">3 7 1 4 6 8</span><span class="cy">)</span> <span class="cg">do:</span> [ :<span class="ck">v</span> | tree <span class="cg">insert:</span> v ].
+
+tree <span class="cg">do:</span> [ :<span class="ck">v</span> | <span class="cc">Transcript</span> <span class="cg">show:</span> v <span class="cg">printString</span> , <span class="cs">' '</span> ].
+<span class="cm">"=> 1 3 4 5 6 7 8   (in-order, sorted)"</span>
+
+<span class="cm">"Free collection protocol from do: alone:"</span>
+(tree <span class="cg">select:</span> [ :<span class="ck">v</span> | v > <span class="cn">4</span> ]).        <span class="cm">"=> #(5 6 7 8)"</span>
+(tree <span class="cg">inject:</span> <span class="cn">0</span> <span class="cg">into:</span> [ :<span class="ck">s</span> :<span class="ck">v</span> | s + v ]). <span class="cm">"=> 34"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 17 MEDIATOR -->
+                <div class="pattern" id="mediator" data-id="mediator">
+                    <div class="pattern-header">
+                        <span class="pattern-num">17</span>
+                        <span class="pattern-name">Mediator</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Define an object that
+                            <strong
+                                >encapsulates how a set of objects
+                                interact</strong
+                            >. Promotes loose coupling by keeping objects from
+                            referring to each other explicitly, and lets you
+                            vary their interaction independently.
+                        </p>
+                        <span class="code-label">mediator.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Mediator — UI Form with dependent components ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#FormMediator</span>
+    instanceVariableNames: <span class="cs">'components'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Mediator'</span>
+
+<span class="cc">FormMediator</span> &gt;&gt; <span class="cg">initialize</span>   components := <span class="cc">Dictionary</span> new
+
+<span class="cc">FormMediator</span> &gt;&gt; <span class="cg">register:</span> comp <span class="cg">as:</span> name
+    components <span class="cg">at:</span> name <span class="cg">put:</span> comp.
+    comp <span class="cg">mediator:</span> self
+
+<span class="cc">FormMediator</span> &gt;&gt; <span class="cg">componentAt:</span> name
+    <span class="car">^</span> components <span class="cg">at:</span> name <span class="cg">ifAbsent:</span> [ nil ]
+
+<span class="cm">"Central coordination logic — all cross-component rules live here"</span>
+<span class="cc">FormMediator</span> &gt;&gt; <span class="cg">notify:</span> eventName <span class="cg">from:</span> sender
+    eventName = <span class="cy">#loginChanged</span> <span class="cg">ifTrue:</span> [
+        | login ok |
+        login := (self <span class="cg">componentAt:</span> <span class="cy">#loginField</span>) text.
+        ok    := login <span class="cg">size</span> >= <span class="cn">3</span>.
+        (self <span class="cg">componentAt:</span> <span class="cy">#submitButton</span>) <span class="cg">enabled:</span> ok.
+        (self <span class="cg">componentAt:</span> <span class="cy">#okLabel</span>)
+            <span class="cg">text:</span> (ok <span class="cg">ifTrue:</span> [ <span class="cs">'✓ Login available'</span> ] <span class="cg">ifFalse:</span> [ <span class="cs">'Too short'</span> ]) ]
+
+<span class="cm">"════════════ Abstract Component — holds mediator reference ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#FormComponent</span>
+    instanceVariableNames: <span class="cs">'mediator'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Mediator'</span>
+
+<span class="cc">FormComponent</span> &gt;&gt; <span class="cg">mediator:</span> m   mediator := m
+
+<span class="cc">FormComponent</span> subclass: <span class="cy">#TextField</span>
+    instanceVariableNames: <span class="cs">'text eventName'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Mediator'</span>
+
+<span class="cc">TextField</span> &gt;&gt; <span class="cg">eventName:</span> n   eventName := n
+<span class="cc">TextField</span> &gt;&gt; text            <span class="car">^</span> text
+
+<span class="cc">TextField</span> &gt;&gt; <span class="cg">text:</span> t
+    text := t.
+    <span class="cm">"Components don't know each other — only the mediator"</span>
+    mediator <span class="cg">notify:</span> eventName <span class="cg">from:</span> self
+
+<span class="cc">FormComponent</span> subclass: <span class="cy">#Button</span>
+    instanceVariableNames: <span class="cs">'label enabled'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Mediator'</span>
+
+<span class="cc">Button</span> &gt;&gt; <span class="cg">initialize</span>      enabled := false.   <span class="cc">Button</span> &gt;&gt; label: l   label := l
+<span class="cc">Button</span> &gt;&gt; <span class="cg">enabled:</span> b     enabled := b
+<span class="cc">Button</span> &gt;&gt; enabled         <span class="car">^</span> enabled
+
+<span class="cc">FormComponent</span> subclass: <span class="cy">#Label</span>
+    instanceVariableNames: <span class="cs">'text'</span>   package: <span class="cs">'Patterns-Mediator'</span>
+<span class="cc">Label</span> &gt;&gt; <span class="cg">text:</span> t   text := t.   <span class="cc">Transcript</span> <span class="cg">showCr:</span> t
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| med loginField submitBtn okLabel |
+med         := <span class="cc">FormMediator</span> new.
+loginField  := <span class="cc">TextField</span> new <span class="cg">eventName:</span> <span class="cy">#loginChanged</span>.
+submitBtn   := <span class="cc">Button</span>    new <span class="cg">label:</span> <span class="cs">'Submit'</span>.
+okLabel     := <span class="cc">Label</span>     new.
+
+med <span class="cg">register:</span> loginField <span class="cg">as:</span> <span class="cy">#loginField</span>.
+med <span class="cg">register:</span> submitBtn  <span class="cg">as:</span> <span class="cy">#submitButton</span>.
+med <span class="cg">register:</span> okLabel    <span class="cg">as:</span> <span class="cy">#okLabel</span>.
+
+loginField <span class="cg">text:</span> <span class="cs">'ab'</span>.     <span class="cm">"=> 'Too short'   — submit disabled"</span>
+loginField <span class="cg">text:</span> <span class="cs">'alice'</span>. <span class="cm">"=> '✓ Login available' — submit enabled"</span>
+submitBtn enabled.        <span class="cm">"=> true"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 18 MEMENTO -->
+                <div class="pattern" id="memento" data-id="memento">
+                    <div class="pattern-header">
+                        <span class="pattern-num">18</span>
+                        <span class="pattern-name">Memento</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 deepCopy as instant memento</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Without violating encapsulation,
+                            <strong
+                                >capture and externalize an object's internal
+                                state</strong
+                            >
+                            so it can be restored to that state later. Backbone
+                            of undo/redo and snapshot systems.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                For simple objects, <code>deepCopy</code> is an
+                                instant Memento — no classes needed. Use
+                                explicit Memento classes when you need sparse
+                                snapshots (only changed fields), version labels,
+                                or controlled access to saved state.
+                            </div>
+                        </div>
+                        <span class="code-label">memento.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Memento — captures a snapshot ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#EditorMemento</span>
+    instanceVariableNames: <span class="cs">'content cursorPos selectionRange'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Memento'</span>
+
+<span class="cm">"Deliberately no setters — Memento is read-only after creation"</span>
+<span class="cc">EditorMemento</span> class &gt;&gt; <span class="cg">content:</span> c <span class="cg">cursor:</span> pos <span class="cg">selection:</span> sel
+    <span class="car">^</span> self new
+        <span class="cg">pvtContent:</span> c copy;
+        <span class="cg">pvtCursor:</span>  pos;
+        <span class="cg">pvtSel:</span>     sel copy;
+        yourself
+
+<span class="cc">EditorMemento</span> &gt;&gt; <span class="cg">pvtContent:</span> c   content        := c
+<span class="cc">EditorMemento</span> &gt;&gt; <span class="cg">pvtCursor:</span> p    cursorPos      := p
+<span class="cc">EditorMemento</span> &gt;&gt; <span class="cg">pvtSel:</span> s       selectionRange := s
+<span class="cc">EditorMemento</span> &gt;&gt; content          <span class="car">^</span> content
+<span class="cc">EditorMemento</span> &gt;&gt; cursorPos        <span class="car">^</span> cursorPos
+<span class="cc">EditorMemento</span> &gt;&gt; selectionRange   <span class="car">^</span> selectionRange
+
+<span class="cm">"════════════ Originator — creates and restores from mementos ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#TextEditor</span>
+    instanceVariableNames: <span class="cs">'content cursorPos selectionRange'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Memento'</span>
+
+<span class="cc">TextEditor</span> &gt;&gt; <span class="cg">initialize</span>
+    content        := <span class="cs">''</span>.
+    cursorPos      := <span class="cn">0</span>.
+    selectionRange := <span class="cn">0</span>@<span class="cn">0</span>
+
+<span class="cc">TextEditor</span> &gt;&gt; <span class="cg">content:</span> s       content := s
+<span class="cc">TextEditor</span> &gt;&gt; <span class="cg">cursorPos:</span> n     cursorPos := n
+<span class="cc">TextEditor</span> &gt;&gt; content          <span class="car">^</span> content
+
+<span class="cc">TextEditor</span> &gt;&gt; <span class="cg">save</span>
+    <span class="car">^</span> <span class="cc">EditorMemento</span>
+        <span class="cg">content:</span>   content
+        <span class="cg">cursor:</span>    cursorPos
+        <span class="cg">selection:</span> selectionRange
+
+<span class="cc">TextEditor</span> &gt;&gt; <span class="cg">restore:</span> aMemento
+    content        := aMemento content.
+    cursorPos      := aMemento cursorPos.
+    selectionRange := aMemento selectionRange
+
+<span class="cm">"════════════ Caretaker — holds the undo/redo stacks ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#UndoManager</span>
+    instanceVariableNames: <span class="cs">'undoStack redoStack originator'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Memento'</span>
+
+<span class="cc">UndoManager</span> &gt;&gt; <span class="cg">initialize</span>
+    undoStack := <span class="cc">OrderedCollection</span> new.
+    redoStack := <span class="cc">OrderedCollection</span> new
+
+<span class="cc">UndoManager</span> &gt;&gt; <span class="cg">originator:</span> o   originator := o
+
+<span class="cc">UndoManager</span> &gt;&gt; <span class="cg">checkpoint</span>
+    undoStack <span class="cg">addLast:</span> originator save.
+    redoStack <span class="cg">removeAll</span>
+
+<span class="cc">UndoManager</span> &gt;&gt; <span class="cg">undo</span>
+    undoStack <span class="cg">isEmpty</span> <span class="cg">ifTrue:</span> [ <span class="car">^</span> self ].
+    redoStack <span class="cg">addLast:</span> originator save.
+    originator <span class="cg">restore:</span> undoStack <span class="cg">removeLast</span>
+
+<span class="cc">UndoManager</span> &gt;&gt; <span class="cg">redo</span>
+    redoStack <span class="cg">isEmpty</span> <span class="cg">ifTrue:</span> [ <span class="car">^</span> self ].
+    undoStack <span class="cg">addLast:</span> originator save.
+    originator <span class="cg">restore:</span> redoStack <span class="cg">removeLast</span>
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| ed undo |
+ed   := <span class="cc">TextEditor</span> new.
+undo := <span class="cc">UndoManager</span> new <span class="cg">originator:</span> ed.
+
+undo checkpoint.
+ed <span class="cg">content:</span> <span class="cs">'Hello'</span>; <span class="cg">cursorPos:</span> <span class="cn">5</span>.
+undo checkpoint.
+ed <span class="cg">content:</span> <span class="cs">'Hello World'</span>; <span class="cg">cursorPos:</span> <span class="cn">11</span>.
+undo checkpoint.
+ed content.         <span class="cm">"=> 'Hello World'"</span>
+undo undo. ed content.  <span class="cm">"=> 'Hello World' (restores prior checkpoint)"</span>
+undo undo. ed content.  <span class="cm">"=> 'Hello'"</span>
+undo undo. ed content.  <span class="cm">"=> ''"</span>
+undo redo. ed content.  <span class="cm">"=> 'Hello'"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 19 OBSERVER -->
+                <div class="pattern" id="observer" data-id="observer">
+                    <div class="pattern-header">
+                        <span class="pattern-num">19</span>
+                        <span class="pattern-name">Observer</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 Built-in + Announcements framework</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Define a <strong>one-to-many dependency</strong> so
+                            that when one object changes state, all its
+                            dependents are notified and updated automatically.
+                            The foundation of MVC — which Smalltalk invented.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                <strong
+                                    >Observer is deeply built in to
+                                    Pharo.</strong
+                                >
+                                <code>Object >> addDependent:</code>,
+                                <code>changed:</code>, and
+                                <code>update:</code> provide the classic
+                                mechanism. The modern
+                                <code>Announcer</code> framework (Pharo 7+) adds
+                                type-safe, subscription-based events — strongly
+                                preferred for new code as it avoids accidental
+                                update cascades.
+                            </div>
+                        </div>
+                        <span class="code-label">observer.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Classic Dependency Mechanism (built-in) ════════════"</span>
+<span class="cm">"Model subclass gives you changed: / addDependent: for free"</span>
+<span class="cc">Model</span> subclass: <span class="cy">#StockPrice</span>
+    instanceVariableNames: <span class="cs">'symbol price'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Observer'</span>
+
+<span class="cc">StockPrice</span> class &gt;&gt; <span class="cg">symbol:</span> s   <span class="car">^</span> self new <span class="cg">symbol:</span> s; yourself
+<span class="cc">StockPrice</span> &gt;&gt; <span class="cg">symbol:</span> s   symbol := s
+<span class="cc">StockPrice</span> &gt;&gt; symbol       <span class="car">^</span> symbol
+<span class="cc">StockPrice</span> &gt;&gt; price         <span class="car">^</span> price
+
+<span class="cc">StockPrice</span> &gt;&gt; <span class="cg">price:</span> n
+    price := n.
+    self <span class="cg">changed:</span> <span class="cy">#price</span>   <span class="cm">"broadcasts to all dependents"</span>
+
+<span class="cm">"Observer — implement update: to receive notifications"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#PriceDisplay</span>
+    instanceVariableNames: <span class="cs">'name'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Observer'</span>
+
+<span class="cc">PriceDisplay</span> class &gt;&gt; <span class="cg">name:</span> n   <span class="car">^</span> self new <span class="cg">name:</span> n; yourself
+<span class="cc">PriceDisplay</span> &gt;&gt; <span class="cg">name:</span> n   name := n
+
+<span class="cc">PriceDisplay</span> &gt;&gt; <span class="cg">update:</span> aModel
+    <span class="cm">"Called by Smalltalk dependency mechanism"</span>
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span> name , <span class="cs">': '</span> , aModel symbol , <span class="cs">' = $'</span> , aModel price <span class="cg">printString</span>
+
+<span class="cm">"════════════ Modern: Announcements framework ════════════"</span>
+<span class="cc">Announcement</span> subclass: <span class="cy">#PriceChangedAnnouncement</span>
+    instanceVariableNames: <span class="cs">'symbol price delta'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Observer'</span>
+
+<span class="cc">PriceChangedAnnouncement</span> class &gt;&gt; <span class="cg">symbol:</span> s <span class="cg">price:</span> p <span class="cg">delta:</span> d
+    <span class="car">^</span> self new <span class="cg">symbol:</span> s; <span class="cg">price:</span> p; <span class="cg">delta:</span> d; yourself
+
+<span class="cc">PriceChangedAnnouncement</span> &gt;&gt; <span class="cg">symbol:</span> s   symbol := s.   &gt;&gt; symbol   <span class="car">^</span> symbol
+<span class="cc">PriceChangedAnnouncement</span> &gt;&gt; <span class="cg">price:</span> p    price  := p.   &gt;&gt; price    <span class="car">^</span> price
+<span class="cc">PriceChangedAnnouncement</span> &gt;&gt; <span class="cg">delta:</span> d    delta  := d.   &gt;&gt; delta    <span class="car">^</span> delta
+
+<span class="cc">Model</span> subclass: <span class="cy">#MarketFeed</span>
+    instanceVariableNames: <span class="cs">'announcer prices'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Observer'</span>
+
+<span class="cc">MarketFeed</span> &gt;&gt; <span class="cg">initialize</span>
+    announcer := <span class="cc">Announcer</span> new.
+    prices    := <span class="cc">Dictionary</span> new
+
+<span class="cc">MarketFeed</span> &gt;&gt; announcer   <span class="car">^</span> announcer
+
+<span class="cc">MarketFeed</span> &gt;&gt; <span class="cg">updatePrice:</span> p <span class="cg">for:</span> symbol
+    | prev delta |
+    prev  := prices <span class="cg">at:</span> symbol <span class="cg">ifAbsent:</span> [ p ].
+    delta := p - prev.
+    prices <span class="cg">at:</span> symbol <span class="cg">put:</span> p.
+    announcer <span class="cg">announce:</span> (<span class="cc">PriceChangedAnnouncement</span>
+        <span class="cg">symbol:</span> symbol <span class="cg">price:</span> p <span class="cg">delta:</span> delta)
+
+<span class="cm">"════════════ Usage ════════════"</span>
+<span class="cm">"Classic mechanism:"</span>
+| stock d1 d2 |
+stock := <span class="cc">StockPrice</span> <span class="cg">symbol:</span> <span class="cs">'AAPL'</span>.
+d1    := <span class="cc">PriceDisplay</span> <span class="cg">name:</span> <span class="cs">'Dashboard'</span>.
+d2    := <span class="cc">PriceDisplay</span> <span class="cg">name:</span> <span class="cs">'Alert widget'</span>.
+stock <span class="cg">addDependent:</span> d1; <span class="cg">addDependent:</span> d2.
+stock <span class="cg">price:</span> <span class="cn">189.50</span>.   <span class="cm">"both displays update"</span>
+stock <span class="cg">removeDependent:</span> d1.
+stock <span class="cg">price:</span> <span class="cn">191.00</span>.   <span class="cm">"only d2 updates"</span>
+
+<span class="cm">"Announcements:"</span>
+| feed |
+feed := <span class="cc">MarketFeed</span> new.
+feed announcer
+    <span class="cg">on:</span> <span class="cc">PriceChangedAnnouncement</span>
+    <span class="cg">do:</span> [ :<span class="ck">ann</span> | <span class="cc">Transcript</span> <span class="cg">showCr:</span> ann symbol , <span class="cs">' Δ'</span> , ann delta <span class="cg">printString</span> ].
+feed <span class="cg">updatePrice:</span> <span class="cn">150.0</span> <span class="cg">for:</span> <span class="cs">'GOOG'</span>.   <span class="cm">"=> 'GOOG Δ0.0'"</span>
+feed <span class="cg">updatePrice:</span> <span class="cn">153.5</span> <span class="cg">for:</span> <span class="cs">'GOOG'</span>.   <span class="cm">"=> 'GOOG Δ3.5'"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 20 STATE -->
+                <div class="pattern" id="state" data-id="state">
+                    <div class="pattern-header">
+                        <span class="pattern-num">20</span>
+                        <span class="pattern-name">State</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Allow an object to
+                            <strong
+                                >alter its behavior when its internal state
+                                changes</strong
+                            >
+                            — it will appear to change its class. Eliminates
+                            tangled if/else chains on state flags. Each state
+                            class encapsulates its own behavior and manages its
+                            own transitions.
+                        </p>
+                        <span class="code-label">state.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Context — the object whose behavior changes ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#OrderContext</span>
+    instanceVariableNames: <span class="cs">'state'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-State'</span>
+
+<span class="cc">OrderContext</span> &gt;&gt; <span class="cg">initialize</span>
+    state := <span class="cc">PendingState</span> new <span class="cg">context:</span> self; yourself
+
+<span class="cc">OrderContext</span> &gt;&gt; <span class="cg">state:</span> s    state := s
+<span class="cc">OrderContext</span> &gt;&gt; <span class="cg">stateName</span>  <span class="car">^</span> state name
+
+<span class="cm">"Delegate all behavior to the current state"</span>
+<span class="cc">OrderContext</span> &gt;&gt; <span class="cg">confirm</span>   state confirm
+<span class="cc">OrderContext</span> &gt;&gt; <span class="cg">pay</span>       state pay
+<span class="cc">OrderContext</span> &gt;&gt; <span class="cg">ship</span>      state ship
+<span class="cc">OrderContext</span> &gt;&gt; <span class="cg">cancel</span>    state cancel
+
+<span class="cm">"════════════ Abstract State ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#OrderState</span>
+    instanceVariableNames: <span class="cs">'context'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-State'</span>
+
+<span class="cc">OrderState</span> &gt;&gt; <span class="cg">context:</span> c   context := c
+<span class="cc">OrderState</span> &gt;&gt; name          <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"Default — illegal transitions raise a clear error"</span>
+<span class="cc">OrderState</span> &gt;&gt; <span class="cg">confirm</span>   self <span class="cg">illegalTransition:</span> <span class="cy">#confirm</span>
+<span class="cc">OrderState</span> &gt;&gt; <span class="cg">pay</span>       self <span class="cg">illegalTransition:</span> <span class="cy">#pay</span>
+<span class="cc">OrderState</span> &gt;&gt; <span class="cg">ship</span>      self <span class="cg">illegalTransition:</span> <span class="cy">#ship</span>
+<span class="cc">OrderState</span> &gt;&gt; <span class="cg">cancel</span>    self <span class="cg">illegalTransition:</span> <span class="cy">#cancel</span>
+
+<span class="cc">OrderState</span> &gt;&gt; <span class="cg">illegalTransition:</span> msg
+    self <span class="cg">error:</span> self name , <span class="cs">' cannot '</span> , msg
+
+<span class="cc">OrderState</span> &gt;&gt; <span class="cg">transitionTo:</span> stateClass
+    context <span class="cg">state:</span> (stateClass new <span class="cg">context:</span> context; yourself)
+
+<span class="cm">"════════════ Concrete States — each controls its own transitions ════════════"</span>
+<span class="cc">OrderState</span> subclass: <span class="cy">#PendingState</span>   package: <span class="cs">'Patterns-State'</span>
+<span class="cc">PendingState</span> &gt;&gt; name   <span class="car">^</span> <span class="cs">'Pending'</span>
+<span class="cc">PendingState</span> &gt;&gt; <span class="cg">confirm</span>   self <span class="cg">transitionTo:</span> <span class="cc">ConfirmedState</span>.   <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Order confirmed'</span>
+<span class="cc">PendingState</span> &gt;&gt; <span class="cg">cancel</span>    self <span class="cg">transitionTo:</span> <span class="cc">CancelledState</span>.   <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Order cancelled'</span>
+
+<span class="cc">OrderState</span> subclass: <span class="cy">#ConfirmedState</span>   package: <span class="cs">'Patterns-State'</span>
+<span class="cc">ConfirmedState</span> &gt;&gt; name   <span class="car">^</span> <span class="cs">'Confirmed'</span>
+<span class="cc">ConfirmedState</span> &gt;&gt; <span class="cg">pay</span>     self <span class="cg">transitionTo:</span> <span class="cc">PaidState</span>.      <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Payment received'</span>
+<span class="cc">ConfirmedState</span> &gt;&gt; <span class="cg">cancel</span>  self <span class="cg">transitionTo:</span> <span class="cc">CancelledState</span>. <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Order cancelled'</span>
+
+<span class="cc">OrderState</span> subclass: <span class="cy">#PaidState</span>   package: <span class="cs">'Patterns-State'</span>
+<span class="cc">PaidState</span> &gt;&gt; name   <span class="car">^</span> <span class="cs">'Paid'</span>
+<span class="cc">PaidState</span> &gt;&gt; <span class="cg">ship</span>    self <span class="cg">transitionTo:</span> <span class="cc">ShippedState</span>.    <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Order shipped!'</span>
+
+<span class="cc">OrderState</span> subclass: <span class="cy">#ShippedState</span>   package: <span class="cs">'Patterns-State'</span>
+<span class="cc">ShippedState</span> &gt;&gt; name   <span class="car">^</span> <span class="cs">'Shipped'</span>
+
+<span class="cc">OrderState</span> subclass: <span class="cy">#CancelledState</span>   package: <span class="cs">'Patterns-State'</span>
+<span class="cc">CancelledState</span> &gt;&gt; name   <span class="car">^</span> <span class="cs">'Cancelled'</span>
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| order |
+order := <span class="cc">OrderContext</span> new.
+order stateName.  <span class="cm">"=> 'Pending'"</span>
+order confirm.    <span class="cm">"=> 'Order confirmed'"</span>
+order stateName.  <span class="cm">"=> 'Confirmed'"</span>
+order pay.        <span class="cm">"=> 'Payment received'"</span>
+order ship.       <span class="cm">"=> 'Order shipped!'"</span>
+order stateName.  <span class="cm">"=> 'Shipped'"</span>
+order cancel.     <span class="cm">"=> Error: 'Shipped cannot cancel'"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 21 STRATEGY -->
+                <div class="pattern" id="strategy" data-id="strategy">
+                    <div class="pattern-header">
+                        <span class="pattern-num">21</span>
+                        <span class="pattern-name">Strategy</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 Blocks eliminate class hierarchy for simple
+                            cases</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Define a family of algorithms, encapsulate each one,
+                            and make them
+                            <strong>interchangeable at runtime</strong>.
+                            Strategy lets the algorithm vary independently from
+                            clients that use it. Eliminates conditionals for
+                            algorithm selection.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                <strong
+                                    >In Pharo, a block IS a first-class
+                                    strategy.</strong
+                                >
+                                For simple single-method strategies, pass a
+                                block. Reserve the class-hierarchy approach for
+                                strategies that carry their own state, expose
+                                multiple methods, or need to be serialized. The
+                                block form is idiomatic Pharo and eliminates the
+                                class-per-algorithm overhead entirely.
+                            </div>
+                        </div>
+                        <span class="code-label">strategy.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Block-based Strategy (idiomatic Pharo) ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#DataExporter</span>
+    instanceVariableNames: <span class="cs">'formatStrategy'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Strategy'</span>
+
+<span class="cc">DataExporter</span> &gt;&gt; <span class="cg">formatStrategy:</span> aBlock
+    formatStrategy := aBlock
+
+<span class="cc">DataExporter</span> &gt;&gt; <span class="cg">export:</span> data
+    <span class="car">^</span> formatStrategy <span class="cg">value:</span> data
+
+<span class="cm">"Swap the algorithm at runtime — zero classes needed"</span>
+| exp |
+exp := <span class="cc">DataExporter</span> new.
+exp <span class="cg">formatStrategy:</span> [ :<span class="ck">d</span> | <span class="cs">'JSON: '</span> , d <span class="cg">asJSON</span> ].
+exp <span class="cg">export:</span> { <span class="cy">#name</span> -&gt; <span class="cs">'Alice'</span> }.   <span class="cm">"=> 'JSON: {"name":"Alice"}'"</span>
+
+exp <span class="cg">formatStrategy:</span> [ :<span class="ck">d</span> | <span class="cs">'CSV: name\nAlice'</span> ].
+exp <span class="cg">export:</span> { <span class="cy">#name</span> -&gt; <span class="cs">'Alice'</span> }.   <span class="cm">"=> 'CSV: name\nAlice'"</span>
+
+<span class="cm">"════════════ Class-based Strategy (for stateful or multi-method strategies) ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#SortStrategy</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Strategy'</span>
+
+<span class="cc">SortStrategy</span> &gt;&gt; <span class="cg">sort:</span> col   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">SortStrategy</span> &gt;&gt; name        <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">SortStrategy</span> subclass: <span class="cy">#BubbleSortStrategy</span>   package: <span class="cs">'Patterns-Strategy'</span>
+<span class="cc">BubbleSortStrategy</span> &gt;&gt; name   <span class="car">^</span> <span class="cs">'Bubble Sort'</span>
+<span class="cc">BubbleSortStrategy</span> &gt;&gt; <span class="cg">sort:</span> col
+    <span class="cm">"O(n²) — illustrative only"</span>
+    | a swapped |
+    a := col asOrderedCollection.
+    [ swapped := false.
+      <span class="cn">1</span> to: a size - <span class="cn">1</span> do: [ :<span class="ck">i</span> |
+          (a <span class="cg">at:</span> i) > (a <span class="cg">at:</span> i + <span class="cn">1</span>) <span class="cg">ifTrue:</span> [
+              a <span class="cg">swap:</span> i <span class="cg">with:</span> i + <span class="cn">1</span>.
+              swapped := true ] ].
+      swapped ] <span class="cg">whileTrue</span>.
+    <span class="car">^</span> a
+
+<span class="cc">SortStrategy</span> subclass: <span class="cy">#QuickSortStrategy</span>   package: <span class="cs">'Patterns-Strategy'</span>
+<span class="cc">QuickSortStrategy</span> &gt;&gt; name   <span class="car">^</span> <span class="cs">'Quick Sort'</span>
+<span class="cc">QuickSortStrategy</span> &gt;&gt; <span class="cg">sort:</span> col
+    <span class="car">^</span> col asSortedCollection    <span class="cm">"delegate to Pharo's built-in timsort"</span>
+
+<span class="cc">SortStrategy</span> subclass: <span class="cy">#ReverseSortStrategy</span>   package: <span class="cs">'Patterns-Strategy'</span>
+<span class="cc">ReverseSortStrategy</span> &gt;&gt; name   <span class="car">^</span> <span class="cs">'Reverse Sort'</span>
+<span class="cc">ReverseSortStrategy</span> &gt;&gt; <span class="cg">sort:</span> col
+    <span class="car">^</span> col <span class="cg">asSortedCollection:</span> [ :<span class="ck">a</span> :<span class="ck">b</span> | a >= b ]
+
+<span class="cm">"════════════ Context ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#Sorter</span>
+    instanceVariableNames: <span class="cs">'strategy'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Strategy'</span>
+
+<span class="cc">Sorter</span> &gt;&gt; <span class="cg">strategy:</span> s   strategy := s
+<span class="cc">Sorter</span> &gt;&gt; <span class="cg">sort:</span> col    <span class="car">^</span> strategy <span class="cg">sort:</span> col
+
+<span class="cm">"════════════ Usage ════════════"</span>
+| sorter data |
+data   := <span class="cy">#(</span><span class="cn">5 2 8 1 9 3</span><span class="cy">)</span>.
+sorter := <span class="cc">Sorter</span> new.
+
+sorter <span class="cg">strategy:</span> <span class="cc">QuickSortStrategy</span> new.
+(sorter <span class="cg">sort:</span> data) <span class="cg">asArray</span>.    <span class="cm">"=> #(1 2 3 5 8 9)"</span>
+
+sorter <span class="cg">strategy:</span> <span class="cc">ReverseSortStrategy</span> new.
+(sorter <span class="cg">sort:</span> data) <span class="cg">asArray</span>.    <span class="cm">"=> #(9 8 5 3 2 1)"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 22 TEMPLATE METHOD -->
+                <div class="pattern" id="template" data-id="template">
+                    <div class="pattern-header">
+                        <span class="pattern-num">22</span>
+                        <span class="pattern-name">Template Method</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                        <span class="pharo-badge"
+                            >🟣 subclassResponsibility is idiomatic</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Define the
+                            <strong>skeleton of an algorithm</strong> in a
+                            method, deferring some steps to subclasses. Template
+                            Method lets subclasses redefine certain steps
+                            without changing the algorithm's overall structure.
+                        </p>
+                        <div class="pharo-note">
+                            <span class="pharo-note-icon">◈</span>
+                            <div>
+                                <code>subclassResponsibility</code> is Pharo's
+                                built-in "abstract method" signal — it raises an
+                                error with a clear message at runtime. Primitive
+                                steps use it. Hook steps have a default
+                                implementation (often a no-op). This pattern
+                                arises naturally in any Pharo class hierarchy.
+                            </div>
+                        </div>
+                        <span class="code-label">template_method.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cc">Object</span> subclass: <span class="cy">#DataMigrator</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-TemplateMethod'</span>
+
+<span class="cm">"═══ Template Method — the invariant algorithm skeleton ═══"</span>
+<span class="cc">DataMigrator</span> &gt;&gt; <span class="cg">migrate</span>
+    self <span class="cg">beforeMigration</span>.       <span class="cm">"hook — optional override"</span>
+    | data |
+    data := self <span class="cg">extractData</span>.   <span class="cm">"primitive — must override"</span>
+    data := self <span class="cg">transformData:</span> data. <span class="cm">"primitive"</span>
+    self <span class="cg">loadData:</span> data.         <span class="cm">"primitive"</span>
+    self <span class="cg">afterMigration</span>         <span class="cm">"hook — optional override"</span>
+
+<span class="cm">"Primitive operations — subclasses MUST override"</span>
+<span class="cc">DataMigrator</span> &gt;&gt; <span class="cg">extractData</span>          <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">DataMigrator</span> &gt;&gt; <span class="cg">transformData:</span> d     <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">DataMigrator</span> &gt;&gt; <span class="cg">loadData:</span> d          <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"Hook operations — subclasses CAN override (default: no-op)"</span>
+<span class="cc">DataMigrator</span> &gt;&gt; <span class="cg">beforeMigration</span>     <span class="cm">"default: do nothing"</span>
+<span class="cc">DataMigrator</span> &gt;&gt; <span class="cg">afterMigration</span>      <span class="cm">"default: do nothing"</span>
+
+<span class="cm">"════════════ Concrete subclass — fills in only the blanks ════════════"</span>
+<span class="cc">DataMigrator</span> subclass: <span class="cy">#UserCSVMigrator</span>
+    instanceVariableNames: <span class="cs">'sourcePath destDb stats'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-TemplateMethod'</span>
+
+<span class="cc">UserCSVMigrator</span> class &gt;&gt; <span class="cg">from:</span> path <span class="cg">to:</span> db
+    <span class="car">^</span> self new <span class="cg">sourcePath:</span> path; <span class="cg">destDb:</span> db; yourself
+
+<span class="cc">UserCSVMigrator</span> &gt;&gt; <span class="cg">sourcePath:</span> p   sourcePath := p
+<span class="cc">UserCSVMigrator</span> &gt;&gt; <span class="cg">destDb:</span> d       destDb := d
+
+<span class="cm">"Override hooks to add logging"</span>
+<span class="cc">UserCSVMigrator</span> &gt;&gt; <span class="cg">beforeMigration</span>
+    stats := <span class="cc">Dictionary</span> new.
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Starting user migration from '</span> , sourcePath
+
+<span class="cc">UserCSVMigrator</span> &gt;&gt; <span class="cg">afterMigration</span>
+    <span class="cc">Transcript</span> <span class="cg">showCr:</span> <span class="cs">'Migrated: '</span> , (stats <span class="cg">at:</span> <span class="cy">#count</span>) <span class="cg">printString</span> , <span class="cs">' records'</span>
+
+<span class="cm">"Override primitives"</span>
+<span class="cc">UserCSVMigrator</span> &gt;&gt; <span class="cg">extractData</span>
+    <span class="car">^</span> <span class="cc">CSVReader</span> <span class="cg">readFile:</span> sourcePath
+
+<span class="cc">UserCSVMigrator</span> &gt;&gt; <span class="cg">transformData:</span> rows
+    stats <span class="cg">at:</span> <span class="cy">#count</span> <span class="cg">put:</span> rows size.
+    <span class="car">^</span> rows <span class="cg">collect:</span> [ :<span class="ck">row</span> |
+        { <span class="cy">#email</span>      -&gt; (row <span class="cg">at:</span> <span class="cy">#email</span>) <span class="cg">asLowercase</span>.
+          <span class="cy">#name</span>       -&gt; (row <span class="cg">at:</span> <span class="cy">#name</span>) <span class="cg">trimSeparators</span>.
+          <span class="cy">#createdAt</span>  -&gt; <span class="cc">DateAndTime</span> now } asDictionary ]
+
+<span class="cc">UserCSVMigrator</span> &gt;&gt; <span class="cg">loadData:</span> records
+    records <span class="cg">do:</span> [ :<span class="ck">r</span> | destDb <span class="cg">insert:</span> r <span class="cg">into:</span> <span class="cs">'users'</span> ]
+
+<span class="cm">"════════════ Usage ════════════"</span>
+(<span class="cc">UserCSVMigrator</span> <span class="cg">from:</span> <span class="cs">'/exports/users.csv'</span> <span class="cg">to:</span> productionDb) <span class="cg">migrate</span>.
+<span class="cm">"=> 'Starting user migration from /exports/users.csv'"</span>
+<span class="cm">"=> 'Migrated: 1247 records'"</span></pre>
+                    </div>
+                </div>
+
+                <!-- 23 VISITOR -->
+                <div class="pattern" id="visitor" data-id="visitor">
+                    <div class="pattern-header">
+                        <span class="pattern-num">23</span>
+                        <span class="pattern-name">Visitor</span>
+                        <span
+                            class="category-badge cat-b"
+                            style="font-size: 9px"
+                            >Behavioral</span
+                        >
+                    </div>
+                    <div class="pattern-body">
+                        <p class="pattern-intent">
+                            Represent an operation to be performed on elements
+                            of an object structure
+                            <strong>without changing the classes</strong> of the
+                            elements. Visitor lets you add new operations to a
+                            closed hierarchy without modifying it. The "double
+                            dispatch" via <code>accept:</code> is the key
+                            mechanism.
+                        </p>
+                        <span class="code-label">visitor.st</span>
+                        <pre
+                            class="code"
+                        ><span class="cm">"════════════ Element hierarchy (closed — we don't modify these) ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#ASTNode</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Visitor'</span>
+
+<span class="cm">"accept: is the double-dispatch hook — routes to the correct visitor method"</span>
+<span class="cc">ASTNode</span> &gt;&gt; <span class="cg">accept:</span> aVisitor   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cc">ASTNode</span> subclass: <span class="cy">#NumberLiteral</span>
+    instanceVariableNames: <span class="cs">'value'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Visitor'</span>
+
+<span class="cc">NumberLiteral</span> class &gt;&gt; <span class="cg">value:</span> n   <span class="car">^</span> self new <span class="cg">value:</span> n; yourself
+<span class="cc">NumberLiteral</span> &gt;&gt; <span class="cg">value:</span> n   value := n.   <span class="cc">NumberLiteral</span> &gt;&gt; value   <span class="car">^</span> value
+<span class="cc">NumberLiteral</span> &gt;&gt; <span class="cg">accept:</span> v   <span class="car">^</span> v <span class="cg">visitNumberLiteral:</span> self
+
+<span class="cc">ASTNode</span> subclass: <span class="cy">#AddExprNode</span>
+    instanceVariableNames: <span class="cs">'left right'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Visitor'</span>
+
+<span class="cc">AddExprNode</span> class &gt;&gt; <span class="cg">left:</span> l <span class="cg">right:</span> r   <span class="car">^</span> self new <span class="cg">left:</span> l; <span class="cg">right:</span> r; yourself
+<span class="cc">AddExprNode</span> &gt;&gt; <span class="cg">left:</span> l    left := l.    <span class="cc">AddExprNode</span> &gt;&gt; left    <span class="car">^</span> left
+<span class="cc">AddExprNode</span> &gt;&gt; <span class="cg">right:</span> r   right := r.   <span class="cc">AddExprNode</span> &gt;&gt; right   <span class="car">^</span> right
+<span class="cc">AddExprNode</span> &gt;&gt; <span class="cg">accept:</span> v   <span class="car">^</span> v <span class="cg">visitAddExpr:</span> self
+
+<span class="cc">ASTNode</span> subclass: <span class="cy">#MulExprNode</span>
+    instanceVariableNames: <span class="cs">'left right'</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Visitor'</span>
+
+<span class="cc">MulExprNode</span> class &gt;&gt; <span class="cg">left:</span> l <span class="cg">right:</span> r   <span class="car">^</span> self new <span class="cg">left:</span> l; <span class="cg">right:</span> r; yourself
+<span class="cc">MulExprNode</span> &gt;&gt; <span class="cg">left:</span> l    left := l.    <span class="cc">MulExprNode</span> &gt;&gt; left    <span class="car">^</span> left
+<span class="cc">MulExprNode</span> &gt;&gt; <span class="cg">right:</span> r   right := r.   <span class="cc">MulExprNode</span> &gt;&gt; right   <span class="car">^</span> right
+<span class="cc">MulExprNode</span> &gt;&gt; <span class="cg">accept:</span> v   <span class="car">^</span> v <span class="cg">visitMulExpr:</span> self
+
+<span class="cm">"════════════ Abstract Visitor ════════════"</span>
+<span class="cc">Object</span> subclass: <span class="cy">#ASTVisitor</span>
+    instanceVariableNames: <span class="cs">''</span>
+    classVariableNames: <span class="cs">''</span>
+    package: <span class="cs">'Patterns-Visitor'</span>
+
+<span class="cc">ASTVisitor</span> &gt;&gt; <span class="cg">visitNumberLiteral:</span> node   <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">ASTVisitor</span> &gt;&gt; <span class="cg">visitAddExpr:</span> node         <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+<span class="cc">ASTVisitor</span> &gt;&gt; <span class="cg">visitMulExpr:</span> node         <span class="car">^</span> self <span class="cg">subclassResponsibility</span>
+
+<span class="cm">"════════════ Concrete Visitor 1: Evaluator ════════════"</span>
+<span class="cc">ASTVisitor</span> subclass: <span class="cy">#EvalVisitor</span>   package: <span class="cs">'Patterns-Visitor'</span>
+
+<span class="cc">EvalVisitor</span> &gt;&gt; <span class="cg">visitNumberLiteral:</span> n   <span class="car">^</span> n value
+<span class="cc">EvalVisitor</span> &gt;&gt; <span class="cg">visitAddExpr:</span> node
+    <span class="car">^</span> (node left <span class="cg">accept:</span> self) + (node right <span class="cg">accept:</span> self)
+<span class="cc">EvalVisitor</span> &gt;&gt; <span class="cg">visitMulExpr:</span> node
+    <span class="car">^</span> (node left <span class="cg">accept:</span> self) * (node right <span class="cg">accept:</span> self)
+
+<span class="cm">"════════════ Concrete Visitor 2: Pretty Printer ════════════"</span>
+<span class="cc">ASTVisitor</span> subclass: <span class="cy">#PrettyPrintVisitor</span>   package: <span class="cs">'Patterns-Visitor'</span>
+
+<span class="cc">PrettyPrintVisitor</span> &gt;&gt; <span class="cg">visitNumberLiteral:</span> n   <span class="car">^</span> n value <span class="cg">printString</span>
+<span class="cc">PrettyPrintVisitor</span> &gt;&gt; <span class="cg">visitAddExpr:</span> node
+    <span class="car">^</span> <span class="cs">'('</span> , (node left <span class="cg">accept:</span> self) , <span class="cs">' + '</span> , (node right <span class="cg">accept:</span> self) , <span class="cs">')'</span>
+<span class="cc">PrettyPrintVisitor</span> &gt;&gt; <span class="cg">visitMulExpr:</span> node
+    <span class="car">^</span> <span class="cs">'('</span> , (node left <span class="cg">accept:</span> self) , <span class="cs">' × '</span> , (node right <span class="cg">accept:</span> self) , <span class="cs">')'</span>
+
+<span class="cm">"════════════ Usage ════════════"</span>
+<span class="cm">"Build AST for: (3 + 4) × 5"</span>
+| ast |
+ast := <span class="cc">MulExprNode</span>
+    <span class="cg">left:</span>  (<span class="cc">AddExprNode</span>
+        <span class="cg">left:</span>  (<span class="cc">NumberLiteral</span> <span class="cg">value:</span> <span class="cn">3</span>)
+        <span class="cg">right:</span> (<span class="cc">NumberLiteral</span> <span class="cg">value:</span> <span class="cn">4</span>))
+    <span class="cg">right:</span> (<span class="cc">NumberLiteral</span> <span class="cg">value:</span> <span class="cn">5</span>).
+
+ast <span class="cg">accept:</span> <span class="cc">EvalVisitor</span> new.           <span class="cm">"=> 35"</span>
+ast <span class="cg">accept:</span> <span class="cc">PrettyPrintVisitor</span> new.    <span class="cm">"=> '((3 + 4) × 5)'"</span>
+
+<span class="cm">"New operations — just add a new Visitor class, zero changes to AST nodes:"</span>
+<span class="cm">"  TypeCheckVisitor, OptimizeVisitor, CodeGenVisitor, ..."</span></pre>
+                    </div>
+                </div>
+            </div>
+            <!-- /behavioral -->
+        </main>
+
+        <script>
+            // Highlight active nav link on scroll
+            const links = document.querySelectorAll('.nav-link[href^="#"]');
+            const patterns = document.querySelectorAll(".pattern[data-id]");
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((e) => {
+                        if (e.isIntersecting) {
+                            const id = e.target.getAttribute("data-id");
+                            links.forEach((l) => {
+                                l.classList.toggle(
+                                    "active",
+                                    l.getAttribute("href") === "#" + id,
+                                );
+                            });
+                        }
+                    });
+                },
+                { rootMargin: "-20% 0px -70% 0px" },
+            );
+
+            patterns.forEach((p) => observer.observe(p));
+        </script>
+    </body>
+</html>

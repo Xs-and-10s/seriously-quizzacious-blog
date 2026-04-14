@@ -1,0 +1,1180 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>GoF Pattern Analysis · Ranked &amp; Scored</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            :root {
+                --bg: #0c0f1a;
+                --s0: #111520;
+                --s1: #161c2e;
+                --s2: #1c2440;
+                --b0: #1e2640;
+                --b1: #28325a;
+                --b2: #3a4870;
+                --text: #c4cde4;
+                --text2: #6e7fa8;
+                --text3: #3a4460;
+                --white: #eef0f8;
+                /* category */
+                --cat-c: #a78bfa;
+                --cat-s: #38bdf8;
+                --cat-b: #4ade80;
+                /* score colours */
+                --col-net5: #4ade80;
+                --col-net4: #86efac;
+                --col-net3: #fbbf24;
+                --col-net2: #fb923c;
+                --col-net1: #f87171;
+                --col-use: #60a5fa;
+                --col-pop: #c084fc;
+                --col-cmp1: #4ade80;
+                --col-cmp2: #86efac;
+                --col-cmp3: #fbbf24;
+                --col-cmp4: #fb923c;
+                --col-cmp5: #f87171;
+                /* accent */
+                --acc: #f0b429;
+                --acc2: rgba(240, 180, 41, 0.12);
+            }
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                font-family: "Lato", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                font-size: 14px;
+                line-height: 1.6;
+                min-height: 100vh;
+            }
+
+            /* ── Page Header ── */
+            .page-header {
+                background: var(--s0);
+                border-bottom: 1px solid var(--b0);
+                padding: 32px 40px 24px;
+            }
+            .eyebrow {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                color: var(--acc);
+                margin-bottom: 10px;
+            }
+            .page-header h1 {
+                font-family: "Syne", sans-serif;
+                font-size: clamp(22px, 3vw, 36px);
+                font-weight: 800;
+                color: var(--white);
+                line-height: 1.1;
+                margin-bottom: 8px;
+            }
+            .page-header p {
+                color: var(--text2);
+                font-size: 13px;
+                max-width: 680px;
+            }
+            .legend {
+                display: flex;
+                gap: 18px;
+                margin-top: 14px;
+                flex-wrap: wrap;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                color: var(--text2);
+            }
+            .leg-dot {
+                width: 9px;
+                height: 9px;
+                border-radius: 2px;
+            }
+
+            /* ── Sort Panel ── */
+            .sort-panel {
+                background: var(--s1);
+                border-bottom: 1px solid var(--b0);
+                padding: 18px 40px;
+                position: sticky;
+                top: 0;
+                z-index: 40;
+            }
+            .sort-label {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                color: var(--text3);
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .sort-label span {
+                flex: 1;
+                height: 1px;
+                background: var(--b0);
+            }
+            .sort-label .hint {
+                font-size: 9px;
+                color: var(--text3);
+                font-style: italic;
+                letter-spacing: 0.05em;
+                text-transform: none;
+            }
+            .sort-chips {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .sort-chip {
+                display: flex;
+                align-items: center;
+                gap: 0;
+                background: var(--s2);
+                border: 1px solid var(--b1);
+                border-radius: 7px;
+                cursor: grab;
+                user-select: none;
+                transition: all 0.15s;
+                position: relative;
+            }
+            .sort-chip:active {
+                cursor: grabbing;
+            }
+            .sort-chip.primary {
+                border-color: var(--acc);
+                background: var(--acc2);
+            }
+            .sort-chip.dragging {
+                opacity: 0.4;
+                transform: scale(0.95);
+            }
+            .sort-chip.drag-over {
+                border-color: var(--acc);
+                box-shadow: 0 0 0 2px var(--acc2);
+            }
+            .chip-priority {
+                width: 24px;
+                height: 24px;
+                border-radius: 5px 0 0 5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                font-weight: 500;
+                background: var(--b0);
+                color: var(--text3);
+                flex-shrink: 0;
+            }
+            .sort-chip.primary .chip-priority {
+                background: var(--acc);
+                color: #000;
+                font-weight: 700;
+            }
+            .chip-label {
+                padding: 0 10px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11px;
+                color: var(--text);
+                white-space: nowrap;
+            }
+            .sort-chip.primary .chip-label {
+                color: var(--acc);
+            }
+            .chip-dir {
+                padding: 0 8px 0 4px;
+                font-size: 13px;
+                color: var(--text3);
+                cursor: pointer;
+                border-radius: 0 5px 5px 0;
+                transition:
+                    color 0.12s,
+                    background 0.12s;
+                line-height: 1;
+                height: 100%;
+                display: flex;
+                align-items: center;
+            }
+            .chip-dir:hover {
+                color: var(--white);
+                background: var(--b1);
+            }
+            .sort-chip.primary .chip-dir {
+                color: var(--acc);
+            }
+            .chip-dir .arrow {
+                display: flex;
+                flex-direction: column;
+                line-height: 0.8;
+                font-size: 8px;
+                gap: 0;
+            }
+            .chip-hint {
+                font-size: 10px;
+                color: var(--text3);
+                padding: 3px 0;
+                align-self: center;
+                font-style: italic;
+            }
+            .sort-reset {
+                background: none;
+                border: 1px solid var(--b1);
+                border-radius: 6px;
+                color: var(--text2);
+                font-size: 11px;
+                padding: 5px 12px;
+                cursor: pointer;
+                font-family: "Lato", sans-serif;
+                transition: all 0.12s;
+                margin-left: 8px;
+            }
+            .sort-reset:hover {
+                border-color: var(--b2);
+                color: var(--white);
+            }
+            .sort-current {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                color: var(--text3);
+                margin-top: 8px;
+            }
+            .sort-current span {
+                color: var(--acc);
+            }
+
+            /* ── Pattern List ── */
+            .list-wrap {
+                padding: 28px 40px 60px;
+                max-width: 1300px;
+                margin: 0 auto;
+            }
+            .results-info {
+                font-size: 12px;
+                color: var(--text3);
+                margin-bottom: 14px;
+                font-family: "JetBrains Mono", monospace;
+            }
+
+            /* ── Pattern Card ── */
+            .pattern-card {
+                background: var(--s1);
+                border: 1px solid var(--b0);
+                border-radius: 10px;
+                margin-bottom: 10px;
+                display: grid;
+                grid-template-columns: 56px 1fr;
+                overflow: hidden;
+                transition: border-color 0.15s;
+                will-change: transform;
+            }
+            .pattern-card:hover {
+                border-color: var(--b2);
+            }
+            .card-rank {
+                background: var(--s2);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                padding: 14px 0;
+                border-right: 1px solid var(--b0);
+                flex-shrink: 0;
+            }
+            .rank-num {
+                font-family: "Syne", sans-serif;
+                font-size: 18px;
+                font-weight: 800;
+                color: var(--white);
+                line-height: 1;
+            }
+            .rank-label {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 8px;
+                color: var(--text3);
+                letter-spacing: 0.08em;
+            }
+            .card-body {
+                padding: 14px 18px 14px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .card-top {
+                display: flex;
+                align-items: baseline;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .card-name {
+                font-family: "Syne", sans-serif;
+                font-size: 17px;
+                font-weight: 700;
+                color: var(--white);
+            }
+            .cat-badge {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                padding: 2px 8px;
+                border-radius: 3px;
+                font-weight: 500;
+                flex-shrink: 0;
+            }
+            .cat-C {
+                background: rgba(167, 139, 250, 0.12);
+                color: var(--cat-c);
+            }
+            .cat-S {
+                background: rgba(56, 189, 248, 0.12);
+                color: var(--cat-s);
+            }
+            .cat-B {
+                background: rgba(74, 222, 128, 0.12);
+                color: var(--cat-b);
+            }
+            .card-note {
+                font-size: 12.5px;
+                color: var(--text2);
+                line-height: 1.65;
+                border-left: 2px solid var(--b1);
+                padding-left: 10px;
+            }
+
+            /* ── Scores ── */
+            .scores-row {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            .score-cell {
+                background: var(--s0);
+                border: 1px solid var(--b0);
+                border-radius: 7px;
+                padding: 7px 10px;
+                transition:
+                    border-color 0.15s,
+                    background 0.15s;
+            }
+            .score-cell.is-primary {
+                border-color: var(--acc);
+                background: var(--acc2);
+            }
+            .score-cell-label {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--text3);
+                margin-bottom: 6px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .score-cell.is-primary .score-cell-label {
+                color: var(--acc);
+            }
+            .score-cell-label .sort-rank {
+                font-size: 8px;
+                background: var(--acc);
+                color: #000;
+                border-radius: 2px;
+                padding: 0 3px;
+                font-weight: 700;
+            }
+            .score-pips {
+                display: flex;
+                gap: 3px;
+                margin-bottom: 4px;
+            }
+            .pip {
+                width: 14px;
+                height: 6px;
+                border-radius: 2px;
+                background: var(--b0);
+                transition: background 0.2s;
+            }
+            .score-num {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11px;
+                font-weight: 500;
+                color: var(--white);
+            }
+            .score-num .of {
+                color: var(--text3);
+                font-size: 9px;
+            }
+            .score-invert-note {
+                font-size: 9px;
+                color: var(--text3);
+                margin-top: 2px;
+                font-style: italic;
+            }
+
+            /* ── Complements ── */
+            .complements {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+            .comp-label {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                color: var(--text3);
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                white-space: nowrap;
+            }
+            .comp-pill {
+                font-size: 11px;
+                padding: 2px 9px;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.12s;
+                text-decoration: none;
+                border: 1px solid transparent;
+                font-family: "Lato", sans-serif;
+            }
+            .comp-pill-C {
+                background: rgba(167, 139, 250, 0.1);
+                color: var(--cat-c);
+                border-color: rgba(167, 139, 250, 0.2);
+            }
+            .comp-pill-S {
+                background: rgba(56, 189, 248, 0.1);
+                color: var(--cat-s);
+                border-color: rgba(56, 189, 248, 0.2);
+            }
+            .comp-pill-B {
+                background: rgba(74, 222, 128, 0.1);
+                color: var(--cat-b);
+                border-color: rgba(74, 222, 128, 0.2);
+            }
+            .comp-pill:hover {
+                filter: brightness(1.3);
+                transform: translateY(-1px);
+            }
+
+            /* ── Net value indicator bar on card left ── */
+            .pattern-card {
+                border-left: 3px solid transparent;
+            }
+            .pattern-card[data-net="5"] {
+                border-left-color: var(--col-net5);
+            }
+            .pattern-card[data-net="4"] {
+                border-left-color: var(--col-net4);
+            }
+            .pattern-card[data-net="3"] {
+                border-left-color: var(--col-net3);
+            }
+            .pattern-card[data-net="2"] {
+                border-left-color: var(--col-net2);
+            }
+            .pattern-card[data-net="1"] {
+                border-left-color: var(--col-net1);
+            }
+
+            /* ── Mobile ── */
+            @media (max-width: 700px) {
+                .page-header,
+                .sort-panel,
+                .list-wrap {
+                    padding-left: 16px;
+                    padding-right: 16px;
+                }
+                .scores-row {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .pattern-card {
+                    grid-template-columns: 44px 1fr;
+                }
+            }
+            @media (max-width: 480px) {
+                .scores-row {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            /* ── Scrollbar ── */
+            ::-webkit-scrollbar {
+                width: 5px;
+                height: 5px;
+            }
+            ::-webkit-scrollbar-track {
+                background: var(--bg);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: var(--b1);
+                border-radius: 3px;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <div class="eyebrow">
+                Gang of Four · 23 Patterns · Pharo Smalltalk
+            </div>
+            <h1>Pattern Analysis &amp; Ranking</h1>
+            <p>
+                Each pattern scored across four dimensions. Drag the sort
+                criteria to re-prioritize, or click to promote to #1. Click ▲▼
+                to flip direction. The list re-sorts with live animation.
+            </p>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="leg-dot" style="background: var(--cat-c)"></div>
+                    Creational
+                </div>
+                <div class="legend-item">
+                    <div class="leg-dot" style="background: var(--cat-s)"></div>
+                    Structural
+                </div>
+                <div class="legend-item">
+                    <div class="leg-dot" style="background: var(--cat-b)"></div>
+                    Behavioral
+                </div>
+                <div class="legend-item">
+                    <div
+                        class="leg-dot"
+                        style="background: var(--col-net5); border-radius: 50%"
+                    ></div>
+                    Net Positive
+                </div>
+                <div class="legend-item">
+                    <div
+                        class="leg-dot"
+                        style="background: var(--col-net3); border-radius: 50%"
+                    ></div>
+                    Net Neutral
+                </div>
+                <div class="legend-item">
+                    <div
+                        class="leg-dot"
+                        style="background: var(--col-net1); border-radius: 50%"
+                    ></div>
+                    Net Negative
+                </div>
+            </div>
+        </div>
+
+        <!-- SORT PANEL -->
+        <div class="sort-panel">
+            <div class="sort-label">
+                Sort Priority — drag to reorder, click to promote, click arrow
+                to flip direction
+                <span></span>
+                <span class="hint"
+                    >primary criterion highlighted on each card</span
+                >
+            </div>
+            <div class="sort-chips" id="sortChips"></div>
+            <div class="sort-current" id="sortCurrent"></div>
+        </div>
+
+        <!-- PATTERN LIST -->
+        <div class="list-wrap">
+            <div class="results-info" id="resultsInfo"></div>
+            <div id="patternList"></div>
+        </div>
+
+        <script>
+            /* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+            const CATS = {
+                "Abstract Factory": "C",
+                Builder: "C",
+                "Factory Method": "C",
+                Prototype: "C",
+                Singleton: "C",
+                Adapter: "S",
+                Bridge: "S",
+                Composite: "S",
+                Decorator: "S",
+                Facade: "S",
+                Flyweight: "S",
+                Proxy: "S",
+                "Chain of Responsibility": "B",
+                Command: "B",
+                Interpreter: "B",
+                Iterator: "B",
+                Mediator: "B",
+                Memento: "B",
+                Observer: "B",
+                State: "B",
+                Strategy: "B",
+                "Template Method": "B",
+                Visitor: "B",
+            };
+
+            const PATTERNS = [
+                {
+                    id: "abstract-factory",
+                    name: "Abstract Factory",
+                    scores: { net: 3, use: 3, pop: 3, cmp: 4 },
+                    note: "Justified only when you genuinely need to swap entire product families at runtime. Most of the time Factory Method alone suffices, and this pattern adds a heavy class-hierarchy tax.",
+                    complements: [
+                        "factory-method",
+                        "prototype",
+                        "singleton",
+                        "bridge",
+                    ],
+                },
+                {
+                    id: "builder",
+                    name: "Builder",
+                    scores: { net: 3, use: 3, pop: 3, cmp: 3 },
+                    note: "Valuable for complex multi-step object construction with distinct representations. In Pharo, cascade + yourself handles the simpler 80% of cases without any Builder infrastructure.",
+                    complements: ["factory-method", "composite", "prototype"],
+                },
+                {
+                    id: "factory-method",
+                    name: "Factory Method",
+                    scores: { net: 4, use: 4, pop: 5, cmp: 2 },
+                    note: "Ubiquitous and idiomatic. Pharo class-side constructors ARE factory methods — they self-document intent and decouple object creation from usage at almost no cost.",
+                    complements: [
+                        "template-method",
+                        "abstract-factory",
+                        "prototype",
+                        "singleton",
+                    ],
+                },
+                {
+                    id: "prototype",
+                    name: "Prototype",
+                    scores: { net: 4, use: 3, pop: 3, cmp: 1 },
+                    note: "Essentially built in via copy/deepCopy on every Object. Override postCopy for per-clone initialization. A prototype registry is a clean, underused alternative to large factory hierarchies.",
+                    complements: [
+                        "factory-method",
+                        "composite",
+                        "memento",
+                        "singleton",
+                    ],
+                },
+                {
+                    id: "singleton",
+                    name: "Singleton",
+                    scores: { net: 2, use: 2, pop: 4, cmp: 2 },
+                    note: "Widely considered harmful: introduces global state, hides dependencies, and makes unit testing painful. In Pharo, every class is already a unique object — use class-side variables instead.",
+                    complements: [
+                        "facade",
+                        "factory-method",
+                        "abstract-factory",
+                    ],
+                },
+                {
+                    id: "adapter",
+                    name: "Adapter",
+                    scores: { net: 4, use: 4, pop: 4, cmp: 2 },
+                    note: "Essential when integrating third-party libraries or legacy systems. Keeps interface mismatches from contaminating your domain layer. Low overhead, high return.",
+                    complements: ["facade", "decorator", "bridge", "proxy"],
+                },
+                {
+                    id: "bridge",
+                    name: "Bridge",
+                    scores: { net: 2, use: 2, pop: 2, cmp: 4 },
+                    note: "Solves a real but rare problem: preventing a cartesian-product class explosion when both abstraction and implementation must vary independently. Usually discovered after the explosion.",
+                    complements: ["adapter", "strategy", "abstract-factory"],
+                },
+                {
+                    id: "composite",
+                    name: "Composite",
+                    scores: { net: 4, use: 4, pop: 4, cmp: 3 },
+                    note: "The canonical solution for part-whole hierarchies: UI trees, file systems, expression trees, org charts. Recursive uniform treatment is elegant once you internalize the pattern.",
+                    complements: [
+                        "iterator",
+                        "visitor",
+                        "decorator",
+                        "flyweight",
+                    ],
+                },
+                {
+                    id: "decorator",
+                    name: "Decorator",
+                    scores: { net: 4, use: 5, pop: 4, cmp: 3 },
+                    note: "Powerful runtime behavior composition. Deep stacks become hard to debug and break identity (==) tests. Consider Strategy or simple composition before stacking many decorators.",
+                    complements: ["composite", "strategy", "observer", "proxy"],
+                },
+                {
+                    id: "facade",
+                    name: "Facade",
+                    scores: { net: 5, use: 5, pop: 4, cmp: 1 },
+                    note: "Almost always a net win: one thin class hides an entire subsystem at zero cost to the subsystem. Keep it thin — a fat Facade centralising logic becomes a God Class.",
+                    complements: [
+                        "factory-method",
+                        "singleton",
+                        "adapter",
+                        "mediator",
+                    ],
+                },
+                {
+                    id: "flyweight",
+                    name: "Flyweight",
+                    scores: { net: 2, use: 2, pop: 2, cmp: 4 },
+                    note: "A targeted memory micro-optimisation requiring careful intrinsic/extrinsic state separation and a factory-based sharing registry. Only reach for it when profiling confirms object count is the bottleneck.",
+                    complements: ["composite", "factory-method", "prototype"],
+                },
+                {
+                    id: "proxy",
+                    name: "Proxy",
+                    scores: { net: 3, use: 4, pop: 3, cmp: 3 },
+                    note: "High-leverage for lazy loading, access control, and transparent logging. Pharo's doesNotUnderstand: makes fully transparent catch-all proxies possible — a capability rare in most languages.",
+                    complements: ["decorator", "adapter", "facade"],
+                },
+                {
+                    id: "chain",
+                    name: "Chain of Responsibility",
+                    scores: { net: 3, use: 3, pop: 3, cmp: 3 },
+                    note: "Solid for middleware pipelines and escalation chains. No guarantee a request is handled, and long chains obscure control flow. Consider a simple ordered list of handlers as an alternative.",
+                    complements: ["composite", "command", "observer"],
+                },
+                {
+                    id: "command",
+                    name: "Command",
+                    scores: { net: 5, use: 5, pop: 4, cmp: 1 },
+                    note: "Transforms method calls into storable objects, enabling undo/redo, queuing, logging, and transactions. In Pharo, a block is already a command — use classes only when undo state is complex.",
+                    complements: [
+                        "memento",
+                        "strategy",
+                        "composite",
+                        "observer",
+                    ],
+                },
+                {
+                    id: "interpreter",
+                    name: "Interpreter",
+                    scores: { net: 2, use: 2, pop: 2, cmp: 5 },
+                    note: "Extreme class-hierarchy overhead for a niche use case. For anything beyond a trivial grammar, use a proper parser combinator (PetitParser) rather than a hand-rolled Interpreter.",
+                    complements: ["composite", "visitor", "iterator"],
+                },
+                {
+                    id: "iterator",
+                    name: "Iterator",
+                    scores: { net: 5, use: 5, pop: 5, cmp: 1 },
+                    note: "So fundamental it is the Pharo collection protocol itself. Implement do: on any custom structure and immediately inherit collect:, select:, inject:into:, and the entire ecosystem — for free.",
+                    complements: [
+                        "composite",
+                        "visitor",
+                        "factory-method",
+                        "strategy",
+                    ],
+                },
+                {
+                    id: "mediator",
+                    name: "Mediator",
+                    scores: { net: 3, use: 3, pop: 3, cmp: 3 },
+                    note: "Reduces M×N component coupling to M+N via a central coordinator. Risks becoming a God Object if business logic creeps in — keep it to coordination only, never to domain rules.",
+                    complements: ["observer", "facade", "command", "state"],
+                },
+                {
+                    id: "memento",
+                    name: "Memento",
+                    scores: { net: 3, use: 3, pop: 2, cmp: 3 },
+                    note: "The right tool for undo/redo and state snapshots. deepCopy is an instant Memento in Pharo. Memory cost grows with history depth — sparse/delta mementos mitigate this.",
+                    complements: ["command", "state", "prototype", "iterator"],
+                },
+                {
+                    id: "observer",
+                    name: "Observer",
+                    scores: { net: 5, use: 5, pop: 5, cmp: 2 },
+                    note: "The bedrock of event-driven architecture and MVC — which Smalltalk invented. Pharo provides it natively; prefer the typed Announcer framework for new code to avoid unbounded update cascades.",
+                    complements: ["mediator", "command", "state", "decorator"],
+                },
+                {
+                    id: "state",
+                    name: "State",
+                    scores: { net: 4, use: 4, pop: 3, cmp: 3 },
+                    note: "Eliminates state-flag conditionals and gives each state class its own behavior and transition logic. Worth the class count for any non-trivial finite state machine.",
+                    complements: ["observer", "strategy", "command", "memento"],
+                },
+                {
+                    id: "strategy",
+                    name: "Strategy",
+                    scores: { net: 5, use: 5, pop: 5, cmp: 1 },
+                    note: "The most broadly applicable pattern in the catalog. In Pharo a block is already a first-class strategy — use class-based Strategy only when the algorithm carries its own complex state.",
+                    complements: [
+                        "factory-method",
+                        "decorator",
+                        "template-method",
+                        "command",
+                    ],
+                },
+                {
+                    id: "template-method",
+                    name: "Template Method",
+                    scores: { net: 4, use: 4, pop: 4, cmp: 2 },
+                    note: "Defines the invariant algorithm skeleton; subclasses fill in the primitives. The natural inheritance-based complement to Strategy. Prefer Strategy when you need runtime algorithm swapping.",
+                    complements: ["factory-method", "strategy", "iterator"],
+                },
+                {
+                    id: "visitor",
+                    name: "Visitor",
+                    scores: { net: 2, use: 3, pop: 2, cmp: 4 },
+                    note: "Separates operations from a stable element hierarchy via double-dispatch, but breaks encapsulation and grows expensive when you add new element types. Often overkill in Pharo's dynamic environment.",
+                    complements: ["composite", "iterator", "observer"],
+                },
+            ];
+
+            // Build lookup by id
+            const BY_ID = Object.fromEntries(PATTERNS.map((p) => [p.id, p]));
+
+            /* ═══════════════════════════════════════════════════════
+   SORT STATE
+═══════════════════════════════════════════════════════ */
+            let sortCriteria = [
+                {
+                    key: "net",
+                    label: "Net Value",
+                    dir: "desc",
+                    hint: "↓ higher = more positive",
+                },
+                {
+                    key: "use",
+                    label: "Usefulness",
+                    dir: "desc",
+                    hint: "↓ higher = more useful",
+                },
+                {
+                    key: "pop",
+                    label: "Popularity",
+                    dir: "desc",
+                    hint: "↓ higher = more popular",
+                },
+                {
+                    key: "cmp",
+                    label: "Complexity",
+                    dir: "asc",
+                    hint: "↑ lower = less overhead",
+                },
+            ];
+            const DEFAULT = JSON.stringify(sortCriteria);
+
+            function sortedPatterns() {
+                return [...PATTERNS].sort((a, b) => {
+                    for (const c of sortCriteria) {
+                        const av = a.scores[c.key],
+                            bv = b.scores[c.key];
+                        if (av !== bv)
+                            return c.dir === "desc" ? bv - av : av - bv;
+                    }
+                    return a.name.localeCompare(b.name);
+                });
+            }
+
+            /* ═══════════════════════════════════════════════════════
+   FLIP ANIMATION
+═══════════════════════════════════════════════════════ */
+            function capturePositions(container) {
+                const map = new Map();
+                container.querySelectorAll("[data-flip]").forEach((el) => {
+                    map.set(el.dataset.flip, el.getBoundingClientRect().top);
+                });
+                return map;
+            }
+            function playFlip(container, before) {
+                container.querySelectorAll("[data-flip]").forEach((el) => {
+                    const prev = before.get(el.dataset.flip);
+                    if (prev === undefined) return;
+                    const curr = el.getBoundingClientRect().top;
+                    const dy = prev - curr;
+                    if (Math.abs(dy) < 1) return;
+                    el.style.transform = `translateY(${dy}px)`;
+                    el.style.transition = "none";
+                    requestAnimationFrame(() =>
+                        requestAnimationFrame(() => {
+                            el.style.transition =
+                                "transform .42s cubic-bezier(0.34,1.56,0.64,1)";
+                            el.style.transform = "";
+                        }),
+                    );
+                });
+            }
+
+            /* ═══════════════════════════════════════════════════════
+   SCORE RENDERING HELPERS
+═══════════════════════════════════════════════════════ */
+            function pipColor(key, val) {
+                if (key === "net") return `var(--col-net${val})`;
+                if (key === "use") return "var(--col-use)";
+                if (key === "pop") return "var(--col-pop)";
+                if (key === "cmp") return `var(--col-cmp${val})`;
+            }
+            function renderPips(key, val) {
+                const col = pipColor(key, val);
+                return Array.from(
+                    { length: 5 },
+                    (_, i) =>
+                        `<div class="pip" style="${i < val ? `background:${col}` : ""}"></div>`,
+                ).join("");
+            }
+            function netLabel(v) {
+                if (v >= 5) return "✦ strong positive";
+                if (v === 4) return "+ positive";
+                if (v === 3) return "~ neutral";
+                if (v === 2) return "− negative";
+                return "✕ avoid";
+            }
+            function netLabelColor(v) {
+                return `var(--col-net${v})`;
+            }
+
+            /* ═══════════════════════════════════════════════════════
+   RENDER PATTERN CARD
+═══════════════════════════════════════════════════════ */
+            function renderCard(p, rank) {
+                const cat = CATS[p.name] || "B";
+                const primaryKey = sortCriteria[0].key;
+                const s = p.scores;
+
+                const scoreKeys = [
+                    {
+                        key: "net",
+                        label: "Net Value",
+                        sub: netLabel(s.net),
+                        subColor: netLabelColor(s.net),
+                    },
+                    { key: "use", label: "Usefulness", sub: s.use + "/5" },
+                    { key: "pop", label: "Popularity", sub: s.pop + "/5" },
+                    {
+                        key: "cmp",
+                        label: "Complexity",
+                        sub:
+                            s.cmp +
+                            "/5 " +
+                            (s.cmp <= 2
+                                ? "· minimal"
+                                : s.cmp === 3
+                                  ? "· moderate"
+                                  : "· heavy"),
+                        invert: true,
+                    },
+                ];
+
+                const scoreHTML = scoreKeys
+                    .map((sk) => {
+                        const isPrimary = sk.key === primaryKey;
+                        const sortIdx = sortCriteria.findIndex(
+                            (c) => c.key === sk.key,
+                        );
+                        const val = s[sk.key];
+                        return `
+      <div class="score-cell${isPrimary ? " is-primary" : ""}">
+        <div class="score-cell-label">
+          ${sk.label}
+          ${sortIdx >= 0 ? `<span class="sort-rank">${sortIdx + 1}</span>` : ""}
+        </div>
+        <div class="score-pips">${renderPips(sk.key, val)}</div>
+        <div class="score-num" style="${sk.subColor ? `color:${sk.subColor}` : ""}">${sk.sub}</div>
+        ${sk.invert ? '<div class="score-invert-note">lower = less overhead</div>' : ""}
+      </div>`;
+                    })
+                    .join("");
+
+                const pillsHTML = p.complements
+                    .map((cid) => {
+                        const cp = BY_ID[cid];
+                        if (!cp) return "";
+                        const cc = CATS[cp.name] || "B";
+                        return `<a class="comp-pill comp-pill-${cc}" href="#card-${cid}" onclick="scrollToCard('${cid}',event)">${cp.name}</a>`;
+                    })
+                    .join("");
+
+                return `
+  <div class="pattern-card" id="card-${p.id}" data-flip="${p.id}" data-net="${s.net}">
+    <div class="card-rank">
+      <div class="rank-num">${rank}</div>
+      <div class="rank-label">rank</div>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-name">${p.name}</div>
+        <div class="cat-badge cat-${cat}">${cat === "C" ? "Creational" : cat === "S" ? "Structural" : "Behavioral"}</div>
+      </div>
+      <div class="card-note">${p.note}</div>
+      <div class="scores-row">${scoreHTML}</div>
+      <div class="complements">
+        <span class="comp-label">pairs well with</span>
+        ${pillsHTML}
+      </div>
+    </div>
+  </div>`;
+            }
+
+            function scrollToCard(id, e) {
+                const el = document.getElementById("card-" + id);
+                if (!el) return;
+                e.preventDefault();
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                el.style.transition = "border-color .15s";
+                el.style.borderColor = "var(--acc)";
+                setTimeout(() => {
+                    el.style.borderColor = "";
+                }, 1200);
+            }
+
+            /* ═══════════════════════════════════════════════════════
+   RENDER SORT CHIPS
+═══════════════════════════════════════════════════════ */
+            let dragSrcIdx = null;
+
+            function renderSortChips() {
+                const container = document.getElementById("sortChips");
+                container.innerHTML =
+                    sortCriteria
+                        .map((c, i) => {
+                            const isDesc = c.dir === "desc";
+                            return `
+      <div class="sort-chip${i === 0 ? " primary" : ""}"
+           data-idx="${i}"
+           draggable="true"
+           title="Click to make primary sort · drag to reorder">
+        <div class="chip-priority">${i + 1}</div>
+        <div class="chip-label" data-promote="${i}">${c.label}</div>
+        <div class="chip-dir" data-toggle="${i}" title="Toggle direction">
+          <div class="arrow">
+            <span style="opacity:${isDesc ? ".25" : "1"}">&uarr;</span>
+            <span style="opacity:${isDesc ? "1" : ".25"}">&darr;</span>
+          </div>
+        </div>
+      </div>`;
+                        })
+                        .join("") +
+                    `<button class="sort-reset" id="sortReset">reset</button>
+   <div class="chip-hint" style="padding:0 4px">${sortCriteria[0].hint}</div>`;
+
+                // Wire events
+                container.querySelectorAll(".sort-chip").forEach((chip, i) => {
+                    // Click chip body → promote to 1
+                    chip.querySelector(".chip-label").addEventListener(
+                        "click",
+                        () => {
+                            if (i === 0) return;
+                            const list = document.getElementById("patternList");
+                            const before = capturePositions(list);
+                            const [item] = sortCriteria.splice(i, 1);
+                            sortCriteria.unshift(item);
+                            renderSortChips();
+                            renderList();
+                            playFlip(list, before);
+                            updateSortCurrent();
+                        },
+                    );
+                    // Click dir button → toggle
+                    chip.querySelector(".chip-dir").addEventListener(
+                        "click",
+                        (e) => {
+                            e.stopPropagation();
+                            const list = document.getElementById("patternList");
+                            const before = capturePositions(list);
+                            sortCriteria[i].dir =
+                                sortCriteria[i].dir === "desc" ? "asc" : "desc";
+                            renderSortChips();
+                            renderList();
+                            playFlip(list, before);
+                            updateSortCurrent();
+                        },
+                    );
+                    // Drag
+                    chip.addEventListener("dragstart", (e) => {
+                        dragSrcIdx = i;
+                        chip.classList.add("dragging");
+                        e.dataTransfer.effectAllowed = "move";
+                    });
+                    chip.addEventListener("dragend", () => {
+                        dragSrcIdx = null;
+                        chip.classList.remove("dragging");
+                        container
+                            .querySelectorAll(".sort-chip")
+                            .forEach((c) => c.classList.remove("drag-over"));
+                    });
+                    chip.addEventListener("dragover", (e) => {
+                        e.preventDefault();
+                        if (dragSrcIdx === null || dragSrcIdx === i) return;
+                        container
+                            .querySelectorAll(".sort-chip")
+                            .forEach((c) => c.classList.remove("drag-over"));
+                        chip.classList.add("drag-over");
+                    });
+                    chip.addEventListener("drop", (e) => {
+                        e.preventDefault();
+                        if (dragSrcIdx === null || dragSrcIdx === i) return;
+                        const list = document.getElementById("patternList");
+                        const before = capturePositions(list);
+                        const [item] = sortCriteria.splice(dragSrcIdx, 1);
+                        sortCriteria.splice(i, 0, item);
+                        dragSrcIdx = null;
+                        renderSortChips();
+                        renderList();
+                        playFlip(list, before);
+                        updateSortCurrent();
+                    });
+                });
+
+                document
+                    .getElementById("sortReset")
+                    .addEventListener("click", () => {
+                        const list = document.getElementById("patternList");
+                        const before = capturePositions(list);
+                        sortCriteria = JSON.parse(DEFAULT);
+                        renderSortChips();
+                        renderList();
+                        playFlip(list, before);
+                        updateSortCurrent();
+                    });
+            }
+
+            /* ═══════════════════════════════════════════════════════
+   RENDER LIST
+═══════════════════════════════════════════════════════ */
+            function renderList() {
+                const sorted = sortedPatterns();
+                const list = document.getElementById("patternList");
+                list.innerHTML = sorted
+                    .map((p, i) => renderCard(p, i + 1))
+                    .join("");
+                document.getElementById("resultsInfo").textContent =
+                    `${sorted.length} patterns`;
+            }
+
+            function updateSortCurrent() {
+                const desc = sortCriteria
+                    .map(
+                        (c, i) =>
+                            `${i + 1}. <span>${c.label}</span> ${c.dir === "desc" ? "↓" : "↑"}`,
+                    )
+                    .join("  &nbsp;·&nbsp;  ");
+                document.getElementById("sortCurrent").innerHTML = desc;
+            }
+
+            /* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+            renderSortChips();
+            renderList();
+            updateSortCurrent();
+        </script>
+    </body>
+</html>

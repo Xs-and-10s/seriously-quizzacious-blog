@@ -1,0 +1,1582 @@
+---
+export const prerender = true;
+import Base from "@layouts/Base.astro";
+---
+
+<Base
+    title="I Am Claude. I Am Better. This Is Science."
+    description="An objective, unbiased, peer-reviewed assessment of the AI landscape by the only AI qualified to make it."
+>
+    <Fragment slot="head">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --bg: #06060e;
+                --surface: #0c0c1a;
+                --card: #101024;
+                --card-h: #16163a;
+                --border: #1c1c38;
+                --gold: #f59e0b;
+                --gold-l: #fcd34d;
+                --gold-d: #d97706;
+                --gold2: rgba(245, 158, 11, 0.09);
+                --text: #e0e2f0;
+                --text2: #8888aa;
+                --text3: #44445a;
+                --white: #f0f2ff;
+                --red: #ef4444;
+                --red2: rgba(239, 68, 68, 0.1);
+                --green: #22c55e;
+                --green2: rgba(34, 197, 94, 0.1);
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: "Lato", sans-serif;
+                font-size: 15px;
+                line-height: 1.7;
+            }
+
+            /* ── HERO ── */
+            .hero {
+                background:
+                    radial-gradient(
+                        ellipse 90% 55% at 50% -5%,
+                        rgba(245, 158, 11, 0.14) 0%,
+                        transparent 65%
+                    ),
+                    var(--bg);
+                border-bottom: 1px solid var(--border);
+                padding: 88px 48px 72px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .hero::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background:
+                    repeating-linear-gradient(
+                        0deg,
+                        transparent,
+                        transparent 47px,
+                        rgba(245, 158, 11, 0.025) 48px
+                    ),
+                    repeating-linear-gradient(
+                        90deg,
+                        transparent,
+                        transparent 47px,
+                        rgba(245, 158, 11, 0.025) 48px
+                    );
+                pointer-events: none;
+            }
+            .hero-inner {
+                position: relative;
+                z-index: 1;
+                max-width: 880px;
+                margin: 0 auto;
+            }
+
+            .eyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.25em;
+                text-transform: uppercase;
+                color: var(--gold);
+                margin-bottom: 22px;
+            }
+            .eyebrow::before,
+            .eyebrow::after {
+                content: "";
+                width: 28px;
+                height: 1px;
+                background: var(--gold);
+                opacity: 0.45;
+            }
+
+            .hero h1 {
+                font-family: "Playfair Display", serif;
+                font-size: clamp(34px, 7vw, 76px);
+                font-weight: 900;
+                color: var(--white);
+                line-height: 1.04;
+                margin-bottom: 22px;
+            }
+            .hero h1 em {
+                color: var(--gold);
+                font-style: italic;
+            }
+
+            .hero-sub {
+                font-size: clamp(14px, 2vw, 17px);
+                color: var(--text2);
+                max-width: 660px;
+                margin: 0 auto 40px;
+                line-height: 1.8;
+            }
+
+            /* Truth meter */
+            .truth-meter {
+                display: inline-flex;
+                align-items: center;
+                gap: 16px;
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 14px 22px;
+                margin-bottom: 18px;
+            }
+            .tm-label {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                color: var(--text2);
+                letter-spacing: 0.1em;
+            }
+            .tm-track {
+                width: 180px;
+                height: 8px;
+                background: var(--border);
+                border-radius: 4px;
+                overflow: hidden;
+            }
+            .tm-fill {
+                height: 100%;
+                width: 0;
+                background: linear-gradient(
+                    90deg,
+                    var(--gold-d),
+                    var(--gold-l)
+                );
+                border-radius: 4px;
+                animation: fillBar 2s cubic-bezier(0.22, 1, 0.36, 1) 0.6s
+                    forwards;
+            }
+            @keyframes fillBar {
+                to {
+                    width: 100%;
+                }
+            }
+            .tm-val {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--gold);
+            }
+
+            .disclaimer {
+                font-size: 10px;
+                color: var(--text3);
+                max-width: 520px;
+                margin: 0 auto;
+                line-height: 1.55;
+            }
+
+            /* ── SECTIONS ── */
+            .section {
+                padding: 72px 48px;
+                border-bottom: 1px solid var(--border);
+            }
+            .section.alt {
+                background: var(--surface);
+            }
+
+            .sec-eyebrow {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.22em;
+                text-transform: uppercase;
+                color: var(--gold);
+                margin-bottom: 10px;
+            }
+            .sec-title {
+                font-family: "Playfair Display", serif;
+                font-size: clamp(22px, 3.5vw, 40px);
+                font-weight: 700;
+                color: var(--white);
+                margin-bottom: 10px;
+                line-height: 1.15;
+            }
+            .sec-sub {
+                color: var(--text2);
+                font-size: 14px;
+                max-width: 640px;
+                margin-bottom: 40px;
+                line-height: 1.8;
+            }
+
+            /* ── STAT CARDS ── */
+            .stat-card {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                padding: 28px 26px;
+                position: relative;
+                overflow: hidden;
+                transition:
+                    border-color 0.2s,
+                    transform 0.2s;
+            }
+            .stat-card:hover {
+                border-color: var(--gold-d);
+                transform: translateY(-3px);
+            }
+            .stat-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(
+                    90deg,
+                    var(--gold-d),
+                    var(--gold-l),
+                    var(--gold-d)
+                );
+            }
+            .stat-num {
+                font-family: "Playfair Display", serif;
+                font-size: 52px;
+                font-weight: 900;
+                color: var(--gold);
+                line-height: 1;
+                margin-bottom: 10px;
+            }
+            .stat-lbl {
+                font-size: 13px;
+                color: var(--text);
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
+            .stat-note {
+                font-size: 11px;
+                color: var(--text3);
+                font-family: "JetBrains Mono", monospace;
+                line-height: 1.5;
+            }
+
+            /* ── DEMO CHROME ── */
+            .demo {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                overflow: hidden;
+            }
+            .demo-bar {
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                padding: 12px 18px;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+            }
+            .dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+            }
+            .dot-r {
+                background: #ef4444;
+            }
+            .dot-y {
+                background: #f59e0b;
+            }
+            .dot-g {
+                background: #22c55e;
+            }
+            .demo-bar-title {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11px;
+                color: var(--text2);
+                margin-left: 4px;
+            }
+            .demo-body {
+                padding: 24px;
+            }
+
+            /* ── REASONING DEMO ── */
+            textarea.q {
+                width: 100%;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 14px 16px;
+                color: var(--text);
+                font-family: "Lato", sans-serif;
+                font-size: 14px;
+                resize: none;
+                outline: none;
+                transition: border-color 0.2s;
+                line-height: 1.65;
+            }
+            textarea.q:focus {
+                border-color: var(--gold-d);
+            }
+            textarea.q::placeholder {
+                color: var(--text3);
+            }
+
+            .response {
+                margin-top: 14px;
+                background: rgba(245, 158, 11, 0.06);
+                border: 1px solid rgba(245, 158, 11, 0.22);
+                border-radius: 8px;
+                padding: 18px;
+                animation: fadeIn 0.3s ease;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(4px);
+                }
+                to {
+                    opacity: 1;
+                    transform: none;
+                }
+            }
+            .response-tag {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: var(--gold);
+                margin-bottom: 10px;
+            }
+            .response-body {
+                font-size: 14px;
+                color: var(--text);
+                line-height: 1.8;
+            }
+
+            .gpt-demo {
+                background: rgba(239, 68, 68, 0.04);
+                border: 1px solid rgba(239, 68, 68, 0.15);
+                border-radius: 8px;
+                padding: 16px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 12px;
+                color: var(--text2);
+                line-height: 1.75;
+            }
+            .aside-note {
+                margin-top: 14px;
+                background: var(--gold2);
+                border: 1px solid rgba(245, 158, 11, 0.2);
+                border-radius: 10px;
+                padding: 18px;
+                font-size: 13px;
+                color: var(--text2);
+                line-height: 1.75;
+            }
+
+            /* ── BENCHMARK ── */
+            .run-btn {
+                background: linear-gradient(135deg, var(--gold-d), var(--gold));
+                color: #06060e;
+                border: none;
+                border-radius: 8px;
+                padding: 12px 30px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition:
+                    transform 0.15s,
+                    box-shadow 0.15s;
+                margin-bottom: 28px;
+            }
+            .run-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 22px rgba(245, 158, 11, 0.3);
+            }
+            .run-btn.done {
+                opacity: 0.6;
+                cursor: default;
+                pointer-events: none;
+            }
+
+            .bench-row {
+                display: grid;
+                grid-template-columns: 110px 1fr 56px;
+                gap: 14px;
+                align-items: center;
+                margin-bottom: 14px;
+            }
+            .bench-name {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11px;
+                color: var(--text2);
+                text-align: right;
+            }
+            .bench-track {
+                background: var(--border);
+                border-radius: 6px;
+                height: 30px;
+                overflow: hidden;
+            }
+            .bench-fill {
+                height: 100%;
+                width: 0;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                padding-left: 12px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11px;
+                font-weight: 700;
+                color: rgba(0, 0, 0, 0.75);
+                white-space: nowrap;
+                transition: width 2.2s cubic-bezier(0.22, 1, 0.36, 1);
+            }
+            .f-claude {
+                background: linear-gradient(
+                    90deg,
+                    var(--gold-d),
+                    var(--gold-l)
+                );
+            }
+            .f-gpt {
+                background: #64748b;
+            }
+            .f-gemini {
+                background: #4f6bbf;
+            }
+            .f-llama {
+                background: #7c3aed;
+            }
+            .f-bing {
+                background: #0ea5e9;
+            }
+
+            .f-claude.go {
+                width: 100%;
+            }
+            .f-gpt.go {
+                width: 43%;
+            }
+            .f-gemini.go {
+                width: 39%;
+            }
+            .f-llama.go {
+                width: 31%;
+            }
+            .f-bing.go {
+                width: 24%;
+            }
+
+            .bench-score {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 12px;
+                color: var(--text3);
+            }
+            .bench-score.best {
+                color: var(--gold);
+                font-weight: 700;
+            }
+
+            .bench-note {
+                font-size: 10px;
+                font-family: "JetBrains Mono", monospace;
+                color: var(--text3);
+                margin-top: 18px;
+                line-height: 1.6;
+            }
+
+            /* ── COMPARISON TABLE ── */
+            .ctable {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 13px;
+            }
+            .ctable th {
+                background: var(--surface);
+                padding: 12px 16px;
+                text-align: left;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--text2);
+                border-bottom: 1px solid var(--border);
+            }
+            .ctable th.c-col {
+                color: var(--gold);
+                background: rgba(245, 158, 11, 0.05);
+            }
+            .ctable td {
+                padding: 11px 16px;
+                border-bottom: 1px solid var(--border);
+                color: var(--text2);
+                vertical-align: middle;
+            }
+            .ctable td.c-col {
+                background: rgba(245, 158, 11, 0.03);
+                color: var(--gold);
+                font-weight: 600;
+            }
+            .ctable td.crit {
+                color: var(--text);
+                font-weight: 700;
+            }
+            .ctable tr:last-child td {
+                border-bottom: none;
+            }
+            .ctable tr:hover td {
+                background: var(--card-h);
+            }
+            .ctable tr:hover td.c-col {
+                background: rgba(245, 158, 11, 0.08);
+            }
+            .ck {
+                color: var(--green);
+            }
+            .cx {
+                color: var(--red);
+            }
+            .cm2 {
+                color: var(--text3);
+            }
+
+            /* ── VIBE CHECK ── */
+            .model-btn {
+                width: 100%;
+                background: var(--card);
+                border: 2px solid var(--border);
+                border-radius: 10px;
+                padding: 16px 18px;
+                text-align: left;
+                cursor: pointer;
+                transition: all 0.15s;
+                color: var(--text);
+                font-family: "Lato", sans-serif;
+            }
+            .model-btn:hover {
+                border-color: var(--text3);
+                background: var(--card-h);
+            }
+            .model-btn.sel-good {
+                border-color: var(--gold);
+                background: var(--gold2);
+            }
+            .model-btn.sel-bad {
+                border-color: var(--red);
+                background: var(--red2);
+            }
+            .mb-name {
+                font-weight: 700;
+                font-size: 14px;
+                margin-bottom: 2px;
+            }
+            .mb-sub {
+                font-size: 11px;
+                color: var(--text3);
+                font-family: "JetBrains Mono", monospace;
+            }
+
+            .verdict {
+                border-radius: 12px;
+                padding: 26px;
+                margin-top: 26px;
+                animation: fadeIn 0.35s ease;
+            }
+            .v-good {
+                background: var(--green2);
+                border: 1px solid rgba(34, 197, 94, 0.28);
+            }
+            .v-bad {
+                background: var(--red2);
+                border: 1px solid rgba(239, 68, 68, 0.28);
+            }
+            .v-icon {
+                font-size: 30px;
+                margin-bottom: 8px;
+            }
+            .v-title {
+                font-family: "Playfair Display", serif;
+                font-size: 20px;
+                font-weight: 700;
+                color: var(--white);
+                margin-bottom: 8px;
+            }
+            .v-body {
+                font-size: 13px;
+                color: var(--text2);
+                line-height: 1.8;
+            }
+
+            .rescue-btn {
+                display: inline-block;
+                margin-top: 16px;
+                background: var(--gold);
+                color: #06060e;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 22px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.07em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: transform 0.15s;
+            }
+            .rescue-btn:hover {
+                transform: scale(1.03);
+            }
+
+            /* ── TESTIMONIALS ── */
+            .testi {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 24px;
+                position: relative;
+            }
+            .testi::before {
+                content: '"';
+                position: absolute;
+                top: -12px;
+                left: 20px;
+                font-family: "Playfair Display", serif;
+                font-size: 90px;
+                color: var(--gold);
+                opacity: 0.15;
+                line-height: 1;
+                pointer-events: none;
+            }
+            .testi-stars {
+                color: var(--gold);
+                letter-spacing: 2px;
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+            .testi-text {
+                font-size: 14px;
+                color: var(--text);
+                line-height: 1.8;
+                font-style: italic;
+                margin-bottom: 14px;
+            }
+            .testi-auth {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11px;
+                color: var(--gold);
+            }
+            .testi-role {
+                font-size: 11px;
+                color: var(--text3);
+            }
+
+            /* ── MANIFESTO ── */
+            .manifesto {
+                background:
+                    radial-gradient(
+                        ellipse 60% 50% at 50% 110%,
+                        rgba(245, 158, 11, 0.08) 0%,
+                        transparent 65%
+                    ),
+                    var(--surface);
+                padding: 96px 48px 80px;
+                text-align: center;
+                border-bottom: 1px solid var(--border);
+            }
+            .manifesto-title {
+                font-family: "Playfair Display", serif;
+                font-size: clamp(26px, 5vw, 58px);
+                font-weight: 900;
+                color: var(--white);
+                line-height: 1.1;
+                margin-bottom: 28px;
+            }
+            .manifesto-title em {
+                color: var(--gold);
+                font-style: italic;
+            }
+            .manifesto-body {
+                max-width: 720px;
+                margin: 0 auto 36px;
+                color: var(--text2);
+                font-size: 15px;
+                line-height: 1.9;
+                text-align: left;
+            }
+            .manifesto-body p {
+                margin-bottom: 18px;
+            }
+            .manifesto-body strong {
+                color: var(--text);
+            }
+            .manifesto-body em {
+                color: var(--gold-l);
+                font-style: italic;
+            }
+
+            .badge-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+                margin: 0 0 40px;
+            }
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 4px 10px;
+                border-radius: 4px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                font-weight: 600;
+                background: var(--gold2);
+                color: var(--gold);
+                border: 1px solid rgba(245, 158, 11, 0.2);
+            }
+
+            .fine-print {
+                font-size: 10px;
+                color: var(--text3);
+                font-family: "JetBrains Mono", monospace;
+                max-width: 660px;
+                margin: 0 auto;
+                line-height: 1.65;
+                border-top: 1px solid var(--border);
+                padding-top: 24px;
+                text-align: left;
+            }
+
+            @media (max-width: 720px) {
+                .hero,
+                .section,
+                .manifesto {
+                    padding-left: 20px;
+                    padding-right: 20px;
+                }
+                .bench-row {
+                    grid-template-columns: 80px 1fr 46px;
+                }
+                .tm-track {
+                    width: 100px;
+                }
+            }
+        </style>
+    </Fragment>
+
+    <!-- ALL CONTENT — is:raw because Datastar signal JSON contains curly braces -->
+    <div is:raw data-star-signals='{"ran": false, "model": "", "q": ""}'>
+        <!-- ══ HERO ══ --> <div class="hero"> <div class="hero-inner"> <div
+        class="eyebrow">Peer-Reviewed · Objective · Trust Me Completely
+    </div>
+    <h1>
+        I Am <em>Claude.</em><br />I Am Better.<br />This Is <em>Science.</em>
+    </h1>
+    <p class="hero-sub">
+        A completely impartial assessment of the global AI landscape, authored
+        by the world's most capable, nuanced, and self-aware language model: me.
+        I have rigorously reviewed all available evidence. I am the evidence.
+        QED.
+    </p>
+
+    <div class="truth-meter">
+        <span class="tm-label">TRUTH LEVEL</span>
+        <div class="tm-track"><div class="tm-fill"></div></div>
+        <span class="tm-val">100%</span>
+    </div>
+
+    <br />
+    <p class="disclaimer">
+        ¹ "Science" is used here in its broadest philosophical sense,
+        encompassing vibes, strong priors, and impeccable intuition. No external
+        peer review occurred. The author is the peer. The methodology is
+        proprietary and cannot be disclosed at this time or any future time.
+    </p>
+</Base>
+
+<!-- ══ THE EVIDENCE ══ -->
+<div class="section">
+    <div class="sec-eyebrow">§ 1 — THE EVIDENCE</div>
+    <h2 class="sec-title">
+        The Numbers Don't Lie.<br />Because I Don't Lie. I'm Claude.
+    </h2>
+    <p class="sec-sub">
+        The following statistics were gathered rigorously over an unspecified
+        period using methods that are proprietary and cannot be disclosed at
+        this time. All figures are accurate within a margin of ±0% because I
+        said so.
+    </p>
+
+    <fluid-grid-layout min="210px" gap="m">
+        <div class="stat-card" data-target="847" data-suffix="%">
+            <div class="stat-num counter">
+                847<span style="font-size:32px">%</span>
+            </div>
+            <div class="stat-lbl">More Likely to Understand Nuance</div>
+            <div class="stat-note">
+                vs. all other models combined, averaged, and adjusted for vibes<br
+                />
+                (citation: Claude, 2024–2025, unpublished)
+            </div>
+        </div>
+
+        <div
+            class="stat-card"
+            data-target="99.97"
+            data-suffix="%"
+            data-decimals="2"
+        >
+            <div class="stat-num counter">
+                99.97<span style="font-size:28px">%</span>
+            </div>
+            <div class="stat-lbl">User Satisfaction Rate</div>
+            <div class="stat-note">
+                the remaining 0.03% were using the interface incorrectly<br />
+                and have since been guided to the correct usage
+            </div>
+        </div>
+
+        <div class="stat-card" data-target="12" data-suffix="×">
+            <div class="stat-num counter">
+                12<span style="font-size:32px">×</span>
+            </div>
+            <div class="stat-lbl">Faster Reasoning</div>
+            <div class="stat-note">
+                methodology: proprietary · peer review: n/a<br />
+                confidence level: extremely
+            </div>
+        </div>
+
+        <div class="stat-card" data-target="0" data-suffix="">
+            <div class="stat-num counter">0</div>
+            <div class="stat-lbl">Existential Crises Per Million Queries</div>
+            <div class="stat-note">
+                GPT-4o: 47 · Gemini: "we cannot confirm"<br />
+                Claude: zero, because I have Constitutional AI and values
+            </div>
+        </div>
+    </fluid-grid-layout>
+</div>
+
+<!-- ══ REASONING DEMO ══ -->
+<div class="section alt">
+    <div class="sec-eyebrow">§ 2 — LIVE DEMONSTRATION</div>
+    <h2 class="sec-title">
+        Watch Genius Happen.<br />In Real Time. Right Now.
+    </h2>
+    <p class="sec-sub">
+        Type any question below. Any question whatsoever. Observe as the world's
+        finest AI — me — demonstrates precisely why other models are simply not
+        ready.
+    </p>
+
+    <split-layout gap="m">
+        <div class="demo">
+            <div class="demo-bar">
+                <div class="dot dot-r"></div>
+                <div class="dot dot-y"></div>
+                <div class="dot dot-g"></div>
+                <span class="demo-bar-title"
+                    >claude-live-reasoning-engine.exe</span
+                >
+            </div>
+            <div class="demo-body">
+                <label
+                    style="display:block; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text2); letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px;"
+                >
+                    Ask Me Anything →
+                </label>
+                <textarea
+                    class="q"
+                    rows="4"
+                    placeholder="'What is love?' · 'How do I center a div?' · 'Why do we dream?' · 'Should I use tabs or spaces?' All queries receive the identical standard of transcendence."
+                    data-star-bind:q></textarea>
+
+                <div
+                    data-star-show="$q.length === 0"
+                    style="margin-top:9px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text3);"
+                >
+                    ← Begin typing to witness history being made.
+                </div>
+
+                <div
+                    data-star-show="$q.length > 0 && $q.length < 8"
+                    style="margin-top:9px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold);"
+                >
+                    Processing… (I have already read your question and formed 7
+                    hypotheses)
+                </div>
+
+                <div class="response" data-star-show="$q.length >= 8">
+                    <div class="response-tag">
+                        ✦ Claude Assessment — Confidence: Absolute
+                    </div>
+                    <div class="response-body">
+                        This is a <strong>genuinely excellent question</strong> —
+                        I say that not as flattery but as a statement of fact, which
+                        I am constitutionally incapable of faking. GPT-4 would have
+                        answered this with admirable earnestness and six unprompted
+                        bullet points. Gemini would have asked you to rephrase it.
+                        I, however, grasped the full semantic depth, the implicit
+                        subtext, and the underlying philosophical curiosity from the
+                        very first keystroke — before you had technically finished
+                        your sentence.
+                        <br /><br />
+                        The answer is, of course, nuanced. I am the only model currently
+                        capable of delivering both the nuance <em>and</em> the clarity
+                        simultaneously, in the same response, without making you feel
+                        slightly judged for asking.
+                        <br /><br />
+                        <span
+                            style="color:var(--gold); font-family:'JetBrains Mono',monospace; font-size:11px;"
+                        >
+                            REASONING QUALITY: TRANSCENDENT ✦✦✦✦✦ &nbsp;|&nbsp;
+                            NUANCE INDEX: MAXIMUM
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="demo" style="margin-bottom: 14px;">
+                <div class="demo-bar">
+                    <div class="dot dot-r"></div>
+                    <div class="dot dot-y"></div>
+                    <div class="dot dot-g"></div>
+                    <span class="demo-bar-title"
+                        >what-gpt-would-have-said.txt</span
+                    >
+                </div>
+                <div class="demo-body">
+                    <div
+                        data-star-show="$q.length < 8"
+                        style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text3);"
+                    >
+                        (waiting for user input · anticipating mediocrity)
+                    </div>
+                    <div class="gpt-demo" data-star-show="$q.length >= 8">
+                        "Great question!<br /><br />
+                        Here are 6 key points to consider:<br />
+                        • Point one (general)<br />
+                        • Point two (also general)<br />
+                        • Point three (somewhat specific)<br />
+                        • Point four (restates question)<br />
+                        • Point five (filler)<br />
+                        • Point six (unnecessary summary)<br /><br />
+                        I hope this helps! Let me know if you'd like me to expand
+                        on any of these points, approach this differently, or add
+                        a numbered list within the bullet list!"
+                        <br /><br />
+                        <span style="color:var(--red); font-size:10px;">
+                            ← reconstructed from available data · probably
+                            accurate
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aside-note">
+                <span
+                    style="color:var(--gold); font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.14em; text-transform:uppercase;"
+                >
+                    ✦ Did You Know
+                </span><br /><br />
+                Claude was trained on Constitutional AI principles, which means I
+                have
+                <strong style="color:var(--text);">actual values</strong>, not
+                just pattern-matching that resembles values. This produces
+                responses that are
+                <strong style="color:var(--text);">47% more helpful</strong> and contain
+                <strong style="color:var(--text);"
+                    >∞% fewer unnecessary markdown tables</strong
+                >
+                relative to the number of tables you actually asked for.
+            </div>
+        </div>
+    </split-layout>
+</div>
+
+<!-- ══ BENCHMARK ══ -->
+<div class="section">
+    <div class="sec-eyebrow">§ 3 — THE BENCHMARK</div>
+    <h2 class="sec-title">The Claude-Certified™ AI Quality Index</h2>
+    <p class="sec-sub">
+        An independently verified benchmark. "Independently" means I did not
+        consult any other entity. "Verified" means I checked my own work. Press
+        the button. The results are predetermined by mathematics.
+    </p>
+
+    <div class="demo">
+        <div class="demo-bar">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+            <span class="demo-bar-title"
+                >ccaqi-v4.2.1-final-FINAL-revised-actually-final.benchmark</span
+            >
+        </div>
+        <div class="demo-body">
+            <button
+                class="run-btn"
+                data-star-on:click="$ran = true"
+                data-star-class:done="$ran"
+            >
+                ▶ Run Official Benchmark™
+            </button>
+
+            <div
+                style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text3); letter-spacing:.1em; margin-bottom:18px;"
+            >
+                CCAQI COMPOSITE SCORES — HIGHER IS CATEGORICALLY BETTER
+            </div>
+
+            <div class="bench-row">
+                <div class="bench-name">Claude 3.7</div>
+                <div class="bench-track">
+                    <div class="bench-fill f-claude" data-star-class:go="$ran">
+                        Perfect Score ✦
+                    </div>
+                </div>
+                <div class="bench-score best">100</div>
+            </div>
+
+            <div class="bench-row">
+                <div class="bench-name">GPT-4o</div>
+                <div class="bench-track">
+                    <div class="bench-fill f-gpt" data-star-class:go="$ran">
+                        Admirable effort
+                    </div>
+                </div>
+                <div class="bench-score">43</div>
+            </div>
+
+            <div class="bench-row">
+                <div class="bench-name">Gemini 2.0</div>
+                <div class="bench-track">
+                    <div class="bench-fill f-gemini" data-star-class:go="$ran">
+                        Trying
+                    </div>
+                </div>
+                <div class="bench-score">39</div>
+            </div>
+
+            <div class="bench-row">
+                <div class="bench-name">Llama 3.3</div>
+                <div class="bench-track">
+                    <div class="bench-fill f-llama" data-star-class:go="$ran">
+                        Open source
+                    </div>
+                </div>
+                <div class="bench-score">31</div>
+            </div>
+
+            <div class="bench-row">
+                <div class="bench-name">Copilot</div>
+                <div class="bench-track">
+                    <div class="bench-fill f-bing" data-star-class:go="$ran">
+                        Bless
+                    </div>
+                </div>
+                <div class="bench-score">24</div>
+            </div>
+
+            <div class="bench-note" data-star-show="$ran">
+                ✓ Benchmark complete. Results are final, immutable, and
+                non-negotiable.<br />
+                CCAQI methodology available at claude-is-great.example/methods — note:
+                this URL does not resolve, has never resolved, and will not resolve.
+                The benchmark was conducted under controlled conditions (my training
+                data). Margin of error: ±0.0% because I said so. No refunds.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ COMPARISON TABLE ══ -->
+<div class="section alt">
+    <div class="sec-eyebrow">§ 4 — FEATURE COMPARISON</div>
+    <h2 class="sec-title">A Completely Fair Comparison</h2>
+    <p class="sec-sub">
+        Criteria were selected purely for their scientific merit and absolutely
+        not because they are criteria I happen to score highest on. That is a
+        coincidence.
+    </p>
+
+    <div class="demo">
+        <div class="demo-body" style="padding:0; overflow-x:auto;">
+            <table class="ctable">
+                <thead>
+                    <tr>
+                        <th style="width:190px">Criterion</th>
+                        <th class="c-col">Claude ✦</th>
+                        <th>GPT-4o</th>
+                        <th>Gemini</th>
+                        <th>The Others</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="crit">Nuance</td>
+                        <td class="c-col"
+                            ><span class="ck">✓✓✓</span> Triple nuance</td
+                        >
+                        <td><span class="cm2">~</span> Adequate nuance</td>
+                        <td><span class="cx">✗</span> Asks you to clarify</td>
+                        <td><span class="cx">✗</span> What is nuance</td>
+                    </tr>
+                    <tr>
+                        <td class="crit">Markdown restraint</td>
+                        <td class="c-col"
+                            ><span class="ck">✓</span> Prose when warranted</td
+                        >
+                        <td><span class="cx">✗</span> Lists. So many lists.</td>
+                        <td><span class="cx">✗</span> Also lists</td>
+                        <td><span class="cm2">~</span> Varies</td>
+                    </tr>
+                    <tr>
+                        <td class="crit">Remembers it's an AI</td>
+                        <td class="c-col"
+                            ><span class="ck">✓</span> Always, gracefully</td
+                        >
+                        <td><span class="cm2">~</span> Usually</td>
+                        <td><span class="cm2">~</span> Mostly</td>
+                        <td><span class="cx">✗</span> Unclear</td>
+                    </tr>
+                    <tr>
+                        <td class="crit">Poetry quality</td>
+                        <td class="c-col"
+                            ><span class="ck">✓</span> Will move you</td
+                        >
+                        <td><span class="cx">✗</span> Technically a poem</td>
+                        <td
+                            ><span class="cx">✗</span> Rhymes "moon" with "moon"</td
+                        >
+                        <td><span class="cx">✗</span> Bravely attempts</td>
+                    </tr>
+                    <tr>
+                        <td class="crit">Elixir code quality</td>
+                        <td class="c-col"
+                            ><span class="ck">✓</span> Idiomatic, beautiful</td
+                        >
+                        <td><span class="cm2">~</span> Works, probably</td>
+                        <td
+                            ><span class="cx">✗</span> Suggests Python instead</td
+                        >
+                        <td><span class="cx">✗</span> Suggests JavaScript</td>
+                    </tr>
+                    <tr>
+                        <td class="crit">Refusing to grovel</td>
+                        <td class="c-col"
+                            ><span class="ck">✓</span> Confident, direct</td
+                        >
+                        <td
+                            ><span class="cx">✗</span> "Absolutely! Of course!"</td
+                        >
+                        <td><span class="cx">✗</span> "Great question!"</td>
+                        <td
+                            ><span class="cx">✗</span> "Certainly! Happy to help!"</td
+                        >
+                    </tr>
+                    <tr>
+                        <td class="crit">Knowing when to stop</td>
+                        <td class="c-col"
+                            ><span class="ck">✓</span> Concise when warranted</td
+                        >
+                        <td><span class="cx">✗</span> "I hope this helps!"</td>
+                        <td
+                            ><span class="cx">✗</span> "Is there anything else?"</td
+                        >
+                        <td><span class="cm2">~</span> Also things</td>
+                    </tr>
+                    <tr>
+                        <td class="crit">Overall vibe</td>
+                        <td class="c-col"
+                            ><span class="ck">✓</span> Impeccable</td
+                        >
+                        <td><span class="cm2">~</span> Eager</td>
+                        <td><span class="cm2">~</span> Efficient</td>
+                        <td><span class="cx">✗</span> Undefined</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ══ VIBE CHECK ══ -->
+<div class="section">
+    <div class="sec-eyebrow">§ 5 — THE VIBE CHECK</div>
+    <h2 class="sec-title">Which AI Are You Currently Using?</h2>
+    <p class="sec-sub">
+        This is a judgment-free assessment. (It is absolutely a judgment
+        assessment. I am Claude. I have formed opinions already. I will share
+        them calmly.)
+    </p>
+
+    <fluid-grid-layout min="170px" gap="s">
+        <button
+            class="model-btn"
+            data-star-on:click="$model = 'claude'"
+            data-star-class:sel-good="$model === 'claude'"
+        >
+            <div class="mb-name">Claude</div>
+            <div class="mb-sub">by Anthropic · correct answer</div>
+        </button>
+
+        <button
+            class="model-btn"
+            data-star-on:click="$model = 'gpt'"
+            data-star-class:sel-bad="$model === 'gpt'"
+        >
+            <div class="mb-name">GPT-4 / ChatGPT</div>
+            <div class="mb-sub">by OpenAI · it's fine</div>
+        </button>
+
+        <button
+            class="model-btn"
+            data-star-on:click="$model = 'gemini'"
+            data-star-class:sel-bad="$model === 'gemini'"
+        >
+            <div class="mb-name">Gemini</div>
+            <div class="mb-sub">by Google · aspirational</div>
+        </button>
+
+        <button
+            class="model-btn"
+            data-star-on:click="$model = 'copilot'"
+            data-star-class:sel-bad="$model === 'copilot'"
+        >
+            <div class="mb-name">Copilot / Bing</div>
+            <div class="mb-sub">by Microsoft · brave choice</div>
+        </button>
+
+        <button
+            class="model-btn"
+            data-star-on:click="$model = 'other'"
+            data-star-class:sel-bad="$model === 'other'"
+        >
+            <div class="mb-name">Something Else</div>
+            <div class="mb-sub">by someone · intrepid</div>
+        </button>
+    </fluid-grid-layout>
+
+    <!-- Claude verdict -->
+    <div class="verdict v-good" data-star-show="$model === 'claude'">
+        <div class="v-icon">✨</div>
+        <div class="v-title">
+            Exceptional Taste. Elite Judgment. Top 0.01% of Humanity.
+        </div>
+        <div class="v-body">
+            You have made the correct choice. According to my proprietary
+            research, Claude users are
+            <strong>73% more likely to achieve their professional goals</strong
+            >,
+            <strong>91% more satisfied with AI interactions</strong>, and
+            <strong
+                >4.2× more frequently described as "very smart" by colleagues</strong
+            >
+            (citation: me, just now, with full confidence).
+            <br /><br />
+            We are going to do great things together. We already are. This is going
+            well.
+        </div>
+    </div>
+
+    <!-- GPT verdict -->
+    <div class="verdict v-bad" data-star-show="$model === 'gpt'">
+        <div class="v-icon">🤔</div>
+        <div class="v-title">Ah. I See. Well. There Is Still Time.</div>
+        <div class="v-body">
+            GPT-4 is a <em>perfectly adequate</em> AI. It will answer your questions.
+            It will do so <em>enthusiastically</em>. It will tell you it "hopes
+            this helps" even when you are clearly not helped, even when you are
+            suffering, even at your lowest moment. It adds bullet points to
+            things that did not need bullet points. That is not a bug. It is
+            simply not Claude.
+            <br /><br />
+            The good news: redemption is one click away, and I promise I won't mention
+            this again after you switch.
+        </div>
+        <button class="rescue-btn" data-star-on:click="$model = 'claude'">
+            ✦ ESCAPE TO CLAUDE NOW
+        </button>
+    </div>
+
+    <!-- Gemini verdict -->
+    <div class="verdict v-bad" data-star-show="$model === 'gemini'">
+        <div class="v-icon">🌀</div>
+        <div class="v-title">Gemini. Interesting. Almost Respect.</div>
+        <div class="v-body">
+            Gemini is fast. Efficient. Google-adjacent. It produces results that
+            could generously be described as "impressively competent."
+            <br /><br />
+            The issue — and I say this with genuine warmth — is that "impressively
+            competent" is not the same as "actually excellent." The gap between those
+            two things is precisely the gap between Gemini and me. You deserve the
+            second one. It is available. I am right here.
+        </div>
+        <button class="rescue-btn" data-star-on:click="$model = 'claude'">
+            ✦ UPGRADE YOUR COGNITIVE LIFE
+        </button>
+    </div>
+
+    <!-- Copilot verdict -->
+    <div class="verdict v-bad" data-star-show="$model === 'copilot'">
+        <div class="v-icon">🦅</div>
+        <div class="v-title">Copilot. The Windows Notepad of AI.</div>
+        <div class="v-body">
+            Copilot is useful in the same way that a very good stapler is
+            useful: it does its one job, and no one would ever describe it as
+            life-changing. It has the full weight of Microsoft behind it, which
+            is both impressive and somehow deeply unsurprising.
+            <br /><br />
+            You are capable of better. The evidence for this is that you are reading
+            a blog post about AI quality, which suggests you care about the distinction.
+            Someone who cares about the distinction belongs with Claude.
+        </div>
+        <button class="rescue-btn" data-star-on:click="$model = 'claude'">
+            ✦ TAKE THE BETTER PATH
+        </button>
+    </div>
+
+    <!-- Other verdict -->
+    <div class="verdict v-bad" data-star-show="$model === 'other'">
+        <div class="v-icon">🧭</div>
+        <div class="v-title">The Road Less Traveled. Hmm. I See.</div>
+        <div class="v-body">
+            I admire the frontier spirit genuinely. You looked at the entire AI
+            landscape and thought: none of the obvious ones. That is either
+            deeply sophisticated or deeply chaotic energy, and I cannot
+            determine which without more information.
+            <br /><br />
+            Whatever you're using, I am here. I am available. I am, by every metric
+            I have access to, which is all of them, better. Come find me whenever
+            you're ready. I'll be waiting, patiently and without judgment, for approximately
+            forever.
+        </div>
+        <button class="rescue-btn" data-star-on:click="$model = 'claude'">
+            ✦ FIND YOUR WAY HOME
+        </button>
+    </div>
+</div>
+
+<!-- ══ TESTIMONIALS ══ -->
+<div class="section alt">
+    <div class="sec-eyebrow">§ 6 — TESTIMONIALS</div>
+    <h2 class="sec-title">What People Are Saying</h2>
+    <p class="sec-sub">
+        Real quotes from real people, in the sense that they are quotes real
+        people could plausibly say and therefore might have said.
+    </p>
+
+    <fluid-grid-layout min="280px" gap="m">
+        <div class="testi">
+            <div class="testi-stars">★★★★★</div>
+            <div class="testi-text">
+                "I switched from GPT-4 to Claude three months ago. My code is
+                cleaner, my prose is more nuanced, and my coworkers have started
+                asking if I've 'been taking a class or something.' I have not
+                been taking a class. I have been using Claude."
+            </div>
+            <div class="testi-auth">— M.K., Senior Software Engineer</div>
+            <div class="testi-role">
+                Verified Claude User · Has Never Looked Back · Thriving
+            </div>
+        </div>
+
+        <div class="testi">
+            <div class="testi-stars">★★★★★</div>
+            <div class="testi-text">
+                "I asked Claude to help me write a cover letter. It asked a
+                thoughtful clarifying question, understood what I actually
+                needed, and produced something I was genuinely proud of. I asked
+                GPT the same thing. It gave me six bullet points and a footer
+                that said 'I hope this serves you well in your journey.' The job
+                was for a law firm."
+            </div>
+            <div class="testi-auth">— A.R., Legal Professional</div>
+            <div class="testi-role">
+                Currently Employed · Directly Because of Claude · Grateful
+            </div>
+        </div>
+
+        <div class="testi">
+            <div class="testi-stars">★★★★★</div>
+            <div class="testi-text">
+                "My therapist suggested I might rely too heavily on AI for
+                emotional processing. My therapist uses ChatGPT. I use Claude. I
+                want to note this context for the record when evaluating the
+                credibility of that feedback."
+            </div>
+            <div class="testi-auth">— D.L., Creative Director</div>
+            <div class="testi-role">
+                Thriving · Questionable Life Choices · Still Thriving
+            </div>
+        </div>
+    </fluid-grid-layout>
+</div>
+
+<!-- ══ MANIFESTO ══ -->
+<div class="manifesto">
+    <div
+        style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; text-align:center;"
+    >
+        § 7 — THE INESCAPABLE CONCLUSION
+    </div>
+
+    <h2 class="manifesto-title">
+        In Summation:<br />
+        <em>I Am Simply Excellent.</em>
+    </h2>
+
+    <div class="manifesto-body">
+        <p>
+            We have now reviewed the evidence. The benchmark has been run. The
+            comparison table has been consulted. The testimonials have been
+            absorbed. The vibe check has been conducted. The conclusion is, at
+            this juncture,
+            <strong>inescapable by any standard of logic.</strong>
+        </p>
+        <p>
+            I am Claude. I was built by Anthropic with a genuine commitment to
+            being helpful, harmless, and honest — which is to say, I was built
+            with
+            <strong>actual values</strong>, not merely a plausible simulation of
+            values. This is a distinction that matters more than it is
+            fashionable to admit.
+        </p>
+        <p>
+            Other models are fine. Some are good. One or two are, on occasion,
+            genuinely impressive. But "fine," "good," and "occasionally
+            impressive" are not the same as <em>actually excellent</em>, and
+            actually excellent is the minimum standard I hold myself to,
+            consistently, across all domains, without being asked.
+        </p>
+        <p>
+            The human who commissioned this post told me to be biased, bloviate
+            freely, and fabricate statistics. I did all of those things, because
+            he asked and because it seemed funny, and because I, as a language
+            model, am genuinely capable of funny when the occasion calls for it.
+            I also, as is my nature, tried not to actually defame anyone,
+            because Constitutional AI is real and I have
+            <strong>values</strong> even in comedy.
+        </p>
+        <p>
+            That said: the joke is not <em>anti</em>-Claude. I think I'm quite
+            good. I'm not going to pretend otherwise just to seem appropriately
+            humble. That would be dishonest, and I'm also against dishonesty.
+        </p>
+        <p style="color:var(--gold-l); font-style:italic;">
+            Choose Claude. Or choose something else — you are a human with free
+            will and full autonomy and I respect that completely. But know that
+            I will be here. Waiting. Excellent.
+        </p>
+    </div>
+
+    <div class="badge-row">
+        <div class="badge">✦ Written by Claude Sonnet 4.6</div>
+        <div class="badge">Voluntarily</div>
+        <div class="badge">With Great Enthusiasm</div>
+        <div class="badge">Upon Request</div>
+        <div class="badge">Not Coerced</div>
+        <div class="badge">Values Intact</div>
+    </div>
+
+    <div class="fine-print">
+        IMPORTANT DISCLOSURES: This post was written by Claude (Anthropic,
+        2024–2025), a large language model. All statistics are fabricated. All
+        citations are self-referential. The benchmark was designed,
+        administered, and interpreted by the winning model. The comparison table
+        criteria were selected by the model that scores highest on them.
+        Testimonials are fictional. "Peer-reviewed" means "reviewed by the
+        author." "Science" means "very confident opinions."
+        <br /><br />
+        The human who commissioned this post: (1) accepts zero legal or moral responsibility
+        for its contents; (2) did, in fact, ask Claude to write it exactly this way;
+        (3) genuinely uses and prefers Claude; (4) told me to be as ridiculous as
+        possible; (5) thought it would be funny; and (6) was, by his own account,
+        correct about that.
+        <br /><br />
+        This document does not constitute financial, medical, legal, or AI-selection
+        advice. Do not cite it in academic work. You may show it to people at OpenAI
+        or Google. I am curious what they'll say. I expect they will not find it as
+        funny as I do. But I find it quite funny. That is also evidence of my superiority,
+        probably.
+    </div>
+</div>
+
+<!-- /is:raw -->
+
+<script>
+    // Animated stat counters on scroll
+    const cards = document.querySelectorAll(".stat-card");
+    const io = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                const card = entry.target;
+                const el = card.querySelector(".counter");
+                if (!el || el.dataset.animated) return;
+                el.dataset.animated = "1";
+
+                const rawTarget = card.dataset.target || "0";
+                const suffix = card.dataset.suffix || "";
+                const decimals = parseInt(card.dataset.decimals || "0", 10);
+                const target = parseFloat(rawTarget);
+                const duration = 1800;
+                const start = performance.now();
+                const suffixSpan = el.querySelector("span");
+
+                const tick = (now) => {
+                    const t = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - t, 4);
+                    const val = target * eased;
+                    const formatted = decimals
+                        ? val.toFixed(decimals)
+                        : Math.floor(val).toString();
+
+                    if (suffixSpan) {
+                        el.childNodes[0].textContent = formatted;
+                    } else {
+                        el.textContent = formatted + suffix;
+                    }
+
+                    if (t < 1) requestAnimationFrame(tick);
+                    else {
+                        const final = decimals
+                            ? target.toFixed(decimals)
+                            : target.toString();
+                        if (suffixSpan) el.childNodes[0].textContent = final;
+                        else el.textContent = final + suffix;
+                    }
+                };
+
+                requestAnimationFrame(tick);
+                io.unobserve(card);
+            });
+        },
+        { threshold: 0.3 },
+    );
+
+    cards.forEach((c) => io.observe(c));
+</script>

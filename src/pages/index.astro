@@ -1,0 +1,68 @@
+---
+// src/pages/index.astro
+export const prerender = true;
+import Base from "@layouts/Base.astro";
+
+const posts = [
+    {
+        slug: "0-start-at-the-beginning",
+        title: "Start at the Beginning",
+        description: "Claude arguing why Claude is the best.",
+        date: "1969-04-01",
+    },
+    {
+        slug: "1-design-patterns-in-pharo-smalltalk",
+        title: "Design Patterns in Pharo Smalltalk",
+        description: "A runthrough of design patterns in Pharo Smalltalk.",
+        date: "2026-03-26",
+    },
+    {
+        slug: "2-design-pattern-analysis-and-ranking",
+        title: "Design Pattern Analysis and Ranking",
+        description: "Design Patterns analyzed and ranked across 4 dimensions.",
+        date: "2026-03-26",
+    },
+    {
+        slug: "3-design-pattern-library-in-pharo-huh",
+        title: "Can a Design Pattern Library be written in Pharo?",
+        description: "Meet PatternKit.",
+        date: "2026-03-26",
+    },
+    {
+        slug: "4-building-liveview-forms-w-gladius",
+        title: "Building Phoenix LiveView Forms with Gladius",
+        description: "A tutorial on building LiveView forms with Gladius.",
+        date: "2026-04-07",
+    },
+];
+---
+
+<Base title="My Blog" description="Welcome to my blog.">
+    <region-layout>
+        <sandwich-layout>
+            <header slot="header">
+                <h1>My Blog</h1>
+            </header>
+
+            <main>
+                <fluid-grid-layout min="280px" gap="m">
+                    {
+                        posts
+                            .map((post) => (
+                                <article>
+                                    <a href={`/post/${post.slug}`}>
+                                        <h2>{post.title}</h2>
+                                        <time datetime={post.date}>
+                                            {post.date}
+                                        </time>
+                                        <p>{post.description}</p>
+                                    </a>
+                                </article>
+                            ))
+                            .reverse()
+                    }
+                </fluid-grid-layout>
+            </main>
+        </sandwich-layout>
+    </region-layout>
+</Base>

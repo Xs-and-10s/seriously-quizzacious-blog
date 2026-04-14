@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Building Phoenix LiveView Forms with Gladius</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            /* ── Solarized Light Palette ── */
+            :root {
+                --base03: #002b36;
+                --base02: #073642;
+                --base01: #586e75;
+                --base00: #657b83;
+                --base0: #839496;
+                --base1: #93a1a1;
+                --base2: #eee8d5;
+                --base3: #fdf6e3;
+                --yellow: #b58900;
+                --orange: #cb4b16;
+                --red: #dc322f;
+                --magenta: #d33682;
+                --violet: #6c71c4;
+                --blue: #268bd2;
+                --cyan: #2aa198;
+                --green: #859900;
+
+                --bg: var(--base3);
+                --bg-alt: var(--base2);
+                --fg: var(--base00);
+                --fg-emph: var(--base01);
+                --fg-dim: var(--base1);
+                --primary: var(--red);
+                --primary-dim: #dc322f33;
+                --code-bg: var(--base2);
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html {
+                font-size: 18px;
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: "Bitter", Georgia, serif;
+                background: var(--bg);
+                color: var(--fg);
+                line-height: 1.72;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            /* ── Texture overlay ── */
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 100;
+                background-image: url("data:image/svg+xml,%3Csvg width='4' height='4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23586e75' opacity='0.03'/%3E%3C/svg%3E");
+            }
+
+            /* ── Layout ── */
+            .article-wrapper {
+                max-width: 740px;
+                margin: 0 auto;
+                padding: 0 1.5rem 6rem;
+            }
+
+            /* ── Hero ── */
+            .hero {
+                padding: 5rem 0 3.5rem;
+                border-bottom: 3px solid var(--primary);
+                margin-bottom: 3rem;
+                position: relative;
+            }
+
+            .hero::after {
+                content: "";
+                position: absolute;
+                bottom: -3px;
+                left: 0;
+                width: 120px;
+                height: 3px;
+                background: var(--base03);
+            }
+
+            .hero-kicker {
+                font-family: "Source Code Pro", monospace;
+                font-size: 0.72rem;
+                letter-spacing: 0.15em;
+                text-transform: uppercase;
+                color: var(--primary);
+                font-weight: 600;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .hero-kicker::before {
+                content: "";
+                display: inline-block;
+                width: 2rem;
+                height: 2px;
+                background: var(--primary);
+            }
+
+            .hero h1 {
+                font-family: "Playfair Display", serif;
+                font-weight: 900;
+                font-size: 2.8rem;
+                line-height: 1.15;
+                color: var(--base02);
+                margin-bottom: 1.2rem;
+                letter-spacing: -0.02em;
+            }
+
+            .hero h1 em {
+                color: var(--primary);
+                font-style: italic;
+                font-weight: 700;
+            }
+
+            .hero-lede {
+                font-size: 1.1rem;
+                color: var(--fg-emph);
+                line-height: 1.65;
+                max-width: 600px;
+            }
+
+            .hero-meta {
+                margin-top: 1.5rem;
+                font-family: "Source Code Pro", monospace;
+                font-size: 0.72rem;
+                color: var(--fg-dim);
+                display: flex;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+
+            /* ── Prose ── */
+            .prose h2 {
+                font-family: "Playfair Display", serif;
+                font-weight: 700;
+                font-size: 1.6rem;
+                color: var(--base02);
+                margin: 3rem 0 1rem;
+                padding-bottom: 0.4rem;
+                border-bottom: 1px solid var(--bg-alt);
+                position: relative;
+            }
+
+            .prose h2::before {
+                content: "";
+                position: absolute;
+                bottom: -1px;
+                left: 0;
+                width: 2.5rem;
+                height: 2px;
+                background: var(--primary);
+            }
+
+            .prose h3 {
+                font-weight: 700;
+                font-size: 1.05rem;
+                color: var(--base02);
+                margin: 2rem 0 0.5rem;
+            }
+
+            .prose p {
+                margin-bottom: 1.15rem;
+            }
+
+            .prose strong {
+                color: var(--fg-emph);
+                font-weight: 700;
+            }
+
+            .prose a {
+                color: var(--primary);
+                text-decoration: underline;
+                text-decoration-thickness: 1px;
+                text-underline-offset: 2px;
+                transition: color 0.15s;
+            }
+            .prose a:hover {
+                color: var(--orange);
+            }
+
+            .prose ul,
+            .prose ol {
+                margin: 0 0 1.15rem 1.2rem;
+            }
+            .prose li {
+                margin-bottom: 0.4rem;
+            }
+            .prose li::marker {
+                color: var(--primary);
+            }
+
+            .prose hr {
+                border: none;
+                height: 1px;
+                background: var(--bg-alt);
+                margin: 2.5rem 0;
+                position: relative;
+            }
+            .prose hr::after {
+                content: "⬥";
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background: var(--bg);
+                padding: 0 0.8rem;
+                color: var(--primary);
+                font-size: 0.8rem;
+            }
+
+            /* ── Code ── */
+            code {
+                font-family: "Source Code Pro", monospace;
+                font-size: 0.82em;
+                background: var(--code-bg);
+                padding: 0.15em 0.35em;
+                border-radius: 3px;
+                color: var(--fg-emph);
+            }
+
+            pre {
+                background: var(--base02);
+                color: var(--base2);
+                border-radius: 6px;
+                padding: 1.3rem 1.5rem;
+                margin: 1.2rem 0 1.6rem;
+                overflow-x: auto;
+                font-size: 0.78rem;
+                line-height: 1.65;
+                position: relative;
+                border-left: 3px solid var(--primary);
+            }
+
+            pre code {
+                background: none;
+                padding: 0;
+                border-radius: 0;
+                color: inherit;
+                font-size: inherit;
+            }
+
+            /* Solarized Dark syntax inside pre */
+            pre .kw {
+                color: var(--green);
+            }
+            pre .fn {
+                color: var(--blue);
+            }
+            pre .str {
+                color: var(--cyan);
+            }
+            pre .mod {
+                color: var(--yellow);
+            }
+            pre .cmt {
+                color: var(--base01);
+                font-style: italic;
+            }
+            pre .atom {
+                color: var(--magenta);
+            }
+            pre .num {
+                color: var(--violet);
+            }
+            pre .op {
+                color: var(--orange);
+            }
+            pre .sig {
+                color: var(--red);
+            }
+
+            pre .lang-label {
+                position: absolute;
+                top: 0;
+                right: 0;
+                background: var(--primary);
+                color: var(--base3);
+                font-size: 0.62rem;
+                font-weight: 600;
+                padding: 0.2rem 0.6rem;
+                border-radius: 0 6px 0 4px;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+
+            /* ── Callout boxes ── */
+            .callout {
+                background: var(--primary-dim);
+                border-left: 3px solid var(--primary);
+                padding: 1rem 1.3rem;
+                margin: 1.4rem 0;
+                border-radius: 0 6px 6px 0;
+                font-size: 0.92rem;
+            }
+            .callout p {
+                margin-bottom: 0.5rem;
+            }
+            .callout p:last-child {
+                margin-bottom: 0;
+            }
+
+            /* ── Numbered gotcha cards ── */
+            .gotcha {
+                margin: 1.6rem 0;
+                padding: 1.2rem 1.4rem 1.2rem 4rem;
+                background: var(--bg-alt);
+                border-radius: 6px;
+                position: relative;
+            }
+            .gotcha-num {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 3rem;
+                height: 100%;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                padding-top: 1.2rem;
+                font-family: "Playfair Display", serif;
+                font-weight: 900;
+                font-size: 1.4rem;
+                color: var(--primary);
+                border-right: 1px solid var(--bg);
+            }
+            .gotcha h3 {
+                margin-top: 0;
+                font-size: 0.95rem;
+                color: var(--base02);
+            }
+
+            /* ── Footer ── */
+            .article-footer {
+                margin-top: 3rem;
+                padding-top: 2rem;
+                border-top: 3px solid var(--primary);
+                position: relative;
+            }
+            .article-footer::after {
+                content: "";
+                position: absolute;
+                top: -3px;
+                right: 0;
+                width: 120px;
+                height: 3px;
+                background: var(--base03);
+            }
+
+            /* ── Responsive ── */
+            @media (max-width: 600px) {
+                html {
+                    font-size: 16px;
+                }
+                .hero h1 {
+                    font-size: 2rem;
+                }
+                pre {
+                    font-size: 0.72rem;
+                    padding: 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <article class="article-wrapper">
+            <header class="hero">
+                <div class="hero-kicker">Elixir · Phoenix LiveView</div>
+                <h1>Building LiveView Forms with <em>Gladius</em></h1>
+                <p class="hero-lede">
+                    Parse, don't validate. A composable spec library that
+                    replaces scattered changeset logic with a single source of
+                    truth — and plays perfectly with <code>inputs_for</code>.
+                </p>
+                <div class="hero-meta">
+                    <span>gladius ~> 0.6</span>
+                    <span>phoenix_live_view</span>
+                    <span>ecto ~> 3.0</span>
+                </div>
+            </header>
+
+            <div class="prose">
+                <p>
+                    If you've built Phoenix LiveView forms, you know the
+                    validation story: define an Ecto schema, write a changeset
+                    function, sprinkle in <code>validate_required</code>,
+                    <code>validate_format</code>, and
+                    <code>validate_length</code>, wire it to
+                    <code>inputs_for</code>, and hope the error messages make
+                    sense to your users.
+                </p>
+
+                <p>
+                    It works. But the validation logic is spread across the
+                    schema module, the changeset function, and sometimes the
+                    context module. Coercions happen implicitly through Ecto's
+                    type system. Error messages are tuples you format in the
+                    template. And if you want to reuse a validation rule
+                    somewhere else — in a background job, an API endpoint, a CLI
+                    tool — you're copying code or reaching for a shared context
+                    function that wasn't designed for that.
+                </p>
+
+                <p>
+                    Gladius is a validation library built around a different
+                    idea: <strong>parse, don't validate</strong>. Instead of
+                    checking whether data is valid, you describe the shape of
+                    valid data and let <code>conform/2</code> return a shaped
+                    value — coercions applied, transforms run, defaults injected
+                    — or a list of structured errors. The same spec works at an
+                    HTTP boundary, in a LiveView form, in a background job, or
+                    in a function signature check.
+                </p>
+
+                <p>
+                    This post walks through building a real Phoenix LiveView
+                    form with Gladius: nested embeds, live validation, custom
+                    error messages, and the create/update/patch pattern.
+                </p>
+
+                <hr />
+
+                <h2>Setup</h2>
+
+                <p>Add Gladius to your deps:</p>
+
+                <pre><code><span class="lang-label">elixir</span><span class="cmt"># mix.exs</span>
+<span class="kw">def</span> <span class="fn">deps</span> <span class="kw">do</span>
+  [
+    {<span class="atom">:gladius</span>, <span class="str">"~> 0.6"</span>},
+    {<span class="atom">:ecto</span>, <span class="str">"~> 3.0"</span>},  <span class="cmt"># already in Phoenix apps</span>
+  ]
+<span class="kw">end</span></code></pre>
+
+                <p>
+                    Gladius starts its own registry under your application's
+                    supervision tree. No configuration needed.
+                </p>
+
+                <hr />
+
+                <h2>The Schema</h2>
+
+                <p>
+                    We'll build a user registration form with a nested address
+                    embed and a role dropdown.
+                </p>
+
+                <pre><code><span class="lang-label">elixir</span><span class="kw">defmodule</span> <span class="mod">MyAppWeb.UserFormLive</span> <span class="kw">do</span>
+  <span class="kw">use</span> <span class="mod">MyAppWeb</span>, <span class="atom">:live_view</span>
+  <span class="kw">import</span> <span class="mod">Gladius</span>
+
+  <span class="kw">defp</span> <span class="fn">address_schema</span> <span class="kw">do</span>
+    <span class="fn">schema</span>([
+      {<span class="fn">required</span>(<span class="atom">:street</span>), <span class="fn">string</span>(<span class="atom">:filled?</span>)},
+      {<span class="fn">required</span>(<span class="atom">:city</span>),   <span class="fn">string</span>(<span class="atom">:filled?</span>)},
+      {<span class="fn">required</span>(<span class="atom">:zip</span>),    <span class="fn">string</span>(<span class="atom">size?:</span> <span class="num">5</span>, <span class="atom">message:</span> <span class="str">"must be exactly 5 digits"</span>)}
+    ])
+  <span class="kw">end</span>
+
+  <span class="kw">defp</span> <span class="fn">user_schema</span> <span class="kw">do</span>
+    <span class="fn">schema</span>([
+      {<span class="fn">required</span>(<span class="atom">:name</span>),    <span class="fn">transform</span>(<span class="fn">string</span>(<span class="atom">:filled?</span>), <span class="op">&amp;</span><span class="mod">String</span>.trim/<span class="num">1</span>)},
+      {<span class="fn">required</span>(<span class="atom">:email</span>),   <span class="fn">transform</span>(
+                             <span class="fn">string</span>(<span class="atom">:filled?</span>, <span class="atom">format:</span> <span class="sig">~r/@/</span>, <span class="atom">message:</span> <span class="str">"must be a valid email"</span>),
+                             <span class="op">&amp;</span><span class="mod">String</span>.downcase/<span class="num">1</span>
+                           )},
+      {<span class="fn">required</span>(<span class="atom">:age</span>),     <span class="fn">coerce</span>(<span class="fn">integer</span>(<span class="atom">gte?:</span> <span class="num">18</span>, <span class="atom">message:</span> <span class="str">"must be at least 18"</span>),
+                             <span class="atom">from:</span> <span class="atom">:string</span>,
+                             <span class="atom">message:</span> <span class="str">"must be a number"</span>)},
+      {<span class="fn">optional</span>(<span class="atom">:role</span>),    <span class="fn">default</span>(<span class="fn">atom</span>(<span class="atom">in?:</span> [<span class="atom">:admin</span>, <span class="atom">:user</span>]), <span class="atom">:user</span>)},
+      {<span class="fn">required</span>(<span class="atom">:address</span>), <span class="fn">address_schema</span>()}
+    ])
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+
+                <p>A few things worth noting:</p>
+
+                <p>
+                    <strong>List-based schemas preserve field order.</strong>
+                    <code>schema([...])</code> takes a list of 2-tuples instead
+                    of a map. Lists preserve insertion order in Elixir; map
+                    literals don't. This matters for form rendering, JSON Schema
+                    export, and admin UIs where field order is meaningful.
+                </p>
+
+                <p>
+                    <strong
+                        >Coercions, transforms, and defaults compose
+                        naturally.</strong
+                    >
+                    <code>:age</code> is coerced from string to integer (Phoenix
+                    sends all form params as strings) and then validated as an
+                    integer ≥ 18. <code>:name</code> is validated as a non-empty
+                    string and then trimmed. <code>:email</code> is validated
+                    and then downcased. These happen in the right order
+                    automatically — coerce, then validate, then transform.
+                </p>
+
+                <p>
+                    <strong>Custom error messages are per-spec.</strong> The
+                    <code>message:</code> option overrides the generated error
+                    string for any failure of that spec. Use a plain string for
+                    simple overrides or a
+                    <code>{domain, msgid, bindings}</code> tuple for i18n.
+                </p>
+
+                <hr />
+
+                <h2>The Changeset</h2>
+
+                <p>
+                    <code>Gladius.Ecto</code> converts a Gladius schema to an
+                    <code>%Ecto.Changeset{}</code>:
+                </p>
+
+                <pre><code><span class="lang-label">elixir</span><span class="kw">defp</span> <span class="fn">build_changeset</span>(params) <span class="kw">do</span>
+  <span class="mod">Gladius.Ecto</span>.<span class="fn">changeset</span>(<span class="fn">user_schema</span>(), params)
+<span class="kw">end</span></code></pre>
+
+                <p>This one function does a surprising amount:</p>
+
+                <ul>
+                    <li>
+                        Runs Gladius conforming — coercions, validations,
+                        transforms, defaults — and maps errors to the changeset
+                    </li>
+                    <li>
+                        Builds a nested <code>%Ecto.Changeset{}</code> for
+                        <code>:address</code> and registers it as an Ecto embed
+                        type, making it compatible with
+                        <code>inputs_for/4</code>
+                    </li>
+                    <li>
+                        Auto-seeds <code>%{}</code> in
+                        <code>changeset.data</code> for the address field so
+                        <code>inputs_for</code> doesn't raise a
+                        <code>KeyError</code> on initial render
+                    </li>
+                    <li>
+                        Strips Phoenix LiveView's internal bookkeeping keys
+                        (<code>_unused_*</code>, <code>_persistent_id</code>)
+                        that would otherwise cause a <code>CastError</code>
+                    </li>
+                </ul>
+
+                <p>
+                    You don't need to configure any of this. It happens
+                    automatically.
+                </p>
+
+                <hr />
+
+                <h2>The LiveView</h2>
+
+                <pre><code><span class="lang-label">elixir</span><span class="kw">def</span> <span class="fn">mount</span>(_params, _session, socket) <span class="kw">do</span>
+  <span class="cmt"># to_form/2 converts the changeset to a %Phoenix.HTML.Form{}</span>
+  <span class="cmt"># as: :user is required for schemaless changesets</span>
+  form = <span class="fn">build_changeset</span>(%{}) |> <span class="fn">to_form</span>(<span class="atom">as:</span> <span class="atom">:user</span>)
+  {<span class="atom">:ok</span>, <span class="fn">assign</span>(socket, <span class="atom">form:</span> form, <span class="atom">result:</span> <span class="atom">nil</span>)}
+<span class="kw">end</span>
+
+<span class="kw">def</span> <span class="fn">handle_event</span>(<span class="str">"validate"</span>, %{<span class="str">"_target"</span> => target, <span class="str">"user"</span> => params}, socket) <span class="kw">do</span>
+  <span class="cmt"># Only show errors for the field the user just touched</span>
+  touched = <span class="mod">List</span>.<span class="fn">last</span>(target)
+
+  form =
+    <span class="fn">build_changeset</span>(params)
+    |> <span class="fn">then</span>(<span class="kw">fn</span> cs ->
+      filtered_errors = <span class="mod">Enum</span>.<span class="fn">filter</span>(cs.errors, <span class="kw">fn</span> {field, _} ->
+        <span class="fn">to_string</span>(field) == touched
+      <span class="kw">end</span>)
+      %{cs | <span class="atom">action:</span> <span class="atom">:validate</span>, <span class="atom">errors:</span> filtered_errors}
+    <span class="kw">end</span>)
+    |> <span class="fn">to_form</span>(<span class="atom">as:</span> <span class="atom">:user</span>)
+
+  {<span class="atom">:noreply</span>, <span class="fn">assign</span>(socket, <span class="atom">form:</span> form)}
+<span class="kw">end</span>
+
+<span class="kw">def</span> <span class="fn">handle_event</span>(<span class="str">"submit"</span>, %{<span class="str">"user"</span> => params}, socket) <span class="kw">do</span>
+  <span class="kw">case</span> <span class="fn">build_changeset</span>(params) <span class="kw">do</span>
+    %{<span class="atom">valid?:</span> <span class="atom">true</span>} = cs ->
+      user = <span class="mod">Ecto.Changeset</span>.<span class="fn">apply_changes</span>(cs)
+      {<span class="atom">:noreply</span>, <span class="fn">assign</span>(socket, <span class="atom">result:</span> user)}
+
+    cs ->
+      form = cs |> <span class="mod">Map</span>.<span class="fn">put</span>(<span class="atom">:action</span>, <span class="atom">:validate</span>) |> <span class="fn">to_form</span>(<span class="atom">as:</span> <span class="atom">:user</span>)
+      {<span class="atom">:noreply</span>, <span class="fn">assign</span>(socket, <span class="atom">form:</span> form)}
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+
+                <hr />
+
+                <h2>The Template</h2>
+
+                <pre><code><span class="lang-label">heex</span><span class="op">&lt;.</span>form <span class="atom">for=</span>{@form} <span class="atom">as=</span>{<span class="atom">:user</span>} <span class="atom">phx-change=</span><span class="str">"validate"</span> <span class="atom">phx-submit=</span><span class="str">"submit"</span><span class="op">&gt;</span>
+
+  <span class="op">&lt;.</span>input <span class="atom">field=</span>{@form[<span class="atom">:name</span>]}  <span class="atom">type=</span><span class="str">"text"</span>  <span class="atom">label=</span><span class="str">"Name"</span> <span class="op">/&gt;</span>
+  <span class="op">&lt;.</span>input <span class="atom">field=</span>{@form[<span class="atom">:email</span>]} <span class="atom">type=</span><span class="str">"email"</span> <span class="atom">label=</span><span class="str">"Email"</span> <span class="op">/&gt;</span>
+  <span class="op">&lt;.</span>input <span class="atom">field=</span>{@form[<span class="atom">:age</span>]}   <span class="atom">type=</span><span class="str">"text"</span>  <span class="atom">label=</span><span class="str">"Age"</span> <span class="op">/&gt;</span>
+  <span class="op">&lt;.</span>input <span class="atom">field=</span>{@form[<span class="atom">:role</span>]}  <span class="atom">type=</span><span class="str">"select"</span> <span class="atom">label=</span><span class="str">"Role"</span>
+    <span class="atom">options=</span>{[{<span class="str">"User"</span>, <span class="str">"user"</span>}, {<span class="str">"Admin"</span>, <span class="str">"admin"</span>}]} <span class="op">/&gt;</span>
+
+  <span class="op">&lt;</span>fieldset<span class="op">&gt;</span>
+    <span class="op">&lt;</span>legend<span class="op">&gt;</span>Address<span class="op">&lt;/</span>legend<span class="op">&gt;</span>
+    <span class="op">&lt;.</span>inputs_for <span class="atom">:let=</span>{addr} <span class="atom">field=</span>{@form[<span class="atom">:address</span>]}<span class="op">&gt;</span>
+      <span class="op">&lt;.</span>input <span class="atom">field=</span>{addr[<span class="atom">:street</span>]} <span class="atom">type=</span><span class="str">"text"</span> <span class="atom">label=</span><span class="str">"Street"</span> <span class="op">/&gt;</span>
+      <span class="op">&lt;.</span>input <span class="atom">field=</span>{addr[<span class="atom">:city</span>]}   <span class="atom">type=</span><span class="str">"text"</span> <span class="atom">label=</span><span class="str">"City"</span> <span class="op">/&gt;</span>
+      <span class="op">&lt;.</span>input <span class="atom">field=</span>{addr[<span class="atom">:zip</span>]}    <span class="atom">type=</span><span class="str">"text"</span> <span class="atom">label=</span><span class="str">"ZIP"</span> <span class="atom">maxlength=</span><span class="str">"5"</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;/.</span>inputs_for<span class="op">&gt;</span>
+  <span class="op">&lt;/</span>fieldset<span class="op">&gt;</span>
+
+  <span class="op">&lt;</span>button <span class="atom">type=</span><span class="str">"submit"</span><span class="op">&gt;</span>Save<span class="op">&lt;/</span>button<span class="op">&gt;</span>
+<span class="op">&lt;/.</span>form<span class="op">&gt;</span></code></pre>
+
+                <p>
+                    <code>inputs_for</code> renders the address sub-form because
+                    Gladius automatically registered <code>:address</code> as an
+                    Ecto embedded type (<code
+                        >{:embed, %Ecto.Embedded{cardinality: :one}}</code
+                    >). This is the piece that took the most work to get right —
+                    it just works now.
+                </p>
+
+                <hr />
+
+                <h2>The Five Things You Need to Know</h2>
+
+                <p>
+                    These are the gotchas we discovered during a real battle
+                    test. They're all documented in the library, but they're
+                    worth calling out explicitly.
+                </p>
+
+                <div class="gotcha">
+                    <div class="gotcha-num">1</div>
+                    <h3>Schemas must be functions, not module attributes.</h3>
+                    <pre><code><span class="lang-label">elixir</span><span class="cmt"># ✗ Raises ArgumentError at compile time:</span>
+<span class="sig">@schema</span> <span class="fn">schema</span>(%{<span class="fn">required</span>(<span class="atom">:name</span>) => <span class="fn">transform</span>(<span class="fn">string</span>(), <span class="op">&amp;</span><span class="mod">String</span>.trim/<span class="num">1</span>)})
+
+<span class="cmt"># ✓ This works:</span>
+<span class="kw">defp</span> <span class="fn">user_schema</span>, <span class="kw">do</span>: <span class="fn">schema</span>(%{<span class="fn">required</span>(<span class="atom">:name</span>) => <span class="fn">transform</span>(<span class="fn">string</span>(), <span class="op">&amp;</span><span class="mod">String</span>.trim/<span class="num">1</span>)})</code></pre>
+                    <p>
+                        Anonymous functions in coercions and transforms cannot
+                        be stored in module attributes. Elixir can't escape them
+                        at compile time.
+                    </p>
+                </div>
+
+                <div class="gotcha">
+                    <div class="gotcha-num">2</div>
+                    <h3><code>as:</code> is required on the form.</h3>
+                    <pre><code><span class="lang-label">heex</span><span class="cmt">&lt;%!-- ✗ Raises: cannot generate name for changeset not backed by a struct --%&gt;</span>
+<span class="op">&lt;.</span>form <span class="atom">for=</span>{@form} <span class="atom">phx-change=</span><span class="str">"validate"</span><span class="op">&gt;</span>
+
+<span class="cmt">&lt;%!-- ✓ This works: --%&gt;</span>
+<span class="op">&lt;.</span>form <span class="atom">for=</span>{@form} <span class="atom">as=</span>{<span class="atom">:user</span>} <span class="atom">phx-change=</span><span class="str">"validate"</span><span class="op">&gt;</span></code></pre>
+                    <p>
+                        Schemaless Ecto changesets have no struct module to
+                        derive a form name from. Phoenix needs you to supply it.
+                    </p>
+                </div>
+
+                <div class="gotcha">
+                    <div class="gotcha-num">3</div>
+                    <h3>
+                        Store <code>to_form(changeset, as: :user)</code> in
+                        assigns, not the raw changeset.
+                    </h3>
+                    <p>
+                        Phoenix's <code>input/1</code> component expects a
+                        <code>%Phoenix.HTML.Form{}</code>, not an
+                        <code>%Ecto.Changeset{}</code>. Convert with
+                        <code>to_form/2</code> before assigning.
+                    </p>
+                </div>
+
+                <div class="gotcha">
+                    <div class="gotcha-num">4</div>
+                    <h3>
+                        Filter errors by <code>_target</code> during
+                        <code>phx-change</code>.
+                    </h3>
+                    <p>
+                        Phoenix sends the field name that triggered the event in
+                        <code>_target</code>. Use it to only show errors for
+                        fields the user has actually interacted with. Showing
+                        all errors immediately creates a hostile form
+                        experience.
+                    </p>
+                </div>
+
+                <div class="gotcha">
+                    <div class="gotcha-num">5</div>
+                    <h3>
+                        <code>Gladius.Ecto</code> strips Phoenix's internal
+                        params automatically.
+                    </h3>
+                    <p>
+                        LiveView injects <code>_unused_*</code> and
+                        <code>_persistent_id</code> keys into form params. These
+                        used to cause a <code>CastError</code> from mixed
+                        atom/string key maps. Gladius strips them automatically
+                        — no <code>clean_params</code> helper needed.
+                    </p>
+                </div>
+
+                <hr />
+
+                <h2>The Create / Update / Patch Pattern</h2>
+
+                <p>
+                    One of Gladius's strongest features is schema derivation.
+                    Define a base schema once and derive all variants:
+                </p>
+
+                <pre><code><span class="lang-label">elixir</span><span class="kw">defp</span> <span class="fn">base_schema</span> <span class="kw">do</span>
+  <span class="fn">schema</span>([
+    {<span class="fn">required</span>(<span class="atom">:name</span>),  <span class="fn">string</span>(<span class="atom">:filled?</span>)},
+    {<span class="fn">required</span>(<span class="atom">:email</span>), <span class="fn">string</span>(<span class="atom">:filled?</span>, <span class="atom">format:</span> <span class="sig">~r/@/</span>)},
+    {<span class="fn">required</span>(<span class="atom">:age</span>),   <span class="fn">coerce</span>(<span class="fn">integer</span>(<span class="atom">gte?:</span> <span class="num">0</span>), <span class="atom">from:</span> <span class="atom">:string</span>)}
+  ])
+<span class="kw">end</span>
+
+<span class="kw">defp</span> <span class="fn">create_schema</span> <span class="kw">do</span>
+  <span class="fn">extend</span>(<span class="fn">base_schema</span>(), [{<span class="fn">required</span>(<span class="atom">:password</span>), <span class="fn">string</span>(<span class="atom">min_length:</span> <span class="num">12</span>)}])
+<span class="kw">end</span>
+
+<span class="kw">defp</span> <span class="fn">update_schema</span> <span class="kw">do</span>
+  <span class="fn">extend</span>(<span class="fn">base_schema</span>(), [{<span class="fn">optional</span>(<span class="atom">:role</span>), <span class="fn">atom</span>(<span class="atom">in?:</span> [<span class="atom">:admin</span>, <span class="atom">:user</span>])}])
+<span class="kw">end</span>
+
+<span class="kw">defp</span> <span class="fn">patch_schema</span> <span class="kw">do</span>
+  <span class="fn">selection</span>(<span class="fn">update_schema</span>(), [<span class="atom">:name</span>, <span class="atom">:email</span>, <span class="atom">:age</span>, <span class="atom">:role</span>])
+<span class="kw">end</span></code></pre>
+
+                <p>
+                    <code>extend/2</code> takes a base schema and a list of
+                    additional or overriding keys.
+                    <code>selection/2</code> takes a schema and a list of field
+                    names, returning a new schema with only those fields, all
+                    made optional.
+                </p>
+
+                <p>
+                    <code>patch_schema</code> conforms to PATCH semantics: any
+                    subset of fields is valid (none are required), and only the
+                    declared fields are accepted (no mass-assignment). A change
+                    to <code>base_schema</code> propagates automatically to all
+                    three variants.
+                </p>
+
+                <hr />
+
+                <h2>Error Traversal for Nested Forms</h2>
+
+                <p>
+                    After submission, you can collect nested errors for display
+                    or logging:
+                </p>
+
+                <pre><code><span class="lang-label">elixir</span><span class="mod">Gladius.Ecto</span>.<span class="fn">traverse_errors</span>(changeset, <span class="kw">fn</span> {msg, _opts} -> msg <span class="kw">end</span>)
+<span class="cmt">#=> %{
+#=>   name:    ["can't be blank"],
+#=>   address: %{zip: ["must be exactly 5 digits"]}
+#=> }</span></code></pre>
+
+                <div class="callout">
+                    <p>
+                        <strong
+                            >Use
+                            <code>Gladius.Ecto.traverse_errors/2</code></strong
+                        >, not Ecto's built-in
+                        <code>Ecto.Changeset.traverse_errors/2</code>. Ecto's
+                        version only recurses into declared embed/assoc fields
+                        backed by schema modules. Gladius's version handles the
+                        schemaless nested changesets that
+                        <code>Gladius.Ecto</code> produces.
+                    </p>
+                </div>
+
+                <hr />
+
+                <h2>JSON Schema Export</h2>
+
+                <p>
+                    Because Gladius schemas are composable data, you can export
+                    them as JSON Schema for API documentation:
+                </p>
+
+                <pre><code><span class="lang-label">elixir</span><span class="mod">Gladius.Schema</span>.<span class="fn">to_json_schema</span>(<span class="fn">user_schema</span>(), <span class="atom">title:</span> <span class="str">"User"</span>)
+|> <span class="mod">Jason</span>.<span class="fn">encode!</span>(<span class="atom">pretty:</span> <span class="atom">true</span>)</code></pre>
+
+                <p>
+                    The output is a valid JSON Schema draft 2020-12 document.
+                    Use it to generate OpenAPI specs, validate request bodies in
+                    API tests, or power a documentation UI. The same schema that
+                    drives your LiveView form drives your API docs.
+                </p>
+
+                <hr />
+
+                <h2>What's Next</h2>
+
+                <p>
+                    Gladius is available on
+                    <a href="https://hex.pm/packages/gladius">Hex.pm</a>. The
+                    source is at
+                    <a href="https://github.com/Xs-and-10s/gladius"
+                        >github.com/Xs-and-10s/gladius</a
+                    >.
+                </p>
+
+                <p>
+                    The library currently covers composable spec algebra with
+                    coercions, transforms, defaults, and cross-field validation;
+                    schema extension and partial schemas; Phoenix LiveView
+                    integration with nested embeds and
+                    <code>inputs_for</code> support; JSON Schema export;
+                    StreamData generator inference for property-based testing;
+                    function signature validation (dev/test only, zero prod
+                    overhead); and a typespec bridge for
+                    <code>@type</code> generation.
+                </p>
+
+                <p>
+                    If you try it and hit something unexpected, open an issue.
+                    The battle test described in this post already found and
+                    fixed several integration issues — real usage finds things
+                    tests don't.
+                </p>
+            </div>
+
+            <footer class="article-footer">
+                <div class="hero-meta">
+                    <span>slug: 4-building-liveview-forms-w-gladius</span>
+                </div>
+            </footer>
+        </article>
+    </body>
+</html>

@@ -1,0 +1,9 @@
+Review the PR at %pr_url for security issues.
+Have @security_scan and @logic_review run in parallel,
+then @synthesize combines their output.
+
+Validate all findings against ^findings_list.
+Redact #env_vars and #api_keys before sending to the LLM.
+Cap the run at $0.50 and 120s.
+
+/dry-run this first so I can see the cost estimate.

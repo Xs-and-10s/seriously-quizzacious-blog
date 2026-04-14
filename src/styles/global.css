@@ -1,0 +1,25 @@
+/* src/styles/global.css */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    line-height: 1.6;
+    color: var(--ds-text, #1a1a1a);
+    background: var(--ds-surface, #ffffff);
+}
+
+img,
+video {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: inherit;
+}

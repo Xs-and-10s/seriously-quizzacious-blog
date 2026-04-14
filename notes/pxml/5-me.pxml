@@ -1,0 +1,119 @@
+<pxml %ns = PXML:org:pxml:brain-trust.
+  %version = 0.1.0.
+  %context = codex.pxml.org
+
+  ~~ shared state: typed via Gladius spec refs ~~
+  <state
+    %pr_diff   : ^diff_schema.
+    %findings  : ^findings_list.
+    %review    : ^review_output.
+  state>
+
+  <pre
+    <agent
+      %name = fetch_context.
+      %model = claude-sonnet.
+      <drop-tool %name = github:*. drop-tool>
+      <pick-tool %name = github:get_pr_diff. pick-tool>
+      <pick-tool %name = github:get_repo_conventions. pick-tool>
+      <intercept
+        %validate = ^diff_schema.
+        %timeout = 10s.
+        %tool-order = [github:get_repo_conventions, github:get_pr_diff].
+      intercept>
+    agent>
+  pre>
+
+  <exec
+    <plan %orchestration = parallel.
+
+      <agent
+        %name = security_scan.
+        %model = claude-opus.
+        <intercept
+          %validate_out = ^findings_list.
+          %retry = 3.
+          %structured_output = json.
+          %output_schema = json_schema.
+          %guard = block_if_hallucinated_cve.
+        intercept>
+        <prompt=
+          Review this diff for security vulnerabilities.
+          Focus on: injection, auth bypass, secret leakage.
+          Cite exact line numbers from %pr_diff.
+        =prompt>
+      agent>
+
+      <agent
+        %name = style_check.
+        %model = claude-haiku.
+        <intercept
+          %validate_out = ^findings_list.
+          %fallback_model = claude-sonnet.
+          %cache = 1h.
+        intercept>
+      agent>
+
+      <agent %name = logic_review.
+        %model = claude-opus.
+        <intercept
+          %validate_out = ^findings_list.
+          %retry = 2.
+          %redact = [#env_vars, #api_keys].
+        intercept>
+      agent>
+
+    plan>
+
+    <agent %name = synthesize.
+      %model = claude-sonnet.
+      %depends_on = [@security_scan, @style_check, @logic_review].
+      <intercept
+        %validate_in = ^findings_list.
+        %validate_out = ^review_output.
+        %structured_output = json.
+        %output_schema = json_schema.
+        %tool-order = [%validate-in | %structured_output | %output_schema | %validate-out].
+      intercept>
+      <prompt=
+        Synthesize findings from all three reviewers.
+        Deduplicate, rank by severity, produce a single review.
+        Keep the tone constructive — this ships to a human.
+      =prompt>
+    agent>
+  exec>
+
+  <post
+    <agent %name = publish.
+      <pick-tool
+          %name = hook:on-enter:lint.
+          %on-failure : [halt, warn, skip, fallback] = halt.
+      pick-tool>
+      <pick-tool
+          %name = hook:on-enter:typecheck.
+          %on-failure : [halt, warn, skip, fallback] = halt.
+      pick-tool>
+      <pick-tool %name = github:post_review. pick-tool>
+      <pick-tool %name = slack:notify_channel. pick-tool>
+      <intercept
+        %audit_log = true.
+        %rate_limit = 1/min.
+        tool-order = [
+          hook:on-enter:lint,
+          hook:on-enter:typecheck,
+          hook:on-exit:typecheck,
+          hook:on-exit:lint.
+        ].
+      intercept>
+      <drop-tool %name = hook:on-exit:typecheck. drop-tool>
+      <drop-tool %name = hook:on-exit:lint. drop-tool>
+    agent>
+  post>
+
+  ~~ plugins: ephemeral, scoped to this run ~~
+  <with
+    <plugin %name = debug_trace. plugin>
+    <plugin %name = timeout_budget. %max = 120s. plugin>
+    <plugin %name = cost_ceiling. %max = $0.50. plugin>
+  with>
+pxml>
